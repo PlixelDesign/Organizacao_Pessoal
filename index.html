@@ -1,0 +1,2522 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tarefas (Local)</title>
+<style>
+  :root{
+    --bg:#0d0d12;
+    --fg:#ececf1;
+    --muted:#a2a2bb;
+    --card:#15151d;
+    --panel:#181827;
+    --panel-hover:#1f1f30;
+    --panel-border:#25253a;
+    --accent-soft:rgba(102,217,239,0.14);
+    --accent:#66d9ef;
+    --ok:#33d17a;
+    --warn:#f6d32d;
+    --danger:#ff5f56;
+    --shadow:rgba(0,0,0,0.35);
+    --base-font:12px;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--fg);
+    font:var(--base-font)/1.5 "Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:64px;
+  }
+  header{
+    display:flex;
+    gap:12px;
+    align-items:center;
+    padding:18px 32px;
+    border-bottom:1px solid #1f1f28;
+    position:sticky;
+    top:0;
+    background:rgba(15,15,22,0.95);
+    backdrop-filter:blur(18px);
+    z-index:10;
+  }
+  header h1{font-size:18px;margin:0;font-weight:600;letter-spacing:0.4px}
+  nav{display:flex;gap:10px;flex-wrap:wrap}
+  nav button{
+    background:rgba(30,32,48,0.65);
+    color:var(--fg);
+    border:1px solid rgba(255,255,255,0.06);
+    padding:8px 14px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:all .2s ease;
+    font-weight:500;
+    letter-spacing:0.3px;
+    backdrop-filter:blur(8px);
+  }
+  nav button:hover{
+    border-color:rgba(102,217,239,0.35);
+    background:rgba(36,40,62,0.8);
+    color:var(--accent);
+  }
+  nav button.active{
+    border-color:var(--accent);
+    color:var(--accent);
+    background:rgba(102,217,239,0.14);
+    box-shadow:0 0 0 1px var(--accent-soft),0 12px 24px -18px rgba(102,217,239,0.6);
+  }
+  main{
+    padding:24px 32px 32px;
+    margin:0 auto;
+    width:100%;
+    max-width:min(100%, 1680px);
+    display:flex;
+    flex-direction:column;
+    gap:20px;
+  }
+  .layout-stack{display:flex;flex-direction:column;gap:20px}
+  .card.table-mode{padding:0;border:none;background:transparent;box-shadow:none;}
+  .table-surface{
+    display:flex;
+    flex-direction:column;
+    min-height:60vh;
+    width:100%;
+    background:linear-gradient(180deg, rgba(32,32,48,0.96) 0%, rgba(16,16,28,0.98) 100%);
+    border:1px solid var(--panel-border);
+    border-radius:16px;
+    box-shadow:0 26px 54px -32px var(--shadow);
+    overflow:hidden;
+    backdrop-filter:blur(18px);
+  }
+  .table-surface .table-toolbar{
+    padding:14px 20px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:rgba(12,16,28,0.75);
+    backdrop-filter:blur(12px);
+    color:var(--fg);
+  }
+  .table-surface .table-footer{
+    padding:12px 20px;
+    border-top:1px solid rgba(255,255,255,0.05);
+    display:flex;
+    justify-content:space-between;
+    font-size:11px;
+    color:var(--muted);
+    background:rgba(10,12,20,0.7);
+  }
+  .table-wrapper{flex:1;display:flex;flex-direction:column;}
+  .table-scroll{
+    flex:1;
+    overflow:auto;
+    border-top:1px solid rgba(255,255,255,0.05);
+    padding:0 16px 16px;
+    background:linear-gradient(180deg, rgba(14,14,24,0.35) 0%, rgba(12,12,22,0) 65%);
+  }
+  .table-scroll::-webkit-scrollbar{height:12px;width:10px}
+  .table-scroll::-webkit-scrollbar-thumb{
+    background:rgba(102,217,239,0.28);
+    border-radius:999px;
+  }
+  .table-scroll::-webkit-scrollbar-thumb:hover{
+    background:rgba(102,217,239,0.4);
+  }
+  .table-scroll::-webkit-scrollbar-track{
+    background:rgba(10,12,20,0.65);
+  }
+
+  .h-scroll-proxy{
+    position:fixed;
+    bottom:16px;
+    left:50%;
+    transform:translateX(-50%);
+    height:14px;
+    background:rgba(12,16,28,0.92);
+    border:1px solid var(--panel-border);
+    border-radius:999px;
+    display:none;
+    z-index:9;
+    overflow-x:auto;
+    overflow-y:hidden;
+    width:auto;
+    min-width:280px;
+    box-shadow:0 16px 32px -26px var(--shadow);
+    transition:opacity .18s ease,box-shadow .18s ease;
+  }
+  .h-scroll-proxy.active{display:block;}
+  .h-scroll-proxy > div{height:1px;}
+.card{
+    background:var(--card);
+    border:1px solid var(--panel-border);
+    border-radius:12px;
+    padding:10px;
+    box-shadow:0 14px 28px -24px var(--shadow);
+  }
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .table-input{width:100%;display:block;box-sizing:border-box;}
+  .date-stack input{width:100%;box-sizing:border-box;}
+
+  input,select,textarea{
+    background:rgba(16,18,30,0.88);
+    color:var(--fg);
+    border:1px solid rgba(255,255,255,0.05);
+    border-radius:8px;
+    padding:7px 10px;
+    font:inherit;
+    transition:all .15s ease,box-shadow .15s ease;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,0.02),0 6px 14px -12px rgba(0,0,0,0.95);
+  }
+  input:focus,select:focus,textarea:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent),0 0 0 6px rgba(102,217,239,0.12);
+  }
+  select{
+    appearance:none;
+    padding-right:28px;
+    background-image:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0)),url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="%239595af" stroke-width="1.5" viewBox="0 0 12 8"><path d="M1 1.5 6 6.5 11 1.5"/></svg>');
+    background-repeat:no-repeat;
+    background-position:right 8px center;
+    background-size:18px;
+  }
+  textarea{min-height:48px;resize:vertical}
+  .btn{
+    background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0));
+    border:1px solid #34344a;
+    border-radius:9px;
+    padding:7px 11px;
+    color:var(--fg);
+    cursor:pointer;
+    transition:all .2s ease;
+    font-size:12px;
+    font-weight:500;
+  }
+  .btn:hover{border-color:#3f3f54;background:#242433}
+  .status-msg{font-size:11px;color:var(--muted);}
+  .status-msg.error{color:#ff8a8a;}
+  .status-msg.success{color:var(--accent);}
+  .btn.primary{
+    border-color:var(--accent);
+    color:#05202a;
+    background:linear-gradient(135deg, rgba(102,217,239,0.35), rgba(102,217,239,0.18));
+    box-shadow:0 10px 24px -18px rgba(102,217,239,0.75);
+  }
+  .btn.primary:hover{
+    background:linear-gradient(135deg, rgba(102,217,239,0.45), rgba(102,217,239,0.24));
+    color:#02151b;
+  }
+  .btn.ok{border-color:var(--ok);color:var(--ok)}
+  .btn.warn{border-color:var(--warn);color:var(--warn)}
+  .btn.danger{border-color:var(--danger);color:var(--danger)}
+  .btn.tiny{padding:4px 8px;border-radius:6px;font-size:11px}
+  .btn.icon{padding:4px 6px;border-radius:6px;background:transparent;border:1px solid transparent;color:var(--muted)}
+  .btn.icon:hover{border-color:#333;color:var(--fg);background:#1f1f28}
+  table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;table-layout:fixed}
+  th,td{
+    padding:10px 12px;
+    border-bottom:1px solid rgba(255,255,255,0.05);
+    vertical-align:top;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+    line-height:1.4;
+  }
+  tbody tr.empty-row td{padding:18px;text-align:center;color:var(--muted);white-space:normal;background:rgba(0,0,0,0.12);}
+  th{
+    color:#d8d8f2;
+    text-align:left;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    background:linear-gradient(180deg, rgba(36,36,56,0.96) 0%, rgba(18,18,30,0.92) 100%);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  th[data-col="notes"], td[data-col="notes"]{white-space:normal}
+  td textarea{width:100%;box-sizing:border-box;min-height:36px;font-size:11px;line-height:1.35;background:#0f0f19}
+  thead{position:sticky;top:0;z-index:5}
+  td:first-child{border-left:1px solid rgba(255,255,255,0.04);border-top-left-radius:12px;border-bottom-left-radius:12px;}
+  td:last-child{border-right:1px solid rgba(255,255,255,0.04);border-top-right-radius:12px;border-bottom-right-radius:12px;}
+  tbody tr{background:rgba(18,20,32,0.58);transition:background .18s ease,box-shadow .18s ease;}
+  tbody tr:nth-child(even){background:rgba(16,18,30,0.52);}
+  tbody tr:hover{
+    background:rgba(102,217,239,0.18);
+    box-shadow:inset 0 0 0 1px rgba(102,217,239,0.22);
+  }
+  .muted{color:var(--muted)}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;border:1px solid #333}
+  .pill.status-afazer{border-color:#666}
+  .pill.status-emprogresso{border-color:var(--accent);color:var(--accent)}
+  .pill.status-bloqueada{border-color:var(--danger);color:var(--danger)}
+  .pill.status-reagendar{border-color:var(--warn);color:var(--warn)}
+  .pill.status-cancelado{border-color:var(--danger);color:var(--danger)}
+  .pill.status-concluido{border-color:var(--ok);color:var(--ok)}
+  .kanban{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .col h3{margin:6px 0 10px 0;font-size:14px;color:#bbb}
+  .task{border:1px solid #2a2a2a;border-radius:10px;padding:10px;margin-bottom:10px;background:#151515}
+  .task .t{font-weight:600}
+  .task .meta{font-size:12px;color:#bbb;margin-top:4px}
+  .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .date-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;width:100%}
+  .date-stack{display:grid;grid-template-columns:1fr;gap:6px}
+  .date-stack input{width:100%}
+  .divider{height:1px;background:#202031;margin:8px 0}
+  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
+  .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+  .filter-grid input,.filter-grid select{width:100%}
+  .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+  .filter-actions .muted{margin-right:4px}
+  .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
+  .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+  .filter-flags input{margin-right:4px}
+  .section-title{margin:6px 0 4px;color:#bbb;font-weight:500}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--muted)}
+  .small{font-size:11px}
+  .card.collapsible{
+    padding:0;
+    background:var(--panel);
+    border-radius:14px;
+    border:1px solid var(--panel-border);
+    overflow:hidden;
+    box-shadow:0 18px 36px -30px var(--shadow);
+  }
+  .collapsible-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    padding:14px 16px;
+    background:linear-gradient(135deg, rgba(35,35,55,0.85), rgba(22,22,34,0.85));
+    cursor:pointer;
+    user-select:none;
+    transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+  }
+  .collapsible-header:hover{
+    background:linear-gradient(135deg, rgba(42,42,66,0.9), rgba(26,26,40,0.9));
+  }
+  .collapsible.open .collapsible-header{
+    border-bottom-color:rgba(102,217,239,0.28);
+    box-shadow:inset 0 -1px 0 rgba(102,217,239,0.22);
+  }
+  .collapsible-header h3{
+    margin:0;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:0.02em;
+    color:#f2f2f7;
+  }
+  .collapsible-header .header-actions{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    flex-wrap:nowrap;
+  }
+  .collapsible-header .header-actions .btn{
+    padding:5px 11px;
+    font-size:11px;
+    border-color:rgba(102,217,239,0.22);
+    background:rgba(102,217,239,0.08);
+    color:var(--fg);
+    box-shadow:none;
+    border-radius:999px;
+  }
+  .collapsible-header .header-actions .btn:hover{
+    border-color:var(--accent);
+    color:var(--accent);
+    box-shadow:0 0 0 1px var(--accent-soft);
+  }
+  .collapsible-header .chevron{
+    width:22px;
+    height:22px;
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:rgba(255,255,255,0.04);
+    color:var(--muted);
+    font-size:12px;
+    transition:background .2s ease,color .2s ease,box-shadow .2s ease;
+  }
+  .collapsible.open .collapsible-header .chevron{
+    background:var(--accent-soft);
+    color:var(--accent);
+  }
+  .collapsible-header:hover .chevron{
+    color:var(--fg);
+  }
+  .collapsible-body{
+    max-height:0;
+    overflow:hidden;
+    padding:0 16px;
+    background:linear-gradient(180deg, rgba(20,20,32,0.92) 0%, rgba(12,12,22,0.92) 100%);
+    border-top:1px solid rgba(255,255,255,0.04);
+    transition:max-height .25s ease,padding .25s ease,opacity .2s ease;
+    opacity:0;
+  }
+  .collapsible.open .collapsible-body{
+    opacity:1;
+  }
+  .emoji-select{width:56px;text-align:center;font-size:16px}
+  .emoji-select option{font-size:16px}
+  .table-wrapper{display:flex;flex-direction:column;gap:6px}
+  .row-hover-tools{
+    position:absolute;
+    left:-58px;
+    top:50%;
+    transform:translateY(-50%);
+    display:flex;
+    gap:6px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .15s ease;
+  }
+  tr:hover .row-hover-tools{opacity:1;pointer-events:auto}
+  .row-hover-tools button{
+    width:26px;
+    height:26px;
+    border-radius:8px;
+    border:1px solid rgba(102,217,239,0.18);
+    background:rgba(26,30,44,0.92);
+    color:#b1b1cc;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:all .15s ease;
+    box-shadow:0 6px 12px -10px rgba(0,0,0,0.6);
+  }
+  .row-hover-tools button:hover{
+    color:var(--accent);
+    border-color:var(--accent);
+    background:rgba(18,22,36,0.95);
+  }
+  th[data-col="actions"] .resizer{display:none}
+  .row-select-checkbox{
+    width:18px;height:18px;border-radius:5px;border:1px solid #3a3a46;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;
+  }
+  .row-select-checkbox.checked{background:var(--accent);color:#0b1720;border-color:var(--accent)}
+  .row-select-checkbox span{display:none}
+  .row-select-checkbox.checked span{display:inline}
+  .selection-active tbody tr.selected{background:rgba(102,217,239,0.15)}
+  th .resizer{
+    position:absolute;
+    right:0;
+    top:0;
+    width:6px;
+    height:100%;
+    cursor:col-resize;
+    user-select:none;
+  }
+  body.dragging-col{cursor:col-resize;user-select:none}
+    @media (max-width:900px){
+    header{flex-direction:column;align-items:flex-start}
+    .row-hover-tools{display:none}
+  }
+  @media (max-width:600px){
+    main{width:100%;padding:10px}
+    .table-surface{border-radius:10px;min-height:420px}
+  }
+  @media (max-width:500px){
+    .h-scroll-proxy{left:0;transform:none;width:100vw;margin:0;border-radius:0;}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tarefas (Local)</h1>
+  <nav id="tabs">
+    <button data-tab="all" class="active">Todas</button>
+    <button data-tab="kanban">Kanban (semana)</button>
+    <button data-tab="day">Por dia</button>
+    <button data-tab="rec">Recorrentes</button>
+  </nav>
+</header>
+<main>
+  <div class="layout-stack">
+    <section class="card collapsible" id="controlCard" data-collapsible="controls">
+      <div class="collapsible-header" role="button" tabindex="0" aria-expanded="false">
+        <h3>Nova tarefa &amp; importação</h3>
+        <div class="row header-actions">
+          <button class="btn tiny" type="button" data-role="collapse-toggle" data-collapsible-target="controlCard">Expandir</button>
+          <span class="chevron" aria-hidden="true">&#9654;</span>
+        </div>
+      </div>
+      <div class="collapsible-body" id="controlCard-body" aria-hidden="true">
+        <div class="stack">
+          <div>
+            <h3 class="section-title">Nova tarefa</h3>
+            <div class="stack">
+              <div class="row">
+                <select id="emoji" class="emoji-select"></select>
+                <input id="title" placeholder="Tarefa" style="flex:1"/>
+              </div>
+              <div class="row date-row">
+                <input id="dueDate" type="date" aria-label="Data da tarefa" />
+                <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
+                <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
+              </div>
+              <select id="status" class="colorful" data-color="status">
+                <option value="A fazer" selected>A fazer</option>
+                <option value="Em progresso">Em progresso</option>
+                <option value="Bloqueada">Bloqueada</option>
+                <option value="Reagendar">Reagendar</option>
+                <option value="Cancelado">Cancelado</option>
+                <option value="Concluído">Concluído</option>
+              </select>
+              <select id="resp" class="colorful" data-color="responsible">
+                <option value="" selected>Responsável</option>
+                <option value="Daniel">Daniel</option>
+                <option value="Maysa">Maysa</option>
+                <option value="Daniel e Maysa">Daniel e Maysa</option>
+              </select>
+              <select id="prio" class="colorful" data-color="priority">
+                <option value="">Prioridade</option>
+                <option value="Baixa">Baixa</option>
+                <option value="Média" selected>Média</option>
+                <option value="Alta">Alta</option>
+                <option value="Altíssima">Altíssima</option>
+              </select>
+              <select id="dur" class="colorful" data-color="duration">
+                <option value="">Tempo para conclusão</option>
+                <option value="Rápido">Rápido</option>
+                <option value="Médio" selected>Médio</option>
+                <option value="Demorado">Demorado</option>
+              </select>
+              <select id="area" class="colorful" data-color="area">
+                <option value="">Área</option>
+                <option value="Plixel">Plixel</option>
+                <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
+                <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
+                <option value="Saúde">Saúde</option>
+                <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
+                <option value="Finanças">Finanças</option>
+                <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
+                <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
+              </select>
+              <select id="subarea" class="colorful" data-color="subarea">
+                <option value="">Subárea</option>
+                <option value="Vendas e Prospecção">Vendas e Prospecção</option>
+                <option value="Criação e Produção">Criação e Produção</option>
+                <option value="Gestão e Organização">Gestão e Organização</option>
+                <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
+                <option value="Clientes e Entregas">Clientes e Entregas</option>
+                <option value="Devocional e Oração">Devocional e Oração</option>
+                <option value="EBD / Ensino">EBD / Ensino</option>
+                <option value="Louvor">Louvor</option>
+                <option value="Obras">Obras</option>
+                <option value="Eventos">Eventos</option>
+                <option value="Tempo a dois">Tempo a dois</option>
+                <option value="Família estendida">Família estendida</option>
+                <option value="Comunicação e conexão">Comunicação e conexão</option>
+                <option value="Amigos">Amigos</option>
+                <option value="Treino físico">Treino físico</option>
+                <option value="Alimentação">Alimentação</option>
+                <option value="Sono e descanso">Sono e descanso</option>
+                <option value="Saúde mental">Saúde mental</option>
+                <option value="Limpeza e ordem">Limpeza e ordem</option>
+                <option value="Compras e suprimentos">Compras e suprimentos</option>
+                <option value="Organização pessoal">Organização pessoal</option>
+                <option value="Financeiro pessoal">Financeiro pessoal</option>
+                <option value="Financeiro Plixel">Financeiro Plixel</option>
+                <option value="Gestão e orçamento">Gestão e orçamento</option>
+                <option value="Design e marketing">Design e marketing</option>
+                <option value="Vendas e gestão">Vendas e gestão</option>
+                <option value="Idiomas / Inglês">Idiomas / Inglês</option>
+                <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
+                <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
+                <option value="Revisão e análise">Revisão e análise</option>
+                <option value="Metas e visão">Metas e visão</option>
+                <option value="Sistema de produtividade">Sistema de produtividade</option>
+              </select>
+              <textarea id="notes" rows="2" placeholder="Notas"></textarea>
+              <div class="row">
+                <button class="btn primary" id="addTask">Adicionar</button>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div>
+            <h3 class="section-title">Importar/Exportar</h3>
+            <div class="stack">
+              <button class="btn" id="importBtn">Importar JSON</button>
+              <input type="file" id="importFile" accept=".json" style="display:none" />
+              <button class="btn" id="exportBtn">Exportar JSON</button>
+              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+              <div id="importDirInfo" class="status-msg"></div>
+              <div id="importStatus" class="status-msg"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="collapsible" id="filterCard" data-collapsible="filters">
+      <div class="collapsible-header" role="button" tabindex="0" aria-expanded="false">
+        <h3>Filtros</h3>
+        <div class="row header-actions">
+          <button class="btn tiny" type="button" data-role="collapse-toggle" data-collapsible-target="filterCard" data-collapse-label-open="Mostrar" data-collapse-label-close="Ocultar">Mostrar</button>
+          <span class="chevron" aria-hidden="true">&#9654;</span>
+        </div>
+      </div>
+      <div class="collapsible-body" id="filterCard-body" aria-hidden="true">
+        <div id="filterContainer"></div>
+      </div>
+    </section>
+
+    <section id="view" class="card"></section>
+  </div>
+</main>
+<div id="tableScrollProxy" class="h-scroll-proxy"><div></div></div>
+<script>
+const LS_KEY = "tarefas_local_v1";
+const LS_REC_KEY = "tarefas_rec_v1";
+const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
+const RESPONSIBLES = ["Daniel","Maysa","Daniel e Maysa"];
+const PRIORITIES = ["Baixa","Média","Alta","Altíssima"];
+const DURATIONS = ["Rápido","Médio","Demorado"];
+const AREAS = [
+  "Plixel",
+  "Igreja / Espiritualidade",
+  "Família & Relacionamento",
+  "Saúde",
+  "Casa & Rotina",
+  "Finanças",
+  "Estudo & Desenvolvimento",
+  "Planejamento & Estratégia"
+];
+const SUBAREAS = [
+  "Vendas e Prospecção",
+  "Criação e Produção",
+  "Gestão e Organização",
+  "Conteúdo e Marketing",
+  "Clientes e Entregas",
+  "Devocional e Oração",
+  "EBD / Ensino",
+  "Louvor",
+  "Obras",
+  "Eventos",
+  "Tempo a dois",
+  "Família estendida",
+  "Comunicação e conexão",
+  "Amigos",
+  "Treino físico",
+  "Alimentação",
+  "Sono e descanso",
+  "Saúde mental",
+  "Limpeza e ordem",
+  "Compras e suprimentos",
+  "Organização pessoal",
+  "Financeiro pessoal",
+  "Financeiro Plixel",
+  "Gestão e orçamento",
+  "Design e marketing",
+  "Vendas e gestão",
+  "Idiomas / Inglês",
+  "Desenvolvimento pessoal",
+  "Planejamento semanal / diário",
+  "Revisão e análise",
+  "Metas e visão",
+  "Sistema de produtividade"
+];
+
+const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
+const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
+const COLUMN_LABELS = {
+  emoji:'Emoji',
+  title:'Tarefa',
+  date:'Data / horários',
+  status:'Status',
+  responsible:'Responsável',
+  priority:'Prioridade',
+  duration:'Tempo',
+  area:'Área',
+  subarea:'Subárea',
+  notes:'Notas',
+  week:'Nº Semana',
+  actions:'Ações'
+};
+const COLUMN_DEFAULT_WIDTHS = {
+  emoji:68,
+  title:230,
+  date:260,
+  status:150,
+  responsible:140,
+  priority:130,
+  duration:120,
+  area:150,
+  subarea:170,
+  notes:240,
+  week:90,
+  actions:170
+};
+const COLUMN_WIDTH_KEY = 'tarefas_col_widths_v1';
+const AUTO_EXPAND_COLUMNS = ["title","notes","area","subarea","date","responsible","priority"];
+const IMPORT_DIR_DB = "tarefas_import_fs";
+const IMPORT_DIR_STORE = "handles";
+const IMPORT_DIR_KEY = "importDir";
+let importDirHandle = null;
+(function setupGlobalErrorHandlers(){
+  const showError = message=>{
+    const status = document.getElementById("importStatus");
+    if(!status) return;
+    status.textContent = message;
+    status.classList.remove("muted");
+    status.classList.add("error");
+  };
+  window.addEventListener("error", event=>{
+    const msg = event && event.message ? event.message : "Erro inesperado";
+    showError(`Erro: ${msg}`);
+  });
+  window.addEventListener("unhandledrejection", event=>{
+    const reason = event && event.reason ? event.reason : "";
+    const msg = typeof reason === "string" ? reason : (reason && reason.message) || "Erro inesperado";
+    showError(`Erro: ${msg}`);
+  });
+})();
+
+const COLOR_PALETTES = {
+  status: {
+    "A fazer": ["#4b5563", "#f9fafb"],
+    "Em progresso": ["#2563eb", "#f8fafc"],
+    "Bloqueada": ["#dc2626", "#ffffff"],
+    "Reagendar": ["#f59e0b", "#111827"],
+    "Cancelado": ["#6b7280", "#f9fafb"],
+    "Conclu\u00eddo": ["#22c55e", "#052e16"]
+  },
+  priority: {
+    "Baixa": ["#38bdf8", "#0f172a"],
+    "M\u00e9dia": ["#10b981", "#022c22"],
+    "Alta": ["#f97316", "#111111"],
+    "Alt\u00edssima": ["#ec4899", "#ffffff"]
+  },
+  duration: {
+    "R\u00e1pido": ["#4ade80", "#064e3b"],
+    "M\u00e9dio": ["#818cf8", "#1e1b4b"],
+    "Demorado": ["#c084fc", "#33124d"]
+  },
+  responsible: {
+    "Daniel": ["#f97316", "#111111"],
+    "Maysa": ["#a855f7", "#ffffff"],
+    "Daniel e Maysa": ["#6366f1", "#f8fafc"]
+  },
+  area: {
+    "Plixel": ["#4f46e5", "#f9fafb"],
+    "Igreja / Espiritualidade": ["#f59e0b", "#111827"],
+    "Fam\u00edlia & Relacionamento": ["#ec4899", "#ffffff"],
+    "Sa\u00fade": ["#10b981", "#022c22"],
+    "Casa & Rotina": ["#94a3b8", "#111827"],
+    "Finan\u00e7as": ["#14b8a6", "#022c22"],
+    "Estudo & Desenvolvimento": ["#6366f1", "#f9fafb"],
+    "Planejamento & Estrat\u00e9gia": ["#0ea5e9", "#082f49"]
+  }
+};
+let columnWidths = loadColumnWidths();
+window._tableResizeHandler = null;
+let controlCollapse = null;
+let filterCollapse = null;
+let appInitialized = false;
+
+function loadColumnWidths(){
+  try{
+    const raw = localStorage.getItem(COLUMN_WIDTH_KEY);
+    if(!raw) return {...COLUMN_DEFAULT_WIDTHS};
+    const parsed = JSON.parse(raw);
+    if(parsed && typeof parsed === 'object'){
+      return {...COLUMN_DEFAULT_WIDTHS, ...parsed};
+    }
+  }catch(_){ }
+  return {...COLUMN_DEFAULT_WIDTHS};
+}
+function saveColumnWidths(){
+  try{ localStorage.setItem(COLUMN_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(_){ }
+}
+
+const FILTER_DEFAULTS = {
+  text: "",
+  status: "",
+  responsible: "",
+  priority: "",
+  duration: "",
+  area: "",
+  subarea: "",
+  dateFrom: "",
+  dateTo: "",
+  week: "",
+  includeNoDate: true,
+  onlyNoDate: false
+};
+const filterState = { ...FILTER_DEFAULTS };
+const initialNow = new Date().toISOString();
+const stateStored = load(LS_KEY);
+let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
+const recStored = load(LS_REC_KEY);
+let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function saveRec(){ localStorage.setItem(LS_REC_KEY, JSON.stringify(recState)); }
+function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; } }
+/* --------- Util --------- */
+const fmt = d => d ? new Date(d).toLocaleString('pt-BR',{hour12:false}) : "";
+const fmtDate = d => d ? new Date(d).toLocaleDateString('pt-BR') : "";
+const weekday = d => {
+  if(!d) return "";
+  const w = new Date(d).getDay(); // 0=Dom
+  return ["Domingo","Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado"][w];
+};
+const isoDate = d => d ? new Date(d).toISOString() : null;
+const mondayOf = d => { const dt = new Date(d); const wd = (dt.getDay()+6)%7; dt.setDate(dt.getDate()-wd); dt.setHours(0,0,0,0); return dt; };
+const plusDays = (d,n)=>{ const x=new Date(d); x.setDate(x.getDate()+n); return x; };
+function pad2(n){
+  return String(n).padStart(2, "0");
+}
+function toTimeInputValue(time){
+  if(!time) return "";
+  return padTime(time);
+}
+function padTime(value){
+  if(value==null) return "";
+  const str = String(value).trim();
+  if(!str) return "";
+  const colon = str.match(/(\d{1,2})[:hH](\d{2})/);
+  if(colon){
+    return `${pad2(Number(colon[1]))}:${pad2(Number(colon[2]))}`;
+  }
+  const digits = str.replace(/\D/g,"");
+  if(digits.length>=3){
+    return `${pad2(Number(digits.slice(0,2)))}:${pad2(Number(digits.slice(2,4)||0))}`;
+  }
+  return "";
+}
+function normalizeDateOnly(value){
+  if(!value) return "";
+  const str = String(value).trim();
+  if(!str) return "";
+  let match = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if(match){
+    return `${match[1]}-${match[2]}-${match[3]}`;
+  }
+  match = str.match(/^(\d{2})[\/\-](\d{2})[\/\-](\d{4})$/);
+  if(match){
+    return `${match[3]}-${match[2]}-${match[1]}`;
+  }
+  return "";
+}
+function toDateOnlyInputValue(iso){
+  if(!iso) return "";
+  const d = new Date(iso);
+  if(Number.isNaN(d.getTime())) return "";
+  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+}
+function extractTimeFromISO(iso){
+  if(!iso) return "";
+  const d = new Date(iso);
+  if(Number.isNaN(d.getTime())) return "";
+  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
+function splitDueAt(iso){
+  return {
+    date: toDateOnlyInputValue(iso),
+    time: extractTimeFromISO(iso)
+  };
+}
+function combineDateAndTime(dateValue, timeValue){
+  const normalizedDate = normalizeDateOnly(dateValue);
+  if(!normalizedDate) return null;
+  const time = padTime(timeValue) || "00:00";
+  const composed = `${normalizedDate}T${time}`;
+  const dt = new Date(composed);
+  if(Number.isNaN(dt.getTime())) return null;
+  return dt.toISOString();
+}
+function computeWeekNumber(iso){
+  if(!iso) return null;
+  const date = new Date(iso);
+  if(Number.isNaN(date.getTime())) return null;
+  const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const day = utc.getUTCDay() || 7;
+  utc.setUTCDate(utc.getUTCDate() + 4 - day);
+  const yearStart = new Date(Date.UTC(utc.getUTCFullYear(),0,1));
+  return Math.ceil(((utc - yearStart) / 86400000 + 1) / 7);
+}
+function formatRangeLabel(task){
+  if(!task || !task.dueAt) return "";
+  const d = new Date(task.dueAt);
+  if(Number.isNaN(d.getTime())) return "";
+  const date = d.toLocaleDateString("pt-BR");
+  const time = d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit",hour12:false});
+  const end = task.endTime ? ` \u2192 ${task.endTime.replace(":", "")}` : "";
+  return `${date} ${time}${end}`;
+}
+function statusClass(name){
+  return `status-${normalizeKey(name||"")}`;
+}
+function escHtml(value){
+  if(value==null) return "";
+  return String(value).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+}
+function escAttr(value){
+  return escHtml(value).replace(/"/g,"&quot;");
+}
+function optionsMarkup(list, current, includeEmpty=false){
+  const currentNorm = normalizeText(current);
+  const parts = [];
+  if(includeEmpty){
+    parts.push(`<option value="">--</option>`);
+  }
+  const hasCurrent = currentNorm && list.some(opt=> normalizeText(opt)===currentNorm);
+  if(current && !hasCurrent){
+    parts.push(`<option value="${escAttr(current)}" selected>${escHtml(current)}</option>`);
+  }
+  list.forEach(opt=>{
+    const selected = normalizeText(opt)===currentNorm ? " selected" : "";
+    parts.push(`<option value="${escAttr(opt)}"${selected}>${escHtml(opt)}</option>`);
+  });
+  return parts.join("");
+}
+function stringHash(str){
+  let hash = 0;
+  for(let i=0;i<str.length;i++){
+    hash = ((hash<<5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash;
+}
+function stringToColorPair(str){
+  const hash = Math.abs(stringHash(str||""));
+  const hue = hash % 360;
+  const light = 38 + (hash % 24);
+  const bg = `hsl(${hue}, 65%, ${light}%)`;
+  const fg = light > 55 ? "#111111" : "#f9fafb";
+  return { bg, fg };
+}
+function colorFor(field, value){
+  if(!value) return null;
+  const palette = COLOR_PALETTES[field];
+  if(palette && palette[value]){
+    const [bg, fg] = palette[value];
+    return { bg, fg };
+  }
+  if(field==="subarea" || !palette || !palette[value]){
+    return stringToColorPair(value);
+  }
+  return null;
+}
+function applySelectColor(select){
+  if(!select || !select.dataset) return;
+  const field = select.dataset.color;
+  if(!field) return;
+  const color = colorFor(field, select.value);
+  if(color){
+    select.style.backgroundColor = color.bg;
+    select.style.borderColor = color.bg;
+    select.style.color = color.fg;
+  }else{
+    select.style.backgroundColor = "";
+    select.style.borderColor = "";
+    select.style.color = "";
+  }
+}
+function setupColorizedSelects(root=document){
+  const scope = root instanceof Element ? root : document;
+  scope.querySelectorAll("select[data-color]").forEach(sel=>{
+    if(!sel.dataset.colorInit){
+      sel.addEventListener("change", ()=>applySelectColor(sel));
+      sel.dataset.colorInit = "1";
+    }
+    applySelectColor(sel);
+  });
+}
+function setupCollapsible(id, opts={}){
+  const section = document.getElementById(id);
+  if(!section) return null;
+  const header = section.querySelector(".collapsible-header");
+  const body = section.querySelector(".collapsible-body");
+  const chevron = header ? header.querySelector(".chevron") : null;
+  const toggleButtons = header ? header.querySelectorAll("[data-role=\'collapse-toggle\']") : [];
+  const defaultOpen = !!opts.defaultOpen;
+  const onOpen = typeof opts.onOpen === "function" ? opts.onOpen : null;
+  const onClose = typeof opts.onClose === "function" ? opts.onClose : null;
+
+  if(body && !body.id){
+    body.id = `${id}-body`;
+  }
+  const bodyId = body ? body.id : null;
+
+  const setAriaState = (target, expanded)=>{
+    if(!target) return;
+    target.setAttribute("aria-expanded", expanded ? "true" : "false");
+    if(bodyId){
+      target.setAttribute("aria-controls", bodyId);
+    }
+  };
+
+  if(header){
+    if(!header.hasAttribute("role")){
+      header.setAttribute("role", "button");
+    }
+    if(!header.hasAttribute("tabindex")){
+      header.setAttribute("tabindex", "0");
+    }
+  }
+
+  const applyBodyState = isOpen=>{
+    if(!body) return;
+    if(isOpen){
+      body.style.padding = "16px";
+      body.style.maxHeight = "none";
+      const contentHeight = body.scrollHeight;
+      body.style.maxHeight = `${contentHeight + 32}px`;
+      body.setAttribute("aria-hidden", "false");
+    }else{
+      body.style.maxHeight = "0";
+      body.style.padding = "0 16px";
+      body.setAttribute("aria-hidden", "true");
+    }
+  };
+
+  const updateUI = ()=>{
+    const isOpen = section.classList.contains("open");
+    setAriaState(header, isOpen);
+    toggleButtons.forEach(btn=>{
+      const openLabel = btn.dataset.collapseLabelOpen || "Expandir";
+      const closeLabel = btn.dataset.collapseLabelClose || "Recolher";
+      btn.textContent = isOpen ? closeLabel : openLabel;
+      setAriaState(btn, isOpen);
+    });
+    if(chevron){
+      chevron.textContent = isOpen ? "\u25BE" : "\u25B8";
+      chevron.classList.toggle("open", isOpen);
+    }
+    applyBodyState(isOpen);
+  };
+
+  const setOpen = state=>{
+    const willOpen = !!state;
+    section.classList.toggle("open", willOpen);
+    updateUI();
+    if(willOpen && onOpen){
+      onOpen(section);
+    }else if(!willOpen && onClose){
+      onClose(section);
+    }
+  };
+
+  if(defaultOpen){
+    section.classList.add("open");
+  }else{
+    section.classList.remove("open");
+  }
+  updateUI();
+
+  const handleToggle = ev=>{
+    ev.preventDefault();
+    ev.stopPropagation();
+    setOpen(!section.classList.contains("open"));
+  };
+
+  toggleButtons.forEach(btn=>{
+    btn.addEventListener("click", handleToggle);
+  });
+
+  if(header){
+    header.addEventListener("click", ev=>{
+      if(ev.target.closest("[data-role='collapse-toggle']")) return;
+      setOpen(!section.classList.contains("open"));
+    });
+    header.addEventListener("keydown", ev=>{
+      if(ev.key==="Enter" || ev.key===" "){
+        ev.preventDefault();
+        setOpen(!section.classList.contains("open"));
+      }
+    });
+  }
+
+  return { setOpen, isOpen: ()=> section.classList.contains("open") };
+}
+
+function emojiOptions(current){
+  return EMOJIS.map(value=>{
+    const selected = value === (current || "") ? " selected" : "";
+    const label = value || "--";
+    return `<option value="${escAttr(value)}"${selected}>${escHtml(label)}</option>`;
+  }).join("");
+}
+function applyColumnWidths(tableEl){
+  if(!tableEl) return;
+  const headers = tableEl.querySelectorAll("thead th[data-col]");
+  if(!headers.length) return;
+  const baseWidths = {};
+  headers.forEach(th=>{
+    const key = th.dataset.col;
+    const defaultWidth = COLUMN_DEFAULT_WIDTHS[key] || Math.max(th.getBoundingClientRect().width, 120);
+    const stored = typeof columnWidths[key] === "number" ? columnWidths[key] : defaultWidth;
+    baseWidths[key] = Math.max(70, stored);
+  });
+  const container = tableEl.closest(".table-scroll");
+  let extraSpace = 0;
+  if(container){
+    const containerWidth = Math.max((container ? container.clientWidth : 0) - 32, 0);
+    const totalBase = Object.values(baseWidths).reduce((sum,val)=> sum + val, 0);
+    if(containerWidth > totalBase){
+      extraSpace = containerWidth - totalBase;
+    }
+  }
+  const expandable = [];
+  if(extraSpace > 0){
+    AUTO_EXPAND_COLUMNS.forEach(key=>{
+      if(baseWidths[key]==null) return;
+      const defaultWidth = COLUMN_DEFAULT_WIDTHS[key] || baseWidths[key];
+      const isManual = Math.abs(baseWidths[key] - defaultWidth) > 1;
+      if(!isManual){
+        expandable.push(key);
+      }
+    });
+  }
+  const extraPerColumn = {};
+  if(extraSpace > 0 && expandable.length){
+    const share = extraSpace / expandable.length;
+    expandable.forEach(key=>{ extraPerColumn[key] = share; });
+  }
+  headers.forEach((th,index)=>{
+    const key = th.dataset.col;
+    const minWidth = baseWidths[key] || COLUMN_DEFAULT_WIDTHS[key] || 120;
+    const targetWidth = Math.min((baseWidths[key] || minWidth) + (extraPerColumn[key] || 0), 540);
+    th.style.width = `${targetWidth}px`;
+    th.style.minWidth = `${minWidth}px`;
+    tableEl.querySelectorAll(`tbody tr td:nth-child(${index+1})`).forEach(td=>{
+      td.style.width = `${targetWidth}px`;
+      td.style.minWidth = `${minWidth}px`;
+    });
+  });
+}
+function setupColumnResizing(tableEl){
+  if(!tableEl) return;
+  const headers = tableEl.querySelectorAll("thead th[data-col]");
+  headers.forEach(th=>{
+    let resizer = th.querySelector(".resizer");
+    if(!resizer){
+      resizer = document.createElement("span");
+      resizer.className = "resizer";
+      th.appendChild(resizer);
+    }
+    if(resizer.dataset.ready){
+      return;
+    }
+    resizer.dataset.ready = "1";
+    const key = th.dataset.col;
+    if(key === "actions" || key === "emoji"){
+      resizer.style.display = "none";
+      return;
+    }
+    resizer.addEventListener("mousedown", ev=>{
+      ev.preventDefault();
+      ev.stopPropagation();
+      const startX = ev.pageX;
+      const startWidth = th.getBoundingClientRect().width;
+      document.body.classList.add("dragging-col");
+      const onMove = moveEvent=>{
+        const delta = moveEvent.pageX - startX;
+        const newWidth = Math.max(70, Math.min(620, startWidth + delta));
+        columnWidths[key] = newWidth;
+        applyColumnWidths(tableEl);
+      };
+      const onUp = ()=>{
+        document.removeEventListener("mousemove", onMove);
+        document.removeEventListener("mouseup", onUp);
+        document.body.classList.remove("dragging-col");
+        saveColumnWidths();
+      };
+      document.addEventListener("mousemove", onMove);
+      document.addEventListener("mouseup", onUp);
+    });
+  });
+}
+function applyDerived(task){
+  task.weekNumber = computeWeekNumber(task.dueAt);
+  return task;
+}
+function matchOption(raw, options){
+  const clean = cleanString(raw);
+  if(!clean) return null;
+  const norm = normalizeText(clean);
+  const found = options.find(opt=> normalizeText(opt)===norm);
+  return found || clean;
+}
+function sanitizeNotes(value){
+  if(value==null) return "";
+  return String(value).trim();
+}
+function sanitizeOptionField(value, options){
+  if(value==null || value==="") return null;
+  return matchOption(value, options);
+}
+function sanitizeEndTime(value){
+  const padded = padTime(value);
+  return padded || null;
+}
+function addTask(t){
+  state.lastId++;
+  const nowIso = new Date().toISOString();
+  const task = normalizeTask({...t, id: state.lastId, createdAt: nowIso, updatedAt: nowIso}, state.lastId, nowIso);
+  task.id = state.lastId;
+  task.createdAt = nowIso;
+  task.updatedAt = nowIso;
+  state.tasks.push(task);
+  save();
+}
+function supportsFileSystemAccess(){
+  try{
+    return typeof window !== "undefined" && "showDirectoryPicker" in window && !!window.indexedDB;
+  }catch(_){
+    return false;
+  }
+}
+function updateImportDirInfo(message="", tone){
+  const info = document.getElementById("importDirInfo");
+  if(!info) return;
+  info.textContent = message;
+  info.classList.remove("error","success");
+  if(tone==="error"){
+    info.classList.add("error");
+  }else if(tone==="success"){
+    info.classList.add("success");
+  }
+}
+function getHandlesDB(){
+  return new Promise((resolve,reject)=>{
+    const req = indexedDB.open(IMPORT_DIR_DB,1);
+    req.onupgradeneeded = event=>{
+      const db = event.target.result;
+      if(!db.objectStoreNames.contains(IMPORT_DIR_STORE)){
+        db.createObjectStore(IMPORT_DIR_STORE);
+      }
+    };
+    req.onsuccess = ()=>resolve(req.result);
+    req.onerror = ()=>reject(req.error);
+  });
+}
+async function persistDirectoryHandle(handle){
+  try{
+    const db = await getHandlesDB();
+    await new Promise((resolve,reject)=>{
+      const tx = db.transaction(IMPORT_DIR_STORE,"readwrite");
+      tx.oncomplete = ()=>resolve();
+      tx.onerror = ()=>reject(tx.error);
+      tx.objectStore(IMPORT_DIR_STORE).put(handle, IMPORT_DIR_KEY);
+    });
+  }catch(err){
+    console.warn("Não foi possível gravar a pasta de importação:", err);
+  }
+}
+async function loadStoredDirectoryHandle(){
+  try{
+    const db = await getHandlesDB();
+    return await new Promise((resolve,reject)=>{
+      const tx = db.transaction(IMPORT_DIR_STORE,"readonly");
+      tx.onerror = ()=>reject(tx.error);
+      const req = tx.objectStore(IMPORT_DIR_STORE).get(IMPORT_DIR_KEY);
+      req.onsuccess = ()=>resolve(req.result || null);
+      req.onerror = ()=>reject(req.error);
+    });
+  }catch(err){
+    console.warn("Não foi possível recuperar a pasta de importação:", err);
+    return null;
+  }
+}
+async function ensureDirPermission(handle){
+  if(!handle || !handle.queryPermission) return "denied";
+  const opts = {mode:"readwrite"};
+  let permission = await handle.queryPermission(opts);
+  if(permission === "granted") return permission;
+  if(permission === "prompt"){
+    try{
+      permission = await handle.requestPermission(opts);
+    }catch(err){
+      return "denied";
+    }
+  }
+  return permission;
+}
+async function fileExistsInDir(dirHandle, name){
+  try{
+    await dirHandle.getFileHandle(name);
+    return true;
+  }catch(err){
+    if(err && err.name === "NotFoundError") return false;
+    throw err;
+  }
+}
+function sanitizeFileName(name){
+  const fallback = `import-${Date.now()}.json`;
+  if(!name) return fallback;
+  const cleaned = name.replace(/[\\/:*"<>|]+/g,"-").trim();
+  return cleaned || fallback;
+}
+async function uniqueFileName(dirHandle, name){
+  const safeBase = sanitizeFileName(name);
+  const lastDot = safeBase.lastIndexOf(".");
+  const stem = lastDot > 0 ? safeBase.slice(0,lastDot) : safeBase;
+  const ext = lastDot > 0 ? safeBase.slice(lastDot) : "";
+  let candidate = `${stem}${ext}`;
+  let counter = 1;
+  while(await fileExistsInDir(dirHandle, candidate)){
+    candidate = `${stem}-${counter}${ext || ".json"}`;
+    counter++;
+  }
+  return candidate;
+}
+async function persistImportedFile(file){
+  if(!file) return { skipped:true };
+  if(!supportsFileSystemAccess()) return { unsupported:true };
+  if(!importDirHandle) return { missing:true };
+  const permission = await ensureDirPermission(importDirHandle);
+  if(permission !== "granted") return { permission:false };
+  try{
+    const targetName = await uniqueFileName(importDirHandle, file.name);
+    const fileHandle = await importDirHandle.getFileHandle(targetName, {create:true});
+    const writable = await fileHandle.createWritable();
+    await writable.write(await file.arrayBuffer());
+    await writable.close();
+    return { path: `${importDirHandle.name}/${targetName}`, fileName: targetName };
+  }catch(err){
+    console.error("Erro ao salvar arquivo importado", err);
+    return { error: err };
+  }
+}
+async function restoreImportDirectory(){
+  if(!supportsFileSystemAccess()) return;
+  try{
+    const stored = await loadStoredDirectoryHandle();
+    if(stored){
+      const permission = await ensureDirPermission(stored);
+      if(permission === "granted"){
+        importDirHandle = stored;
+        updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
+      }else{
+        updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
+      }
+    }else{
+      updateImportDirInfo("Selecione a pasta para salvar as importações.");
+    }
+  }catch(err){
+    console.warn("Falha ao restaurar pasta de importação", err);
+  }
+}
+/* --------- UI base --------- */
+function applyImportedData(data){
+  if(data==null) return false;
+  const nowIso = new Date().toISOString();
+  if(Array.isArray(data)){
+    const tasks = parseNotionTasks(data, nowIso);
+    if(!tasks.length) return false;
+    const normalized = tasks.map((task, idx)=> normalizeTask(task, idx+1, nowIso));
+    state = {
+      tasks: normalized,
+      lastId: normalized.reduce((max, t)=> Math.max(max, typeof t.id==="number" ? t.id : 0), 0)
+    };
+    return true;
+  }
+  if(typeof data!=="object") return false;
+  let applied = false;
+  if(data.state){
+    state = normalizeStateData(data.state, nowIso);
+    applied = true;
+  }else if(data.tasks){
+    state = normalizeStateData(data, nowIso);
+    applied = true;
+  }
+  if(data.recState){
+    recState = normalizeRecState(data.recState);
+    applied = true;
+  }
+  return applied;
+}
+function normalizeStateData(rawState, nowIso){
+  const source = Array.isArray(rawState)
+    ? rawState
+    : (rawState && Array.isArray(rawState.tasks) ? rawState.tasks : []);
+  const initialLastId = rawState && Number.isFinite(Number(rawState.lastId))
+    ? Number(rawState.lastId)
+    : 0;
+  let maxId = 0;
+  const tasks = source.map((task, idx)=>{
+    const normalized = normalizeTask(task, idx+1, nowIso);
+    maxId = Math.max(maxId, normalized.id);
+    return normalized;
+  });
+  return { tasks, lastId: Math.max(maxId, initialLastId) };
+}
+function normalizeTask(task, fallbackId, nowIso){
+  const copy = {...task};
+  let id = Number(copy.id);
+  if(!Number.isFinite(id)) id = fallbackId;
+  copy.id = id;
+  copy.title = cleanString(copy.title) || `Tarefa ${id}`;
+  copy.createdAt = copy.createdAt || nowIso;
+  copy.updatedAt = copy.updatedAt || copy.createdAt;
+  copy.dueAt = copy.dueAt ? new Date(copy.dueAt).toISOString() : null;
+  if(copy.dueAt && Number.isNaN(new Date(copy.dueAt).getTime())) copy.dueAt = null;
+  const rawEnd = copy.endTime ?? copy.end_time ?? copy.end ?? copy.horaFim ?? copy.finalTime;
+  copy.endTime = sanitizeEndTime(rawEnd);
+  copy.status = mapStatus(copy.status);
+  copy.responsible = sanitizeOptionField(copy.responsible, RESPONSIBLES);
+  copy.priority = sanitizeOptionField(copy.priority, PRIORITIES);
+  copy.durationTag = sanitizeOptionField(copy.durationTag ?? copy.duration, DURATIONS);
+  copy.area = sanitizeOptionField(copy.area, AREAS);
+  copy.subarea = sanitizeOptionField(copy.subarea, SUBAREAS);
+  copy.notes = sanitizeNotes(copy.notes);
+  copy.emoji = cleanString(copy.emoji||"") || null;
+  applyDerived(copy);
+  return copy;
+}
+function normalizeRecState(rawRec){
+  const recsIn = rawRec && Array.isArray(rawRec.recs) ? rawRec.recs : [];
+  let maxId = 0;
+  const recs = recsIn.map((rec, idx)=>{
+    const copy = {...rec};
+    if(typeof copy.id!=="number" || !Number.isFinite(copy.id)){
+      copy.id = idx+1;
+    }
+    copy.responsible = sanitizeOptionField(copy.responsible, RESPONSIBLES);
+    copy.priority = sanitizeOptionField(copy.priority, PRIORITIES);
+    copy.durationTag = sanitizeOptionField(copy.durationTag ?? copy.duration, DURATIONS);
+    maxId = Math.max(maxId, copy.id);
+    return copy;
+  });
+  const lastId = Math.max(maxId, rawRec && typeof rawRec.lastId==="number" ? rawRec.lastId : 0);
+  return { recs, lastId };
+}
+function parseNotionTasks(rows, nowIso){
+  const tasks = [];
+  rows.forEach(row=>{
+    if(!row || typeof row!=="object") return;
+    const get = fieldGetter(row);
+    const title = cleanString(get(["tarefa","nome","name","titulo","título"]));
+    if(!title) return;
+    const dateInfo = parseNotionDate(cleanString(get(["data","date","inicio","início","start"])));
+    const status = mapStatus(get(["status","situação","situacao","fase","etapa"]));
+    const responsible = cleanString(get(["responsavel","responsável","assignee","responsibility"]));
+    const priority = cleanString(firstNonEmpty(
+      get(["prioridade","priority"]),
+      get(["importancia","importância"])
+    ));
+    const duration = cleanString(firstNonEmpty(
+      get(["tempo","tempo conclusao","tempo conclusão","tempoconclusao","tempoconclusão"]),
+      get(["duracao","duração","duration"]),
+      get(["tempo gasto","tempogasto"])
+    ));
+    const area = cleanString(get(["area","área"]));
+    const subarea = cleanString(get(["subarea","subárea"]));
+    const notes = cleanString(firstNonEmpty(
+      get(["notas","notes","observacoes","observações"]),
+      get(["descricao","descrição","description"])
+    ));
+    tasks.push({
+      id: tasks.length+1,
+      title,
+      dueAt: dateInfo.start,
+      endTime: dateInfo.end,
+      status,
+      responsible: responsible || null,
+      priority: priority || null,
+      durationTag: duration || null,
+      area: area || null,
+      subarea: subarea || null,
+      notes,
+      createdAt: nowIso,
+      updatedAt: nowIso
+    });
+  });
+  return tasks;
+}
+function fieldGetter(row){
+  const pairs = Object.keys(row).map(key=>({ key, norm: normalizeKey(key) }));
+  return candidates=>{
+    for(const cand of candidates){
+      const norm = normalizeKey(cand);
+      const found = pairs.find(entry=> entry.norm===norm);
+      if(found) return row[found.key];
+    }
+    return undefined;
+  };
+}
+function normalizeKey(str){
+  return cleanString(str)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]/g,"");
+}
+function cleanString(value){
+  if(value==null) return "";
+  return String(value).trim();
+}
+function firstNonEmpty(...values){
+  for(const value of values){
+    const str = cleanString(value);
+    if(str) return value;
+  }
+  return "";
+}
+function mapStatus(raw){
+  const norm = normalizeText(raw);
+  if(!norm) return STATUS[0];
+  if(norm.includes("concl") || norm.includes("feito") || norm.includes("done")) return STATUS[5];
+  if(norm.includes("em pro") || norm.includes("prog") || norm.includes("doing")) return STATUS[1];
+  if(norm.includes("bloq") || norm.includes("imped")) return STATUS[2];
+  if(norm.includes("reage") || norm.includes("adiar") || norm.includes("remarc")) return STATUS[3];
+  if(norm.includes("cancel")) return STATUS[4];
+  if(norm.includes("pend") || norm.includes("afazer") || norm.includes("todo")) return STATUS[0];
+  return STATUS[0];
+}
+function normalizeText(str){
+  return cleanString(str)
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^a-z0-9]/g," ")
+    .trim();
+}
+function parseNotionDate(raw){
+  if(!raw) return { start: null, end: null };
+  let text = cleanString(raw).replace(/^@/,"");
+  if(!text) return { start: null, end: null };
+  let day, month, year;
+  let match = text.match(/(\d{2})[\/-](\d{2})[\/-](\d{4})/);
+  if(match){
+    day = Number(match[1]); month = Number(match[2]); year = Number(match[3]);
+  }else{
+    match = text.match(/(\d{4})-(\d{2})-(\d{2})/);
+    if(match){
+      year = Number(match[1]); month = Number(match[2]); day = Number(match[3]);
+    }
+  }
+  const timeMatches = [...text.matchAll(/(\d{1,2})[:hH](\d{2})/g)];
+  let startIso = null;
+  if(year && month && day){
+    const firstTime = timeMatches[0];
+    const hh = firstTime ? Number(firstTime[1]) : 0;
+    const mm = firstTime ? Number(firstTime[2]) : 0;
+    const date = new Date(year, month-1, day, hh||0, mm||0, 0, 0);
+    if(!Number.isNaN(date.getTime())) startIso = date.toISOString();
+  }
+  if(!startIso){
+    const fallback = new Date(text);
+    if(!Number.isNaN(fallback.getTime())) startIso = fallback.toISOString();
+  }
+  const endTime = timeMatches[1] ? padTime(`${timeMatches[1][1]}:${timeMatches[1][2]}`) : null;
+  return { start: startIso, end: endTime };
+}
+/* --------- Renderizações --------- */
+let currentTab = "all";
+function render(tab){
+  currentTab = tab;
+  const view = document.getElementById("view");
+  if(!view) return;
+  const proxy = document.getElementById("tableScrollProxy");
+  if(tab !== "all" && proxy){
+    proxy.classList.remove("active");
+    if(window._tableResizeHandler){
+      window.removeEventListener("resize", window._tableResizeHandler);
+      window._tableResizeHandler = null;
+    }
+  }
+  view.classList.toggle("table-mode", tab === "all");
+  if(tab==="all") return renderAll();
+  if(tab==="kanban") return renderKanban();
+  if(tab==="day") return renderDay();
+  if(tab==="rec") return renderRec();
+}
+/* Todas */
+function renderAll(){
+  const view = document.getElementById("view");
+  const prevScroll = view.querySelector(".table-scroll");
+  const scrollState = {
+    left: prevScroll ? prevScroll.scrollLeft : 0,
+    top: prevScroll ? prevScroll.scrollTop : 0
+  };
+  let activeInfo = null;
+  const activeEl = document.activeElement;
+  if(activeEl && activeEl.dataset && activeEl.dataset.field){
+    const row = activeEl.closest("tr[data-id]");
+    if(row){
+      activeInfo = {
+        id: row.dataset.id,
+        field: activeEl.dataset.field,
+        selectionStart: typeof activeEl.selectionStart === "number" ? activeEl.selectionStart : null,
+        selectionEnd: typeof activeEl.selectionEnd === "number" ? activeEl.selectionEnd : null
+      };
+    }
+  }
+  const filteredTasks = applyFilters(state.tasks);
+  const sorted = filteredTasks.slice().sort((a,b)=>{
+    const da = a.dueAt || "9999-12-31T00:00:00";
+    const db = b.dueAt || "9999-12-31T00:00:00";
+    const diff = da.localeCompare(db);
+    if(diff!==0) return diff;
+    return (a.title||"").localeCompare(b.title||"");
+  });
+  const headerHtml = TABLE_COLUMNS.map(key=>{
+    const label = COLUMN_LABELS[key] || key;
+    const resizer = key === 'actions' ? '' : '<span class="resizer"></span>';
+    return `<th data-col="${key}">${label}${resizer}</th>`;
+  }).join("");
+  const rows = sorted.map(t=>{
+    const dueParts = splitDueAt(t.dueAt);
+    const dueDateVal = escAttr(dueParts.date || "");
+    const dueTimeVal = escAttr(dueParts.time || "");
+    const endTimeVal = escAttr(toTimeInputValue(t.endTime));
+    return `
+      <tr data-id="${t.id}">
+        <td data-col="emoji"><select class="table-input emoji-select" data-field="emoji">${emojiOptions(t.emoji)}</select></td>
+        <td data-col="title"><input class="table-input" data-field="title" value="${escAttr(t.title||"")}" /></td>
+        <td data-col="date">
+          <div class="stack date-stack">
+            <input type="date" class="table-input" data-field="dueDate" value="${dueDateVal}" placeholder="DD/MM/AAAA" aria-label="Data da tarefa" />
+            <input type="time" class="table-input" data-field="dueTime" value="${dueTimeVal}" placeholder="HH:MM" aria-label="Hora de início" />
+            <input type="time" class="table-input" data-field="endTime" value="${endTimeVal}" placeholder="HH:MM" aria-label="Hora de término" />
+          </div>
+        </td>
+        <td data-col="status"><select class="table-input colorful" data-color="status" data-field="status">${optionsMarkup(STATUS, t.status)}</select></td>
+        <td data-col="responsible"><select class="table-input colorful" data-color="responsible" data-field="responsible">${optionsMarkup(RESPONSIBLES, t.responsible, true)}</select></td>
+        <td data-col="priority"><select class="table-input colorful" data-color="priority" data-field="priority">${optionsMarkup(PRIORITIES, t.priority, true)}</select></td>
+        <td data-col="duration"><select class="table-input colorful" data-color="duration" data-field="durationTag">${optionsMarkup(DURATIONS, t.durationTag, true)}</select></td>
+        <td data-col="area"><select class="table-input colorful" data-color="area" data-field="area">${optionsMarkup(AREAS, t.area, true)}</select></td>
+        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(SUBAREAS, t.subarea, true)}</select></td>
+        <td data-col="notes"><textarea class="table-input" data-field="notes" rows="2">${escHtml(t.notes||"")}</textarea></td>
+        <td data-col="week">${t.weekNumber||""}</td>
+        <td data-col="actions">
+          <div class="actions">
+            ${actionBtn("Concluir", ()=>updateTask(t.id,{status:"Conclu\u00eddo"}), "ok")}
+            ${actionBtn("+1d", ()=>resched(t.id,1))}
+            ${actionBtn("+7d", ()=>resched(t.id,7))}
+            ${actionBtn("Editar", ()=>editTaskPrompt(t.id))}
+            ${actionBtn("Del", ()=>delTask(t.id),"danger")}
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join("");
+  const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
+  const filterMarkup = `
+    <div class="filter-grid">
+      <label>
+        <span>Texto</span>
+        <input id="filter-text" placeholder="T&iacute;tulo, notas, pessoa..." />
+      </label>
+      <label>
+        <span>Status</span>
+        <select id="filter-status" class="colorful" data-color="status">
+          ${optionsMarkup(STATUS, filterState.status, true)}
+        </select>
+      </label>
+      <label>
+        <span>Respons&aacute;vel</span>
+        <select id="filter-responsible" class="colorful" data-color="responsible">
+          ${optionsMarkup(RESPONSIBLES, filterState.responsible, true)}
+        </select>
+      </label>
+      <label>
+        <span>Prioridade</span>
+        <select id="filter-priority" class="colorful" data-color="priority">
+          ${optionsMarkup(PRIORITIES, filterState.priority, true)}
+        </select>
+      </label>
+      <label>
+        <span>Tempo para conclus&atilde;o</span>
+        <select id="filter-duration" class="colorful" data-color="duration">
+          ${optionsMarkup(DURATIONS, filterState.duration, true)}
+        </select>
+      </label>
+      <label>
+        <span>&Aacute;rea</span>
+        <select id="filter-area" class="colorful" data-color="area">
+          ${optionsMarkup(AREAS, filterState.area, true)}
+        </select>
+      </label>
+      <label>
+        <span>Sub&aacute;rea</span>
+        <select id="filter-subarea" class="colorful" data-color="subarea">
+          ${optionsMarkup(SUBAREAS, filterState.subarea, true)}
+        </select>
+      </label>
+      <label>
+        <span>Data inicial</span>
+        <input type="date" id="filter-date-from" />
+      </label>
+      <label>
+        <span>Data final</span>
+        <input type="date" id="filter-date-to" />
+      </label>
+      <label>
+        <span>Semana</span>
+        <input type="number" id="filter-week" min="1" max="53" placeholder="Ex: 42" />
+      </label>
+    </div>
+    <div class="filter-flags">
+      <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
+      <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
+    </div>
+    <div class="filter-actions">
+      <button class="btn tiny" type="button" data-range="today">Hoje</button>
+      <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
+      <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
+      <button class="btn tiny" type="button" data-range="week">Esta semana</button>
+      <button class="btn tiny" type="button" data-range="month">Este m&ecirc;s</button>
+      <button class="btn tiny" type="button" data-range="clear">Limpar datas</button>
+      <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
+    </div>
+  `;
+  const filterContainer = document.getElementById("filterContainer");
+  if(filterContainer){
+    filterContainer.innerHTML = filterMarkup;
+  }
+  view.innerHTML = `
+    <div class="table-surface">
+      <div class="table-wrapper">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>${headerHtml}</tr>
+            </thead>
+            <tbody id="tbody">${rowMarkup}</tbody>
+          </table>
+        </div>
+      </div>
+      <div class="table-footer">
+        <div>Total filtrado: ${filteredTasks.length} de ${state.tasks.length}</div>
+        <div>Sem data: ${filteredTasks.filter(t=>!t.dueAt).length}</div>
+      </div>
+    </div>
+  `;
+  const controls = {
+    text: document.getElementById("filter-text"),
+    status: document.getElementById("filter-status"),
+    responsible: document.getElementById("filter-responsible"),
+    priority: document.getElementById("filter-priority"),
+    duration: document.getElementById("filter-duration"),
+    area: document.getElementById("filter-area"),
+    subarea: document.getElementById("filter-subarea"),
+    dateFrom: document.getElementById("filter-date-from"),
+    dateTo: document.getElementById("filter-date-to"),
+    week: document.getElementById("filter-week"),
+    includeNoDate: document.getElementById("filter-include-nodate"),
+    onlyNoDate: document.getElementById("filter-only-nodate")
+  };
+  if(controls.text) controls.text.value = filterState.text;
+  if(controls.dateFrom) controls.dateFrom.value = filterState.dateFrom || "";
+  if(controls.dateTo) controls.dateTo.value = filterState.dateTo || "";
+  if(controls.week) controls.week.value = filterState.week || "";
+  if(controls.includeNoDate) controls.includeNoDate.checked = !!filterState.includeNoDate;
+  if(controls.onlyNoDate) controls.onlyNoDate.checked = !!filterState.onlyNoDate;
+  const tbody = document.getElementById("tbody");
+  if(tbody){
+    tbody.addEventListener("change", handleTableChange);
+  }
+  if(controls.text){
+    controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
+  }
+  ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
+    const ctrl = controls[key];
+    if(ctrl){
+      ctrl.onchange = (e)=>{ filterState[key] = e.target.value; renderAll(); };
+    }
+  });
+  if(controls.dateFrom){
+    controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
+  }
+  if(controls.dateTo){
+    controls.dateTo.onchange = (e)=>{ filterState.dateTo = e.target.value; renderAll(); };
+  }
+  if(controls.week){
+    controls.week.oninput = (e)=>{
+      const clean = e.target.value.replace(/[^0-9]/g,"").slice(0,2);
+      e.target.value = clean;
+      filterState.week = clean;
+      renderAll();
+    };
+  }
+  if(controls.includeNoDate){
+    controls.includeNoDate.onchange = (e)=>{
+      filterState.includeNoDate = e.target.checked;
+      if(!filterState.includeNoDate && filterState.onlyNoDate){
+        filterState.onlyNoDate = false;
+        if(controls.onlyNoDate) controls.onlyNoDate.checked = false;
+      }
+      renderAll();
+    };
+  }
+  if(controls.onlyNoDate){
+    controls.onlyNoDate.onchange = (e)=>{
+      filterState.onlyNoDate = e.target.checked;
+      if(filterState.onlyNoDate){
+        filterState.includeNoDate = true;
+        if(controls.includeNoDate) controls.includeNoDate.checked = true;
+      }
+      renderAll();
+    };
+  }
+  const resetBtn = document.getElementById("filter-reset");
+  if(resetBtn){
+    resetBtn.onclick = ()=>{
+      resetFilterState();
+      renderAll();
+    };
+  }
+  if(filterContainer){
+    document.querySelectorAll("#filterCard [data-range]").forEach(btn=>{
+      btn.onclick = ()=>{
+        if(filterCollapse) filterCollapse.setOpen(true);
+        applyQuickRange(btn.dataset.range);
+        renderAll();
+      };
+    });
+  }
+  setupColorizedSelects(view);
+  if(filterContainer){
+    setupColorizedSelects(filterContainer);
+    if(filterCollapse && filterCollapse.isOpen()){
+      filterCollapse.setOpen(true);
+    }
+  }
+  const tableScroll = view.querySelector(".table-scroll");
+  const tableEl = tableScroll ? tableScroll.querySelector("table") : null;
+  setupColumnResizing(tableEl);
+  applyColumnWidths(tableEl);
+
+  const proxy = document.getElementById("tableScrollProxy");
+  const proxyInner = proxy ? proxy.querySelector('div') : null;
+  if(tableScroll){
+    tableScroll.scrollLeft = scrollState.left;
+    tableScroll.scrollTop = scrollState.top;
+  }
+  let syncing = false;
+  if(proxy && tableEl && tableScroll){
+    const mainEl = document.querySelector('main');
+    let needsScroll = false;
+    const updateProxy = ()=>{
+      applyColumnWidths(tableEl);
+      const containerWidth = mainEl ? mainEl.clientWidth : Math.min(window.innerWidth, 1140);
+      proxy.style.width = `${containerWidth}px`;
+      if(proxyInner){
+        const needed = Math.max(tableEl.scrollWidth, containerWidth);
+        proxyInner.style.width = `${needed}px`;
+      }
+      needsScroll = tableEl.scrollWidth > containerWidth + 1;
+      if(!needsScroll){ proxy.classList.remove('active'); }
+    };
+    updateProxy();
+    if(window._tableResizeHandler){
+      window.removeEventListener('resize', window._tableResizeHandler);
+    }
+    const resizeHandler = ()=> updateProxy();
+    window.addEventListener('resize', resizeHandler);
+    window._tableResizeHandler = resizeHandler;
+    proxy.scrollLeft = scrollState.left;
+    proxy.classList.remove('active');
+    const onTableScroll = ()=>{
+      if(syncing) return;
+      syncing = true;
+      proxy.scrollLeft = tableScroll.scrollLeft;
+      syncing = false;
+    };
+    const onProxyScroll = ()=>{
+      if(syncing) return;
+      syncing = true;
+      tableScroll.scrollLeft = proxy.scrollLeft;
+      syncing = false;
+    };
+    tableScroll.addEventListener('scroll', onTableScroll);
+    if(proxy._syncHandler){
+      proxy.removeEventListener('scroll', proxy._syncHandler);
+    }
+    proxy.addEventListener('scroll', onProxyScroll);
+    proxy._syncHandler = onProxyScroll;
+    const observer = new IntersectionObserver(entries=>{
+      const visible = entries[0].isIntersecting;
+      proxy.classList.toggle('active', visible && needsScroll);
+    }, {root:null, threshold:0});
+    if(proxy._observer){
+      proxy._observer.disconnect();
+    }
+    observer.observe(tableEl);
+    proxy._observer = observer;
+  }else if(proxy){
+    proxy.classList.remove('active');
+    if(proxy._observer){ proxy._observer.disconnect(); proxy._observer = null; }
+    if(window._tableResizeHandler){
+      window.removeEventListener('resize', window._tableResizeHandler);
+      window._tableResizeHandler = null;
+    }
+  }
+
+  if(activeInfo && activeInfo.id){
+    const targetRow = view.querySelector(`tr[data-id=\"${activeInfo.id}\"]`);
+    const targetField = targetRow ? targetRow.querySelector(`[data-field=\"${activeInfo.field}\"]`) : null;
+    if(targetField){
+      targetField.focus({preventScroll:true});
+      if(activeInfo.selectionStart != null && targetField.setSelectionRange){
+        targetField.setSelectionRange(activeInfo.selectionStart, activeInfo.selectionEnd);
+      }
+    }
+  }
+}
+function handleTableChange(e){
+  if(!e.target || !["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) return;
+  const field = e.target.dataset.field;
+  if(!field) return;
+  const tr = e.target.closest("tr");
+  if(!tr) return;
+  const id = Number(tr.dataset.id);
+  if(!Number.isFinite(id)) return;
+  const patch = {};
+  let value = e.target.value;
+  if(field==="title"){
+    value = value.trim();
+    if(!value){
+      const task = state.tasks.find(x=>x.id===id);
+      alert("T\u00edtulo n\u00e3o pode ficar vazio.");
+      if(task) e.target.value = task.title || "";
+      return;
+    }
+  }else if(field==="dueDate" || field==="dueTime"){
+    const dateInput = tr.querySelector('[data-field="dueDate"]');
+    const timeInput = tr.querySelector('[data-field="dueTime"]');
+    const dateVal = dateInput ? dateInput.value : "";
+    const rawTimeVal = timeInput ? timeInput.value : "";
+    const normalizedTime = padTime(rawTimeVal);
+    if(timeInput){
+      timeInput.value = normalizedTime;
+    }
+    const iso = combineDateAndTime(dateVal, normalizedTime);
+    patch.dueAt = iso;
+    if(!normalizeDateOnly(dateVal)){
+      patch.dueAt = null;
+    }
+    updateTask(id, patch);
+    return;
+  }else if(field==="endTime"){
+    value = padTime(value);
+    value = value ? value : null;
+    if(e.target.value !== value){
+      e.target.value = value || "";
+    }
+  }else if(field==="notes"){
+    value = sanitizeNotes(value);
+  }else{
+    value = value || null;
+  }
+  patch[field] = value;
+  if(e.target.dataset && e.target.dataset.color){
+    applySelectColor(e.target);
+  }
+  updateTask(id, patch);
+}
+function resetFilterState(){
+  Object.keys(FILTER_DEFAULTS).forEach(key=>{
+    filterState[key] = FILTER_DEFAULTS[key];
+  });
+}
+function applyFilters(tasks){
+  const query = normalizeText(filterState.text);
+  const statusNorm = normalizeText(filterState.status);
+  const respNorm = normalizeText(filterState.responsible);
+  const priorityNorm = normalizeText(filterState.priority);
+  const durationNorm = normalizeText(filterState.duration);
+  const areaNorm = normalizeText(filterState.area);
+  const subareaNorm = normalizeText(filterState.subarea);
+  const from = filterState.dateFrom || "";
+  const to = filterState.dateTo || "";
+  const includeNoDate = !!filterState.includeNoDate;
+  const onlyNoDate = !!filterState.onlyNoDate;
+  const weekNumber = filterState.week ? Number(filterState.week) : null;
+  const hasWeekFilter = Number.isFinite(weekNumber) && weekNumber > 0;
+  return tasks.filter(task=>{
+    applyDerived(task);
+    const dueIso = task.dueAt ? task.dueAt.slice(0,10) : null;
+    if(query){
+      const haystack = normalizeText([
+        task.title,
+        task.responsible,
+        task.priority,
+        task.durationTag,
+        task.area,
+        task.subarea,
+        task.status,
+        task.notes
+      ].filter(Boolean).join(" "));
+      if(!haystack.includes(query)) return false;
+    }
+    if(statusNorm && normalizeText(task.status)!==statusNorm) return false;
+    if(respNorm && normalizeText(task.responsible||"")!==respNorm) return false;
+    if(priorityNorm && normalizeText(task.priority||"")!==priorityNorm) return false;
+    if(durationNorm && normalizeText(task.durationTag||"")!==durationNorm) return false;
+    if(areaNorm && normalizeText(task.area||"")!==areaNorm) return false;
+    if(subareaNorm && normalizeText(task.subarea||"")!==subareaNorm) return false;
+    if(onlyNoDate){
+      if(task.dueAt) return false;
+    }else{
+      if(!task.dueAt){
+        if(!includeNoDate) return false;
+      }else{
+        if(from && dueIso < from) return false;
+        if(to && dueIso > to) return false;
+      }
+    }
+    if(hasWeekFilter){
+      if(task.weekNumber !== weekNumber) return false;
+    }
+    return true;
+  });
+}
+function applyQuickRange(range){
+  const today = new Date();
+  const todayIso = today.toISOString().slice(0,10);
+  if(range==="clear"){
+    filterState.dateFrom = "";
+    filterState.dateTo = "";
+    filterState.includeNoDate = true;
+    filterState.onlyNoDate = false;
+    return;
+  }
+  filterState.onlyNoDate = false;
+  switch(range){
+    case "today": {
+      filterState.dateFrom = todayIso;
+      filterState.dateTo = todayIso;
+      filterState.includeNoDate = false;
+      break;
+    }
+    case "tomorrow": {
+      const tomorrow = plusDays(today, 1).toISOString().slice(0,10);
+      filterState.dateFrom = tomorrow;
+      filterState.dateTo = tomorrow;
+      filterState.includeNoDate = false;
+      break;
+    }
+    case "next7": {
+      const end7 = plusDays(today, 6).toISOString().slice(0,10);
+      filterState.dateFrom = todayIso;
+      filterState.dateTo = end7;
+      filterState.includeNoDate = false;
+      break;
+    }
+    case "week": {
+      const start = mondayOf(today);
+      const end = plusDays(start, 6);
+      filterState.dateFrom = start.toISOString().slice(0,10);
+      filterState.dateTo = end.toISOString().slice(0,10);
+      filterState.includeNoDate = false;
+      break;
+    }
+    case "month": {
+      const first = new Date(today.getFullYear(), today.getMonth(), 1);
+      const last = new Date(today.getFullYear(), today.getMonth()+1, 0);
+      filterState.dateFrom = first.toISOString().slice(0,10);
+      filterState.dateTo = last.toISOString().slice(0,10);
+      filterState.includeNoDate = false;
+      break;
+    }
+    default:
+      break;
+  }
+}
+/* Kanban semana */
+function renderKanban(){
+  const view = document.getElementById("view");
+  if(!view) return;
+  const today = new Date();
+  const monday = mondayOf(today);
+  const sunday = plusDays(monday,6);
+  const weekTasks = state.tasks.filter(t=>{
+    if(!t.dueAt) return false;
+    const d = new Date(t.dueAt);
+    return d >= monday && d <= sunday;
+  });
+  const columns = [
+    { title: "A fazer", status: STATUS[0] },
+    { title: "Em progresso", status: STATUS[1] },
+    { title: "Bloqueada", status: STATUS[2] },
+    { title: "Reagendar", status: STATUS[3] },
+    { title: "Cancelado", status: STATUS[4] },
+    { title: "Conclu\u00eddo", status: STATUS[5] }
+  ];
+  view.innerHTML = `
+    <div class="footer">
+      <div class="status-msg">Semana ${monday.toLocaleDateString()} - ${sunday.toLocaleDateString()}</div>
+      <div class="row">
+        ${actionBtn("&larr; Semana anterior", ()=>shiftWeek(-7))}
+        ${actionBtn("Pr&oacute;xima semana &rarr;", ()=>shiftWeek(7))}
+      </div>
+    </div>
+    <div class="kanban">
+      ${columns.map(col=>{
+        const body = weekTasks
+          .filter(t=>t.status===col.status)
+          .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""))
+          .map(card).join("") || empty();
+        return `<div class="col"><h3>${col.title}</h3>${body}</div>`;
+      }).join("")}
+    </div>
+  `;
+  function shiftWeek(days){
+    weekTasks.forEach(t=>{
+      if(t.dueAt){
+        const base = new Date(t.dueAt);
+        t.dueAt = plusDays(base, days).toISOString();
+        applyDerived(t);
+        t.updatedAt = new Date().toISOString();
+      }
+    });
+    save(); render("kanban");
+  }
+}
+/* Por dia */
+function renderDay(){
+  const view = document.getElementById("view");
+  if(!view) return;
+  const todayIso = new Date().toISOString().slice(0,10);
+  const tasks = byDate(todayIso);
+  view.innerHTML = `
+    <div class="row">
+      <input type="date" id="daypick" value="${todayIso}" />
+    </div>
+    <div id="daylist" style="margin-top:10px"></div>
+  `;
+  const listDiv = document.getElementById("daylist");
+  const renderList = iso=>{
+    listDiv.innerHTML = state.tasks
+      .filter(t=> t.dueAt && t.dueAt.slice(0,10)===iso)
+      .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""))
+      .map(card).join("") || empty();
+  };
+  document.getElementById("daypick").oninput = (e)=> renderList(e.target.value);
+  renderList(todayIso);
+  function byDate(isoDay){ return state.tasks.filter(t=> t.dueAt && t.dueAt.slice(0,10)===isoDay); }
+}
+/* Recorrentes */
+function renderRec(){
+  const view = document.getElementById("view");
+  if(!view) return;
+  const recRows = recState.recs
+    .slice().sort((a,b)=> a.weekday-b.weekday || (a.atTime||"").localeCompare(b.atTime||""))
+    .map(r=>`
+      <tr>
+        <td>${r.title}</td>
+        <td>${["Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado","Domingo"][r.weekday]}</td>
+        <td>${r.atTime||""}</td>
+        <td>${r.responsible||""}</td>
+        <td>${r.priority||""}</td>
+        <td>${r.durationTag||""}</td>
+        <td>
+          <div class="actions">
+            ${actionBtn("Del", ()=>delRec(r.id),"danger")}
+          </div>
+        </td>
+      </tr>
+    `).join("");
+  const nextMon = mondayOf(plusDays(new Date(), 7));
+  view.innerHTML = `
+    <div class="stack">
+      <h3>Adicionar recorrente</h3>
+      <div class="row">
+        <input id="r_title" placeholder="T\u00edtulo" style="flex:1"/>
+      </div>
+      <div class="row">
+        <select id="r_weekday">
+          <option value="0">Segunda</option><option value="1">Ter&ccedil;a</option><option value="2">Quarta</option>
+          <option value="3">Quinta</option><option value="4">Sexta</option><option value="5">S&aacute;bado</option>
+          <option value="6">Domingo</option>
+        </select>
+        <input id="r_time" placeholder="HH:MM (opcional)" />
+        <input id="r_resp" placeholder="Respons\u00e1vel (opcional)" />
+        <select id="r_prio" class="colorful" data-color="priority"><option>Baixa</option><option selected>M\u00e9dia</option><option>Alta</option><option>Alt\u00edssima</option></select>
+        <select id="r_dur" class="colorful" data-color="duration"><option>R\u00e1pido</option><option selected>M\u00e9dio</option><option>Demorado</option></select>
+        <button class="btn primary" id="r_add">Salvar</button>
+      </div>
+      <div class="footer">
+        ${actionBtn("Gerar semana", ()=>generateWeek(nextMon))}
+      </div>
+      <div style="overflow:auto">
+        <table>
+          <thead><tr><th>Tarefa</th><th>Dia</th><th>Hora</th><th>Respons&aacute;vel</th><th>Prioridade</th><th>Tempo</th><th>A&ccedil;&otilde;es</th></tr></thead>
+          <tbody>${recRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  document.getElementById("r_add").onclick = ()=>{
+    const t = document.getElementById("r_title").value.trim(); if(!t) return alert("Informe o t\u00edtulo");
+    recState.lastId++;
+    recState.recs.push({
+      id: recState.lastId,
+      title: t,
+      weekday: parseInt(document.getElementById("r_weekday").value,10),
+      atTime: (document.getElementById("r_time").value||"").trim() || null,
+      responsible: (document.getElementById("r_resp").value||"").trim() || null,
+      priority: document.getElementById("r_prio").value,
+      durationTag: document.getElementById("r_dur").value
+    });
+    saveRec(); render("rec");
+  };
+  setupColorizedSelects(view);
+}
+/* --------- Ações --------- */
+function actionBtn(label, fn, cls=""){ 
+  const id = "b"+Math.random().toString(36).slice(2);
+  setTimeout(()=>{ const el=document.getElementById(id); if(el) el.onclick=fn; },0);
+  return `<button class="btn ${cls}" id="${id}">${label}</button>`;
+}
+function card(t){
+  const statusPill = t.status ? `<span class="pill ${statusClass(t.status)}">${escHtml(t.status)}</span>` : "";
+  const metaParts = [];
+  const range = formatRangeLabel(t);
+  metaParts.push(range ? escHtml(range) : "Sem data");
+  if(t.dueAt) metaParts.push(escHtml(weekday(t.dueAt)));
+  if(t.responsible) metaParts.push(escHtml(t.responsible));
+  if(t.priority) metaParts.push(escHtml(t.priority));
+  if(t.durationTag) metaParts.push(escHtml(t.durationTag));
+  if(t.area) metaParts.push(escHtml(t.area));
+  if(t.subarea) metaParts.push(escHtml(t.subarea));
+  const noteBlock = t.notes ? `<div class="meta">${escHtml(t.notes)}</div>` : "";
+  const titleLine = statusPill ? `${statusPill} ${escHtml(t.title)}` : escHtml(t.title);
+  return `
+    <div class="task">
+      <div class="t">${titleLine}</div>
+      <div class="meta">${metaParts.join(" \u2022 ")}</div>
+      ${noteBlock}
+      <div class="actions">
+        ${actionBtn("Concluir", ()=>updateTask(t.id,{status:"Conclu\u00eddo"}), "ok")}
+        ${actionBtn("Reagendar +1d", ()=>resched(t.id,1))}
+        ${actionBtn("Reagendar +7d", ()=>resched(t.id,7))}
+        ${actionBtn("Editar", ()=>editTaskPrompt(t.id))}
+        ${actionBtn("Excluir", ()=>delTask(t.id),"danger")}
+      </div>
+    </div>
+  `;
+}
+function empty(){ return `<div class="muted">Sem itens.</div>`; }
+function updateTask(id, patch){
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  const nowIso = new Date().toISOString();
+  if(patch.title!==undefined){
+    const title = cleanString(patch.title);
+    if(title) t.title = title;
+  }
+  if(patch.dueAt!==undefined){
+    t.dueAt = patch.dueAt || null;
+  }
+  if(patch.endTime!==undefined){
+    const endTime = sanitizeEndTime(patch.endTime);
+    t.endTime = endTime;
+  }
+  if(patch.status!==undefined){
+    t.status = mapStatus(patch.status);
+  }
+  if(patch.responsible!==undefined){
+    t.responsible = sanitizeOptionField(patch.responsible, RESPONSIBLES);
+  }
+  if(patch.priority!==undefined){
+    t.priority = sanitizeOptionField(patch.priority, PRIORITIES);
+  }
+  if(patch.durationTag!==undefined){
+    t.durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
+  }
+  if(patch.area!==undefined){
+    t.area = sanitizeOptionField(patch.area, AREAS);
+  }
+  if(patch.subarea!==undefined){
+    t.subarea = sanitizeOptionField(patch.subarea, SUBAREAS);
+  }
+  if(patch.emoji!==undefined){
+    t.emoji = patch.emoji || null;
+  }
+  if(patch.notes!==undefined){
+    t.notes = sanitizeNotes(patch.notes);
+  }
+  applyDerived(t);
+  t.updatedAt = nowIso;
+  save();
+  render(currentTab);
+}
+function editTaskPrompt(id){
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  const title = prompt("T\u00edtulo:", t.title); if(!title) return;
+  const due = prompt("Data/Hora (YYYY-MM-DD HH:MM) ou vazio:", t.dueAt ? new Date(t.dueAt).toISOString().slice(0,16).replace("T"," ") : "");
+  const endTime = prompt("Hora final (HH:MM) ou vazio:", t.endTime||"");
+  const status = prompt(`Status (${STATUS.join(", ")}):`, t.status) || t.status;
+  const resp = prompt("Respons\u00e1vel (opcional):", t.responsible||"");
+  const prio = prompt(`Prioridade (${PRIORITIES.join(", ")}):`, t.priority||PRIORITIES[1]);
+  const dur = prompt(`Tempo (${DURATIONS.join(", ")}):`, t.durationTag||DURATIONS[1]);
+  const area = prompt("Área (opcional):", t.area||"");
+  const subarea = prompt("Sub\u00e1rea (opcional):", t.subarea||"");
+  const notes = prompt("Notas (opcional):", t.notes||"");
+  updateTask(id, {
+    title,
+    status,
+    responsible: resp||null,
+    priority: prio,
+    durationTag: dur,
+    dueAt: due ? new Date(due.replace(" ","T")).toISOString() : null,
+    endTime,
+    area: area||null,
+    subarea: subarea||null,
+    notes: notes||""
+  });
+}
+function resched(id, days){
+  const t = state.tasks.find(x=>x.id===id); if(!t) return;
+  const base = t.dueAt ? new Date(t.dueAt) : new Date();
+  t.dueAt = plusDays(base, days).toISOString();
+  t.status = STATUS[0];
+  applyDerived(t);
+  t.updatedAt = new Date().toISOString();
+  save(); render(currentTab);
+}
+function delTask(id){
+  if(!confirm("Excluir tarefa?")) return;
+  state.tasks = state.tasks.filter(x=>x.id!==id); save(); render(currentTab);
+}
+/* Recorrentes */
+function delRec(id){
+  if(!confirm("Excluir recorrente")) return;
+  recState.recs = recState.recs.filter(r=>r.id!==id); saveRec(); render("rec");
+}
+function generateWeek(baseMonday){
+  if(!(baseMonday instanceof Date)) baseMonday = new Date(baseMonday);
+  recState.recs.forEach(r=>{
+    const day = new Date(baseMonday);
+    day.setDate(day.getDate() + r.weekday);
+    if(r.atTime){
+      const [hh,mm] = r.atTime.split(":").map(Number);
+      day.setHours(hh||0, mm||0, 0, 0);
+    }else{
+      day.setHours(0,0,0,0);
+    }
+    const exists = state.tasks.some(t=> t.title===r.title && t.dueAt && t.dueAt.slice(0,10)===day.toISOString().slice(0,10));
+    if(!exists){
+      addTask({
+        title: r.title,
+        dueAt: day.toISOString(),
+        status: STATUS[0],
+        responsible: r.responsible||null,
+        priority: r.priority||null,
+        durationTag: r.durationTag||null,
+        area: r.area||null,
+        subarea: r.subarea||null,
+        endTime: null,
+        notes: ""
+      });
+    }
+  });
+  alert("Semana gerada.");
+  render("kanban");
+}
+
+function initApp(){
+  if(appInitialized) return;
+  appInitialized = true;
+  const tabs = document.getElementById("tabs");
+  function setTab(name){
+    if(!tabs) return;
+    [...tabs.querySelectorAll("button")].forEach(b=>b.classList.toggle("active", b.dataset.tab===name));
+    render(name);
+  }
+  if(tabs){
+    tabs.addEventListener("click", e=>{
+      const btn = e.target.closest("button");
+      if(btn) setTab(btn.dataset.tab);
+    });
+    window.setTab = setTab;
+  }
+  const addTaskBtn = document.getElementById("addTask");
+  if(addTaskBtn){
+    addTaskBtn.addEventListener("click", ()=>{
+      const emojiEl = document.getElementById("emoji");
+      const titleEl = document.getElementById("title");
+      const dueDateEl = document.getElementById("dueDate");
+      const dueTimeEl = document.getElementById("dueTime");
+      const endEl = document.getElementById("endTime");
+      const statusEl = document.getElementById("status");
+      const respEl = document.getElementById("resp");
+      const prioEl = document.getElementById("prio");
+      const durEl = document.getElementById("dur");
+      const areaEl = document.getElementById("area");
+      const subareaEl = document.getElementById("subarea");
+      const notesEl = document.getElementById("notes");
+      const title = titleEl ? titleEl.value.trim() : "";
+      if(!title){ alert("Informe a tarefa"); return; }
+      const due = combineDateAndTime(dueDateEl ? dueDateEl.value : "", dueTimeEl ? dueTimeEl.value : "");
+      const endTime = padTime(endEl ? endEl.value : "");
+      addTask({
+        emoji: emojiEl && emojiEl.value ? emojiEl.value : null,
+        title,
+        dueAt: due,
+        endTime: endTime || null,
+        status: statusEl ? statusEl.value : STATUS[0],
+        responsible: respEl && respEl.value ? respEl.value : null,
+        priority: prioEl && prioEl.value ? prioEl.value : null,
+        durationTag: durEl && durEl.value ? durEl.value : null,
+        area: areaEl && areaEl.value ? areaEl.value : null,
+        subarea: subareaEl && subareaEl.value ? subareaEl.value : null,
+        notes: sanitizeNotes(notesEl ? notesEl.value : "")
+      });
+      if(emojiEl) emojiEl.value = "";
+      if(titleEl) titleEl.value = "";
+      if(dueDateEl) dueDateEl.value = "";
+      if(dueTimeEl) dueTimeEl.value = "";
+      if(endEl) endEl.value = "";
+      if(notesEl) notesEl.value = "";
+      if(statusEl) statusEl.value = STATUS[0];
+      if(respEl) respEl.value = "";
+      if(prioEl) prioEl.value = PRIORITIES[1];
+      if(durEl) durEl.value = DURATIONS[1];
+      if(areaEl) areaEl.value = "";
+      if(subareaEl) subareaEl.value = "";
+      render(currentTab);
+    });
+  }
+  const exportBtn = document.getElementById("exportBtn");
+  if(exportBtn){
+    exportBtn.addEventListener("click", ()=>{
+      const blob = new Blob([JSON.stringify({state,recState}, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "tarefas_export.json";
+      a.click();
+    });
+  }
+  const importInput = document.getElementById("importFile");
+  const importStatus = document.getElementById("importStatus");
+  const importBtn = document.getElementById("importBtn");
+  if(importBtn && importInput){
+    importBtn.addEventListener("click", ()=>{
+      if(importStatus){
+        importStatus.textContent = "";
+        importStatus.classList.add("muted");
+      }
+      importInput.value = "";
+      importInput.click();
+    });
+    importInput.addEventListener("change", async e=>{
+      const file = e.target.files && e.target.files[0]; if(!file) return;
+      try{
+        const txt = await file.text();
+        const data = JSON.parse(txt);
+        if(!applyImportedData(data)){
+          throw new Error("Formato de arquivo não reconhecido");
+        }
+        save(); saveRec(); render(currentTab || "all");
+        let persistNote = "";
+        const persistResult = await persistImportedFile(file);
+        if(persistResult){
+          if(persistResult.path){
+            persistNote = ` - Copiado para ${persistResult.path}`;
+            updateImportDirInfo(`Cópia salva em: ${persistResult.path}`, "success");
+          }else if(persistResult.missing){
+            updateImportDirInfo("Selecione a pasta para salvar automaticamente as importações.", "error");
+          }else if(persistResult.permission === false){
+            updateImportDirInfo("Permita acesso de escrita para salvar as importações.", "error");
+          }else if(persistResult.unsupported){
+            updateImportDirInfo("Este navegador não suporta salvar automaticamente os arquivos importados.", "error");
+          }else if(persistResult.error){
+            updateImportDirInfo("Erro ao salvar uma cópia do arquivo importado.", "error");
+          }
+        }
+        if(importStatus){
+          importStatus.textContent = `Importado: ${file.name}${persistNote}`;
+          importStatus.classList.remove("muted");
+        }
+      }catch(err){
+        console.error("Import JSON error", err);
+        alert("Falha ao importar JSON. Verifique o arquivo.");
+        if(importStatus){
+          importStatus.textContent = "Falha ao importar.";
+          importStatus.classList.remove("muted");
+        }
+        updateImportDirInfo("Erro ao processar o arquivo importado.", "error");
+      }finally{
+        e.target.value = "";
+      }
+    });
+  }
+  const chooseImportDirBtn = document.getElementById("chooseImportDir");
+  if(chooseImportDirBtn){
+    if(!supportsFileSystemAccess()){
+      updateImportDirInfo("Salvar automaticamente requer um navegador compatível.", "error");
+    }
+    chooseImportDirBtn.addEventListener("click", async ()=>{
+      if(!supportsFileSystemAccess()){
+        updateImportDirInfo("Seu navegador não permite salvar automaticamente os arquivos importados.", "error");
+        return;
+      }
+      try{
+        const handle = await window.showDirectoryPicker({id:"tarefas-importacoes"});
+        const permission = await ensureDirPermission(handle);
+        if(permission === "granted"){
+          importDirHandle = handle;
+          await persistDirectoryHandle(handle);
+          updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
+        }else{
+          updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
+        }
+      }catch(err){
+        if(err && err.name === "AbortError") return;
+        console.error("Erro ao selecionar pasta de importação", err);
+        updateImportDirInfo("Não foi possível selecionar a pasta.", "error");
+      }
+    });
+  }else if(!supportsFileSystemAccess()){
+    updateImportDirInfo("Seu navegador não suporta salvar automaticamente os arquivos importados.", "error");
+  }
+  controlCollapse = setupCollapsible("controlCard", {
+    defaultOpen:false,
+    onOpen: ()=>{
+      const title = document.getElementById("title");
+      if(title) title.focus({preventScroll:true});
+    }
+  });
+  filterCollapse = setupCollapsible("filterCard", {defaultOpen:false});
+  setupColorizedSelects(document.getElementById("controlCard"));
+  const emojiSelect = document.getElementById("emoji");
+  if(emojiSelect){ emojiSelect.innerHTML = emojiOptions(emojiSelect.value || ""); }
+  if(supportsFileSystemAccess()){
+    restoreImportDirectory();
+  }
+  setTab("all");
+}
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", initApp, { once: true });
+}else{
+  initApp();
+}
+window.addEventListener("load", initApp, { once: true });
+
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
