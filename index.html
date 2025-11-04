@@ -721,6 +721,8 @@ window._tableResizeHandler = null;
 let controlCollapse = null;
 let filterCollapse = null;
 let appInitialized = false;
+let bootstrapCompleted = false;
+let bootstrapLoadedRemote = false;
 
 function loadColumnWidths(){
   try{
@@ -752,14 +754,178 @@ const FILTER_DEFAULTS = {
   onlyNoDate: false
 };
 const filterState = { ...FILTER_DEFAULTS };
-const initialNow = new Date().toISOString();
-const stateStored = load(LS_KEY);
-let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
-const recStored = load(LS_REC_KEY);
-let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function saveRec(){ localStorage.setItem(LS_REC_KEY, JSON.stringify(recState)); }
-function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; } }
+const DATA_REPO = {
+  owner: "plixeldesign",
+  repo: "Tarefas",
+  file: "tarefas.json",
+  token: ""
+};
+const GH_TOKEN_STORAGE_KEY = "tarefas_github_pat";
+let repoSha = null;
+let remoteEnabled = false;
+
+function ensureToken(){
+  if(DATA_REPO.token) return true;
+  const stored = typeof localStorage !== "undefined" ? localStorage.getItem(GH_TOKEN_STORAGE_KEY) : null;
+  if(stored){
+    DATA_REPO.token = stored.trim();
+    if(DATA_REPO.token) return true;
+  }
+  if(typeof window !== "undefined"){
+    const entered = window.prompt("Informe o token do GitHub (PAT) para sincronizar as tarefas. Clique em Cancelar para usar apenas este dispositivo.");
+    if(entered && entered.trim()){
+      DATA_REPO.token = entered.trim();
+      try{ localStorage.setItem(GH_TOKEN_STORAGE_KEY, DATA_REPO.token); }catch(_){}
+      return true;
+    }
+  }
+  return false;
+}
+
+async function githubRequest(method="GET", body){
+  const url = `https://api.github.com/repos/${DATA_REPO.owner}/${DATA_REPO.repo}/contents/${DATA_REPO.file}`;
+  const headers = { "Accept":"application/vnd.github+json" };
+  if(DATA_REPO.token){
+    headers["Authorization"] = `Bearer ${DATA_REPO.token}`;
+  }
+  const response = await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(method === "GET" && response.status === 404){
+    return null;
+  }
+  if(!response.ok){
+    const text = await response.text();
+    throw new Error(`GitHub API error (${response.status}): ${text}`);
+  }
+  return await response.json();
+}
+
+async function loadRemoteState(){
+  if(!remoteEnabled) return null;
+  const data = await githubRequest("GET");
+  if(!data || !data.content){
+    repoSha = data && data.sha ? data.sha : null;
+    return null;
+  }
+  repoSha = data.sha;
+  const decoded = JSON.parse(decodeBase64Utf8(data.content));
+  return decoded;
+}
+
+async function saveRemoteState(payload){
+  if(!remoteEnabled) return;
+  const body = {
+    message: `Atualiza tarefas ${new Date().toISOString()}`,
+    content: encodeBase64Utf8(JSON.stringify(payload, null, 2))
+  };
+  if(repoSha) body.sha = repoSha;
+  const result = await githubRequest("PUT", body);
+  if(result && result.content && result.content.sha){
+    repoSha = result.content.sha;
+  }else if(result && result.sha){
+    repoSha = result.sha;
+  }
+}
+
+function loadLocal(key){
+  try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; }
+}
+function saveLocal(key, value){
+  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(_){}
+}
+function encodeBase64Utf8(str){
+  try{
+    if(typeof TextEncoder !== "undefined"){
+      const bytes = new TextEncoder().encode(str);
+      let binary = "";
+      bytes.forEach(b=>{ binary += String.fromCharCode(b); });
+      return btoa(binary);
+    }
+  }catch(err){
+    console.error("Erro ao codificar Base64 UTF-8 (TextEncoder)", err);
+  }
+  try{
+    return btoa(unescape(encodeURIComponent(str)));
+  }catch(err2){
+    console.error("Erro ao codificar Base64 UTF-8", err2);
+    return btoa(str);
+  }
+}
+function decodeBase64Utf8(value){
+  try{
+    if(typeof TextDecoder !== "undefined"){
+      const binary = atob(value);
+      const bytes = Uint8Array.from(binary, c=> c.charCodeAt(0));
+      return new TextDecoder().decode(bytes);
+    }
+  }catch(err){
+    console.error("Erro ao decodificar Base64 UTF-8 (TextDecoder)", err);
+  }
+  try{
+    return decodeURIComponent(escape(atob(value)));
+  }catch(err2){
+    console.error("Erro ao decodificar Base64 UTF-8", err2);
+    return atob(value);
+  }
+}
+
+let state = { tasks: [], lastId: 0 };
+let recState = { recs: [], lastId: 0 };
+
+async function bootstrapState(){
+  remoteEnabled = ensureToken();
+  if(remoteEnabled){
+    try{
+      const remote = await loadRemoteState();
+      if(remote && Array.isArray(remote.tasks)){
+        const nowIso = new Date().toISOString();
+        state = normalizeStateData(remote, nowIso);
+      }
+      if(remote && Array.isArray(remote.recorrentes)){
+        recState = normalizeRecState({ recs: remote.recorrentes, lastId: remote.recorrentes.length });
+      }
+      if(remote){
+        bootstrapLoadedRemote = true;
+        return;
+      }
+    }catch(err){
+      console.error("Falha ao carregar dados do GitHub, usando armazenamento local.", err);
+      remoteEnabled = false;
+    }
+  }
+  const nowIso = new Date().toISOString();
+  const localState = loadLocal(LS_KEY);
+  const localRec = loadLocal(LS_REC_KEY);
+  state = localState ? normalizeStateData(localState, nowIso) : { tasks: [], lastId: 0 };
+  recState = localRec ? normalizeRecState(localRec) : { recs: [], lastId: 0 };
+}
+
+async function persistAll(){
+  const payload = {
+    tasks: state.tasks,
+    recorrentes: recState.recs
+  };
+  if(remoteEnabled){
+    try{
+      await saveRemoteState(payload);
+      return;
+    }catch(err){
+      console.error("Falha ao salvar no GitHub, usando armazenamento local como fallback.", err);
+      remoteEnabled = false;
+    }
+  }
+  saveLocal(LS_KEY, state);
+  saveLocal(LS_REC_KEY, recState);
+}
+function persistAllSafe(){
+  const maybePromise = persistAll();
+  if(maybePromise && typeof maybePromise.catch === "function"){
+    maybePromise.catch(err=> console.error("Falha ao persistir dados.", err));
+  }
+}
 /* --------- Util --------- */
 const fmt = d => d ? new Date(d).toLocaleString('pt-BR',{hour12:false}) : "";
 const fmtDate = d => d ? new Date(d).toLocaleDateString('pt-BR') : "";
@@ -1167,7 +1333,7 @@ function addTask(t){
   task.createdAt = nowIso;
   task.updatedAt = nowIso;
   state.tasks.push(task);
-  save();
+  persistAllSafe();
 }
 function supportsFileSystemAccess(){
   try{
@@ -2073,7 +2239,7 @@ function renderKanban(){
         t.updatedAt = new Date().toISOString();
       }
     });
-    save(); render("kanban");
+    persistAllSafe(); render("kanban");
   }
 }
 /* Por dia */
@@ -2162,7 +2328,7 @@ function renderRec(){
       priority: document.getElementById("r_prio").value,
       durationTag: document.getElementById("r_dur").value
     });
-    saveRec(); render("rec");
+    persistAllSafe(); render("rec");
   };
   setupColorizedSelects(view);
 }
@@ -2241,7 +2407,7 @@ function updateTask(id, patch){
   }
   applyDerived(t);
   t.updatedAt = nowIso;
-  save();
+  persistAllSafe();
   render(currentTab);
 }
 function editTaskPrompt(id){
@@ -2276,16 +2442,16 @@ function resched(id, days){
   t.status = STATUS[0];
   applyDerived(t);
   t.updatedAt = new Date().toISOString();
-  save(); render(currentTab);
+  persistAllSafe(); render(currentTab);
 }
 function delTask(id){
   if(!confirm("Excluir tarefa?")) return;
-  state.tasks = state.tasks.filter(x=>x.id!==id); save(); render(currentTab);
+  state.tasks = state.tasks.filter(x=>x.id!==id); persistAllSafe(); render(currentTab);
 }
 /* Recorrentes */
 function delRec(id){
   if(!confirm("Excluir recorrente")) return;
-  recState.recs = recState.recs.filter(r=>r.id!==id); saveRec(); render("rec");
+  recState.recs = recState.recs.filter(r=>r.id!==id); persistAllSafe(); render("rec");
 }
 function generateWeek(baseMonday){
   if(!(baseMonday instanceof Date)) baseMonday = new Date(baseMonday);
@@ -2411,7 +2577,7 @@ function initApp(){
         if(!applyImportedData(data)){
           throw new Error("Formato de arquivo não reconhecido");
         }
-        save(); saveRec(); render(currentTab || "all");
+        persistAllSafe(); render(currentTab || "all");
         let persistNote = "";
         const persistResult = await persistImportedFile(file);
         if(persistResult){
@@ -2490,12 +2656,29 @@ function initApp(){
   }
   setTab("all");
 }
-if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", initApp, { once: true });
-}else{
+async function startApp(){
+  if(appInitialized) return;
+  if(!bootstrapCompleted){
+    try{
+      await bootstrapState();
+    }catch(err){
+      console.error("Falha ao preparar dados iniciais, iniciando com armazenamento local.", err);
+    }finally{
+      bootstrapCompleted = true;
+    }
+  }
   initApp();
+  if(remoteEnabled && !bootstrapLoadedRemote && (state.tasks.length || recState.recs.length)){
+    persistAllSafe();
+  }
 }
-window.addEventListener("load", initApp, { once: true });
+
+if(document.readyState === "loading"){
+  document.addEventListener("DOMContentLoaded", ()=>{ startApp(); }, { once: true });
+}else{
+  startApp();
+}
+window.addEventListener("load", ()=>{ startApp(); }, { once: true });
 
 </script>
 </body>
