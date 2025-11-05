@@ -284,8 +284,9 @@
 .multi-select.open .multi-trigger .chevron{transform:rotate(180deg);color:var(--accent)}
 .multi-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(12,12,22,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 8px;box-shadow:0 16px 32px -18px rgba(0,0,0,0.75);max-height:220px;overflow:auto;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease;text-align:left;z-index:40}
 .multi-select.open .multi-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
-.multi-option{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:var(--fg);cursor:pointer;text-align:left}
-.multi-option input{margin:0}
+.multi-option{display:flex;align-items:center;justify-content:flex-start;gap:8px;padding:6px 10px;border-radius:8px;color:var(--fg);cursor:pointer;text-align:left;width:100%}
+.multi-option input{margin:0;flex:0 0 auto}
+.multi-option span{flex:1;text-align:left}
 .multi-option:hover{background:rgba(102,217,239,0.12)}
 .multi-empty{display:block;padding:8px 10px;color:var(--muted);text-align:left}
 .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
