@@ -1898,11 +1898,19 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
+  const handleDateFilterInput = (key, value)=>{
+    if(value === "" || value.length === 10){
+      filterState[key] = value;
+      renderAll();
+    }
+  };
   if(controls.dateFrom){
-    controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
+    controls.dateFrom.addEventListener("input", e=> handleDateFilterInput("dateFrom", e.target.value));
+    controls.dateFrom.addEventListener("change", e=> handleDateFilterInput("dateFrom", e.target.value));
   }
   if(controls.dateTo){
-    controls.dateTo.onchange = (e)=>{ filterState.dateTo = e.target.value; renderAll(); };
+    controls.dateTo.addEventListener("input", e=> handleDateFilterInput("dateTo", e.target.value));
+    controls.dateTo.addEventListener("change", e=> handleDateFilterInput("dateTo", e.target.value));
   }
   if(controls.week){
     controls.week.oninput = (e)=>{
