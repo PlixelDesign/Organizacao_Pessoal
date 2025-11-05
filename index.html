@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿ï»¿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="utf-8" />
@@ -433,7 +433,7 @@
   .multi-option{
     display:flex;
     align-items:center;
-    gap:8px;
+    gap:10px;
     padding:8px 14px;
     font-size:12px;
     color:rgba(236,236,241,0.9);
@@ -444,6 +444,8 @@
     background:rgba(102,217,239,0.12);
   }
   .multi-option input{
+    margin:0;
+    margin-right:2px;
     accent-color:var(--accent);
   }
   .multi-empty{
@@ -630,7 +632,7 @@
   <div class="layout-stack">
     <section class="card collapsible" id="controlCard" data-collapsible="controls">
       <div class="collapsible-header" role="button" tabindex="0" aria-expanded="false">
-        <h3>Nova tarefa &amp; importação</h3>
+        <h3>Nova tarefa &amp; importaÃ§Ã£o</h3>
         <div class="row header-actions">
           <button class="btn tiny" type="button" data-role="collapse-toggle" data-collapsible-target="controlCard">Expandir</button>
           <span class="chevron" aria-hidden="true">&#9654;</span>
@@ -647,7 +649,7 @@
               </div>
               <div class="row date-row">
                 <input id="dueDate" type="date" aria-label="Data da tarefa" />
-                <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
+                <input id="dueTime" type="time" placeholder="Hora inÃ­cio" aria-label="Hora inÃ­cio" />
                 <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
               </div>
               <select id="status" class="colorful" data-color="status">
@@ -656,10 +658,10 @@
                 <option value="Bloqueada">Bloqueada</option>
                 <option value="Reagendar">Reagendar</option>
                 <option value="Cancelado">Cancelado</option>
-                <option value="Concluído">Concluído</option>
+                <option value="ConcluÃ­do">ConcluÃ­do</option>
               </select>
               <select id="resp" class="colorful" data-color="responsible">
-                <option value="" selected>Responsável</option>
+                <option value="" selected>ResponsÃ¡vel</option>
                 <option value="Daniel">Daniel</option>
                 <option value="Maysa">Maysa</option>
                 <option value="Daniel e Maysa">Daniel e Maysa</option>
@@ -667,21 +669,21 @@
               <select id="prio" class="colorful" data-color="priority">
                 <option value="">Prioridade</option>
                 <option value="Baixa">Baixa</option>
-                <option value="Média" selected>Média</option>
+                <option value="MÃ©dia" selected>MÃ©dia</option>
                 <option value="Alta">Alta</option>
-                <option value="Altíssima">Altíssima</option>
+                <option value="AltÃ­ssima">AltÃ­ssima</option>
               </select>
               <select id="dur" class="colorful" data-color="duration">
-                <option value="">Tempo para conclusão</option>
-                <option value="Rápido">Rápido</option>
-                <option value="Médio" selected>Médio</option>
+                <option value="">Tempo para conclusÃ£o</option>
+                <option value="RÃ¡pido">RÃ¡pido</option>
+                <option value="MÃ©dio" selected>MÃ©dio</option>
                 <option value="Demorado">Demorado</option>
               </select>
               <select id="area" class="colorful" data-color="area">
-                <option value="">Área</option>
+                <option value="">Ãrea</option>
               </select>
               <select id="subarea" class="colorful" data-color="subarea" disabled>
-                <option value="">Selecione uma área primeiro</option>
+                <option value="">Selecione uma Ã¡rea primeiro</option>
               </select>
               <textarea id="notes" rows="2" placeholder="Notas"></textarea>
               <div class="row">
@@ -696,7 +698,7 @@
               <button class="btn" id="importBtn">Importar JSON</button>
               <input type="file" id="importFile" accept=".json" style="display:none" />
               <button class="btn" id="exportBtn">Exportar JSON</button>
-              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importaÃ§Ã£o</button>
               <div id="importDirInfo" class="status-msg"></div>
               <div id="importStatus" class="status-msg"></div>
             </div>
@@ -725,77 +727,75 @@
 <script>
 const LS_KEY = "tarefas_local_v1";
 const LS_REC_KEY = "tarefas_rec_v1";
-const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
+const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","ConcluÃ­do"];
 const RESPONSIBLES = ["Daniel","Maysa","Daniel e Maysa"];
-const PRIORITIES = ["Baixa","Média","Alta","Altíssima"];
-const DURATIONS = ["Rápido","Médio","Demorado"];
+const PRIORITIES = ["Baixa","MÃ©dia","Alta","AltÃ­ssima"];
+const DURATIONS = ["RÃ¡pido","MÃ©dio","Demorado"];
 const AREA_SUBAREAS = {
   "Plixel": [
-    "Vendas e Prospecção",
-    "Criação e Produção",
-    "Gestão e Organização",
-    "Conteúdo e Marketing",
+    "Vendas e ProspecÃ§Ã£o",
+    "CriaÃ§Ã£o e ProduÃ§Ã£o",
+    "GestÃ£o e OrganizaÃ§Ã£o",
+    "ConteÃºdo e Marketing",
     "Clientes e Entregas"
   ],
   "Igreja / Espiritualidade": [
-    "Devocional e Oração",
+    "Devocional e OraÃ§Ã£o",
     "EBD / Ensino",
     "Louvor",
     "UJADIS",
-    "Ações e Ministério"
+    "AÃ§Ãµes e MinistÃ©rio"
   ],
-  "Família & Relacionamento": [
+  "FamÃ­lia & Relacionamento": [
     "Tempo a dois (Isa)",
-    "Família estendida",
-    "Comunicação e conexão"
+    "FamÃ­lia estendida",
+    "ComunicaÃ§Ã£o e conexÃ£o"
   ],
-  "Saúde": [
-    "Treino físico",
-    "Alimentação",
+  "SaÃºde": [
+    "Treino fÃ­sico",
+    "AlimentaÃ§Ã£o",
     "Sono e descanso",
-    "Saúde mental"
+    "SaÃºde mental"
   ],
   "Casa & Rotina": [
     "Limpeza e ordem",
     "Compras e suprimentos",
-    "Organização pessoal"
+    "OrganizaÃ§Ã£o pessoal"
   ],
-  "Finanças": [
+  "FinanÃ§as": [
     "Financeiro pessoal",
     "Financeiro Plixel",
-    "Gestão e orçamento"
+    "GestÃ£o e orÃ§amento"
   ],
   "Estudo & Desenvolvimento": [
     "Design e marketing",
-    "Vendas e gestão",
-    "Idiomas / Inglês",
+    "Vendas e gestÃ£o",
+    "Idiomas / InglÃªs",
     "Desenvolvimento pessoal"
   ],
-  "Planejamento & Estratégia": [
-    "Planejamento semanal / diário",
-    "Revisão e análise",
-    "Metas e visão",
+  "Planejamento & EstratÃ©gia": [
+    "Planejamento semanal / diÃ¡rio",
+    "RevisÃ£o e anÃ¡lise",
+    "Metas e visÃ£o",
     "Sistema de produtividade"
   ]
 };
 const AREAS = Object.keys(AREA_SUBAREAS);
-const SUBAREAS = Array.from(new Set(Object.values(AREA_SUBAREAS).flat()));
-
-const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
+const SUBAREAS = Array.from(new Set(Object.values(AREA_SUBAREAS).flat()));const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
 const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
 const COLUMN_LABELS = {
   emoji:'Emoji',
   title:'Tarefa',
-  date:'Data / horários',
+  date:'Data / horÃ¡rios',
   status:'Status',
-  responsible:'Responsável',
+  responsible:'ResponsÃ¡vel',
   priority:'Prioridade',
   duration:'Tempo',
-  area:'Área',
-  subarea:'Subárea',
+  area:'Ãrea',
+  subarea:'SubÃ¡rea',
   notes:'Notas',
-  week:'Nº Semana',
-  actions:'Ações'
+  week:'NÂº Semana',
+  actions:'AÃ§Ãµes'
 };
 const COLUMN_DEFAULT_WIDTHS = {
   emoji:68,
@@ -1336,7 +1336,7 @@ function setupFilterMultiSelects(container){
   });
 }
 function buildAreaOptionsMarkup(selected){
-  const parts = ['<option value="">Área</option>'];
+  const parts = ['<option value="">Ãrea</option>'];
   AREAS.forEach(area=>{
     const selectedAttr = normalizeText(area) === normalizeText(selected) ? " selected" : "";
     parts.push(`<option value="${escAttr(area)}"${selectedAttr}>${escHtml(area)}</option>`);
@@ -1345,7 +1345,7 @@ function buildAreaOptionsMarkup(selected){
 }
 function buildSubareaOptionsMarkup(areaValue, selected){
   const hasArea = !!areaValue;
-  const label = hasArea ? "Subárea" : "Selecione uma área primeiro";
+  const label = hasArea ? "SubÃ¡rea" : "Selecione uma Ã¡rea primeiro";
   const parts = [`<option value="">${escHtml(label)}</option>`];
   const list = hasArea ? subareasForAreas(areaValue) : [];
   list.forEach(item=>{
@@ -1715,7 +1715,7 @@ async function persistDirectoryHandle(handle){
       tx.objectStore(IMPORT_DIR_STORE).put(handle, IMPORT_DIR_KEY);
     });
   }catch(err){
-    console.warn("Não foi possível gravar a pasta de importação:", err);
+    console.warn("NÃ£o foi possÃ­vel gravar a pasta de importaÃ§Ã£o:", err);
   }
 }
 async function loadStoredDirectoryHandle(){
@@ -1729,7 +1729,7 @@ async function loadStoredDirectoryHandle(){
       req.onerror = ()=>reject(req.error);
     });
   }catch(err){
-    console.warn("Não foi possível recuperar a pasta de importação:", err);
+    console.warn("NÃ£o foi possÃ­vel recuperar a pasta de importaÃ§Ã£o:", err);
     return null;
   }
 }
@@ -1803,13 +1803,13 @@ async function restoreImportDirectory(){
         importDirHandle = stored;
         updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
       }else{
-        updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
+        updateImportDirInfo("Selecione a pasta para salvar as importaÃ§Ãµes.", "error");
       }
     }else{
-      updateImportDirInfo("Selecione a pasta para salvar as importações.");
+      updateImportDirInfo("Selecione a pasta para salvar as importaÃ§Ãµes.");
     }
   }catch(err){
-    console.warn("Falha ao restaurar pasta de importação", err);
+    console.warn("Falha ao restaurar pasta de importaÃ§Ã£o", err);
   }
 }
 /* --------- UI base --------- */
@@ -1907,25 +1907,25 @@ function parseNotionTasks(rows, nowIso){
   rows.forEach(row=>{
     if(!row || typeof row!=="object") return;
     const get = fieldGetter(row);
-    const title = cleanString(get(["tarefa","nome","name","titulo","título"]));
+    const title = cleanString(get(["tarefa","nome","name","titulo","tÃ­tulo"]));
     if(!title) return;
-    const dateInfo = parseNotionDate(cleanString(get(["data","date","inicio","início","start"])));
-    const status = mapStatus(get(["status","situação","situacao","fase","etapa"]));
-    const responsible = cleanString(get(["responsavel","responsável","assignee","responsibility"]));
+    const dateInfo = parseNotionDate(cleanString(get(["data","date","inicio","inÃ­cio","start"])));
+    const status = mapStatus(get(["status","situaÃ§Ã£o","situacao","fase","etapa"]));
+    const responsible = cleanString(get(["responsavel","responsÃ¡vel","assignee","responsibility"]));
     const priority = cleanString(firstNonEmpty(
       get(["prioridade","priority"]),
-      get(["importancia","importância"])
+      get(["importancia","importÃ¢ncia"])
     ));
     const duration = cleanString(firstNonEmpty(
-      get(["tempo","tempo conclusao","tempo conclusão","tempoconclusao","tempoconclusão"]),
-      get(["duracao","duração","duration"]),
+      get(["tempo","tempo conclusao","tempo conclusÃ£o","tempoconclusao","tempoconclusÃ£o"]),
+      get(["duracao","duraÃ§Ã£o","duration"]),
       get(["tempo gasto","tempogasto"])
     ));
-    const area = cleanString(get(["area","área"]));
-    const subarea = cleanString(get(["subarea","subárea"]));
+    const area = cleanString(get(["area","Ã¡rea"]));
+    const subarea = cleanString(get(["subarea","subÃ¡rea"]));
     const notes = cleanString(firstNonEmpty(
-      get(["notas","notes","observacoes","observações"]),
-      get(["descricao","descrição","description"])
+      get(["notas","notes","observacoes","observaÃ§Ãµes"]),
+      get(["descricao","descriÃ§Ã£o","description"])
     ));
     tasks.push({
       id: tasks.length+1,
@@ -2023,7 +2023,7 @@ function parseNotionDate(raw){
   const endTime = timeMatches[1] ? padTime(`${timeMatches[1][1]}:${timeMatches[1][2]}`) : null;
   return { start: startIso, end: endTime };
 }
-/* --------- Renderizações --------- */
+/* --------- RenderizaÃ§Ãµes --------- */
 let currentTab = "all";
 function render(tab){
   currentTab = tab;
@@ -2089,8 +2089,8 @@ function renderAll(){
         <td data-col="date">
           <div class="stack date-stack">
             <input type="date" class="table-input" data-field="dueDate" value="${dueDateVal}" placeholder="DD/MM/AAAA" aria-label="Data da tarefa" />
-            <input type="time" class="table-input" data-field="dueTime" value="${dueTimeVal}" placeholder="HH:MM" aria-label="Hora de início" />
-            <input type="time" class="table-input" data-field="endTime" value="${endTimeVal}" placeholder="HH:MM" aria-label="Hora de término" />
+            <input type="time" class="table-input" data-field="dueTime" value="${dueTimeVal}" placeholder="HH:MM" aria-label="Hora de inÃ­cio" />
+            <input type="time" class="table-input" data-field="endTime" value="${endTimeVal}" placeholder="HH:MM" aria-label="Hora de tÃ©rmino" />
           </div>
         </td>
         <td data-col="status"><select class="table-input colorful" data-color="status" data-field="status">${optionsMarkup(STATUS, t.status)}</select></td>
@@ -2127,14 +2127,14 @@ function renderAll(){
       <div class="filter-grid">
         <div class="filter-field">
           <span class="filter-label">Texto</span>
-          <input id="filter-text" class="filter-input" placeholder="Buscar t&iacute;tulo..." />
+          <input id="filter-text" class="filter-input" placeholder="Buscar tÃtulo..." />
         </div>
         ${renderFilterMultiField("status","Status", STATUS, filterState.status, "Selecionar status...", "Nenhum status cadastrado")}
-        ${renderFilterMultiField("responsible","Respons&aacute;vel", RESPONSIBLES, filterState.responsible, "Selecionar respons\u00e1veis...", "Nenhum respons\u00e1vel cadastrado")}
+        ${renderFilterMultiField("responsible","ResponsÃvel", RESPONSIBLES, filterState.responsible, "Selecionar responsÃ¡veis...", "Nenhum responsÃ¡vel cadastrado")}
         ${renderFilterMultiField("priority","Prioridade", PRIORITIES, filterState.priority, "Selecionar prioridades...", "Nenhuma prioridade cadastrada")}
-        ${renderFilterMultiField("duration","Tempo para conclus&atilde;o", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma op\u00e7\u00e3o cadastrada")}
-        ${renderFilterMultiField("area","&Aacute;rea", AREAS, filterState.area, "Selecionar \u00e1reas...", "Nenhuma \u00e1rea cadastrada")}
-        ${renderFilterMultiField("subarea","Sub&aacute;rea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
+        ${renderFilterMultiField("duration","Tempo para conclusÃ£o", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma opÃ§Ã£o cadastrada")}
+        ${renderFilterMultiField("area","Ãrea", AREAS, filterState.area, "Selecionar Ã¡reas...", "Nenhuma Ã¡rea cadastrada")}
+        ${renderFilterMultiField("subarea","SubÃrea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
         <div class="filter-field">
           <span class="filter-label">Data inicial</span>
           <input type="date" id="filter-date-from" class="filter-input" />
@@ -2153,12 +2153,12 @@ function renderAll(){
         <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
       </div>
       <div class="filter-actions">
-        <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para selecionar m&uacute;ltiplos itens</span>
+        <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para selecionar mÃšltiplos itens</span>
         <button class="filter-chip" type="button" data-range="today">Hoje</button>
-        <button class="filter-chip" type="button" data-range="tomorrow">Amanh&atilde;</button>
-        <button class="filter-chip" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
+        <button class="filter-chip" type="button" data-range="tomorrow">AmanhÃ£</button>
+        <button class="filter-chip" type="button" data-range="next7">PrÃ“ximos 7 dias</button>
         <button class="filter-chip" type="button" data-range="week">Esta semana</button>
-        <button class="filter-chip" type="button" data-range="month">Este m&ecirc;s</button>
+        <button class="filter-chip" type="button" data-range="month">Este mÃŠs</button>
         <button class="filter-chip" type="button" data-range="clear">Limpar datas</button>
         <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
       </div>
@@ -2551,7 +2551,7 @@ function renderKanban(){
       <div class="status-msg">Semana ${monday.toLocaleDateString()} - ${sunday.toLocaleDateString()}</div>
       <div class="row">
         ${actionBtn("&larr; Semana anterior", ()=>shiftWeek(-7))}
-        ${actionBtn("Pr&oacute;xima semana &rarr;", ()=>shiftWeek(7))}
+        ${actionBtn("PrÃ“xima semana &rarr;", ()=>shiftWeek(7))}
       </div>
     </div>
     <div class="kanban">
@@ -2629,8 +2629,8 @@ function renderRec(){
       </div>
       <div class="row">
         <select id="r_weekday">
-          <option value="0">Segunda</option><option value="1">Ter&ccedil;a</option><option value="2">Quarta</option>
-          <option value="3">Quinta</option><option value="4">Sexta</option><option value="5">S&aacute;bado</option>
+          <option value="0">Segunda</option><option value="1">TerÃ§a</option><option value="2">Quarta</option>
+          <option value="3">Quinta</option><option value="4">Sexta</option><option value="5">SÃbado</option>
           <option value="6">Domingo</option>
         </select>
         <input id="r_time" placeholder="HH:MM (opcional)" />
@@ -2644,7 +2644,7 @@ function renderRec(){
       </div>
       <div style="overflow:auto">
         <table>
-          <thead><tr><th>Tarefa</th><th>Dia</th><th>Hora</th><th>Respons&aacute;vel</th><th>Prioridade</th><th>Tempo</th><th>A&ccedil;&otilde;es</th></tr></thead>
+          <thead><tr><th>Tarefa</th><th>Dia</th><th>Hora</th><th>ResponsÃvel</th><th>Prioridade</th><th>Tempo</th><th>AÃ§Ãµes</th></tr></thead>
           <tbody>${recRows}</tbody>
         </table>
       </div>
@@ -2666,7 +2666,7 @@ function renderRec(){
   };
   setupColorizedSelects(view);
 }
-/* --------- Ações --------- */
+/* --------- AÃ§Ãµes --------- */
 function actionBtn(label, fn, cls=""){ 
   const id = "b"+Math.random().toString(36).slice(2);
   setTimeout(()=>{ const el=document.getElementById(id); if(el) el.onclick=fn; },0);
@@ -2769,7 +2769,7 @@ function editTaskPrompt(id){
   const resp = prompt("Respons\u00e1vel (opcional):", t.responsible||"");
   const prio = prompt(`Prioridade (${PRIORITIES.join(", ")}):`, t.priority||PRIORITIES[1]);
   const dur = prompt(`Tempo (${DURATIONS.join(", ")}):`, t.durationTag||DURATIONS[1]);
-  const area = prompt("Área (opcional):", t.area||"");
+  const area = prompt("Ãrea (opcional):", t.area||"");
   const subarea = prompt("Sub\u00e1rea (opcional):", t.subarea||"");
   const notes = prompt("Notas (opcional):", t.notes||"");
   updateTask(id, {
@@ -2944,7 +2944,7 @@ function initApp(){
         const txt = await file.text();
         const data = JSON.parse(txt);
         if(!applyImportedData(data)){
-          throw new Error("Formato de arquivo não reconhecido");
+          throw new Error("Formato de arquivo nÃ£o reconhecido");
         }
         persistAllSafe(); render(currentTab || "all");
         let persistNote = "";
@@ -2952,15 +2952,15 @@ function initApp(){
         if(persistResult){
           if(persistResult.path){
             persistNote = ` - Copiado para ${persistResult.path}`;
-            updateImportDirInfo(`Cópia salva em: ${persistResult.path}`, "success");
+            updateImportDirInfo(`CÃ³pia salva em: ${persistResult.path}`, "success");
           }else if(persistResult.missing){
-            updateImportDirInfo("Selecione a pasta para salvar automaticamente as importações.", "error");
+            updateImportDirInfo("Selecione a pasta para salvar automaticamente as importaÃ§Ãµes.", "error");
           }else if(persistResult.permission === false){
-            updateImportDirInfo("Permita acesso de escrita para salvar as importações.", "error");
+            updateImportDirInfo("Permita acesso de escrita para salvar as importaÃ§Ãµes.", "error");
           }else if(persistResult.unsupported){
-            updateImportDirInfo("Este navegador não suporta salvar automaticamente os arquivos importados.", "error");
+            updateImportDirInfo("Este navegador nÃ£o suporta salvar automaticamente os arquivos importados.", "error");
           }else if(persistResult.error){
-            updateImportDirInfo("Erro ao salvar uma cópia do arquivo importado.", "error");
+            updateImportDirInfo("Erro ao salvar uma cÃ³pia do arquivo importado.", "error");
           }
         }
         if(importStatus){
@@ -2983,11 +2983,11 @@ function initApp(){
   const chooseImportDirBtn = document.getElementById("chooseImportDir");
   if(chooseImportDirBtn){
     if(!supportsFileSystemAccess()){
-      updateImportDirInfo("Salvar automaticamente requer um navegador compatível.", "error");
+      updateImportDirInfo("Salvar automaticamente requer um navegador compatÃ­vel.", "error");
     }
     chooseImportDirBtn.addEventListener("click", async ()=>{
       if(!supportsFileSystemAccess()){
-        updateImportDirInfo("Seu navegador não permite salvar automaticamente os arquivos importados.", "error");
+        updateImportDirInfo("Seu navegador nÃ£o permite salvar automaticamente os arquivos importados.", "error");
         return;
       }
       try{
@@ -2998,16 +2998,16 @@ function initApp(){
           await persistDirectoryHandle(handle);
           updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
         }else{
-          updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
+          updateImportDirInfo("PermissÃ£o negada para a pasta escolhida.", "error");
         }
       }catch(err){
         if(err && err.name === "AbortError") return;
-        console.error("Erro ao selecionar pasta de importação", err);
-        updateImportDirInfo("Não foi possível selecionar a pasta.", "error");
+        console.error("Erro ao selecionar pasta de importaÃ§Ã£o", err);
+        updateImportDirInfo("NÃ£o foi possÃ­vel selecionar a pasta.", "error");
       }
     });
   }else if(!supportsFileSystemAccess()){
-    updateImportDirInfo("Seu navegador não suporta salvar automaticamente os arquivos importados.", "error");
+    updateImportDirInfo("Seu navegador nÃ£o suporta salvar automaticamente os arquivos importados.", "error");
   }
   controlCollapse = setupCollapsible("controlCard", {
     defaultOpen:false,
@@ -3052,6 +3052,16 @@ window.addEventListener("load", ()=>{ startApp(); }, { once: true });
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
 
 
