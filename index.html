@@ -269,6 +269,7 @@
   .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
   .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
   .filter-grid input,.filter-grid select{width:100%}
+  .filter-grid select[multiple]{min-height:94px;padding:6px 8px;line-height:1.4;overflow-y:auto}
   .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
   .filter-actions .muted{margin-right:4px}
   .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
@@ -490,49 +491,9 @@
               </select>
               <select id="area" class="colorful" data-color="area">
                 <option value="">Área</option>
-                <option value="Plixel">Plixel</option>
-                <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
-                <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
-                <option value="Saúde">Saúde</option>
-                <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
-                <option value="Finanças">Finanças</option>
-                <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
-                <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
               </select>
-              <select id="subarea" class="colorful" data-color="subarea">
-                <option value="">Subárea</option>
-                <option value="Vendas e Prospecção">Vendas e Prospecção</option>
-                <option value="Criação e Produção">Criação e Produção</option>
-                <option value="Gestão e Organização">Gestão e Organização</option>
-                <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
-                <option value="Clientes e Entregas">Clientes e Entregas</option>
-                <option value="Devocional e Oração">Devocional e Oração</option>
-                <option value="EBD / Ensino">EBD / Ensino</option>
-                <option value="Louvor">Louvor</option>
-                <option value="Obras">Obras</option>
-                <option value="Eventos">Eventos</option>
-                <option value="Tempo a dois">Tempo a dois</option>
-                <option value="Família estendida">Família estendida</option>
-                <option value="Comunicação e conexão">Comunicação e conexão</option>
-                <option value="Amigos">Amigos</option>
-                <option value="Treino físico">Treino físico</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Sono e descanso">Sono e descanso</option>
-                <option value="Saúde mental">Saúde mental</option>
-                <option value="Limpeza e ordem">Limpeza e ordem</option>
-                <option value="Compras e suprimentos">Compras e suprimentos</option>
-                <option value="Organização pessoal">Organização pessoal</option>
-                <option value="Financeiro pessoal">Financeiro pessoal</option>
-                <option value="Financeiro Plixel">Financeiro Plixel</option>
-                <option value="Gestão e orçamento">Gestão e orçamento</option>
-                <option value="Design e marketing">Design e marketing</option>
-                <option value="Vendas e gestão">Vendas e gestão</option>
-                <option value="Idiomas / Inglês">Idiomas / Inglês</option>
-                <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
-                <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
-                <option value="Revisão e análise">Revisão e análise</option>
-                <option value="Metas e visão">Metas e visão</option>
-                <option value="Sistema de produtividade">Sistema de produtividade</option>
+              <select id="subarea" class="colorful" data-color="subarea" disabled>
+                <option value="">Selecione uma área primeiro</option>
               </select>
               <textarea id="notes" rows="2" placeholder="Notas"></textarea>
               <div class="row">
@@ -580,50 +541,57 @@ const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Co
 const RESPONSIBLES = ["Daniel","Maysa","Daniel e Maysa"];
 const PRIORITIES = ["Baixa","Média","Alta","Altíssima"];
 const DURATIONS = ["Rápido","Médio","Demorado"];
-const AREAS = [
-  "Plixel",
-  "Igreja / Espiritualidade",
-  "Família & Relacionamento",
-  "Saúde",
-  "Casa & Rotina",
-  "Finanças",
-  "Estudo & Desenvolvimento",
-  "Planejamento & Estratégia"
-];
-const SUBAREAS = [
-  "Vendas e Prospecção",
-  "Criação e Produção",
-  "Gestão e Organização",
-  "Conteúdo e Marketing",
-  "Clientes e Entregas",
-  "Devocional e Oração",
-  "EBD / Ensino",
-  "Louvor",
-  "Obras",
-  "Eventos",
-  "Tempo a dois",
-  "Família estendida",
-  "Comunicação e conexão",
-  "Amigos",
-  "Treino físico",
-  "Alimentação",
-  "Sono e descanso",
-  "Saúde mental",
-  "Limpeza e ordem",
-  "Compras e suprimentos",
-  "Organização pessoal",
-  "Financeiro pessoal",
-  "Financeiro Plixel",
-  "Gestão e orçamento",
-  "Design e marketing",
-  "Vendas e gestão",
-  "Idiomas / Inglês",
-  "Desenvolvimento pessoal",
-  "Planejamento semanal / diário",
-  "Revisão e análise",
-  "Metas e visão",
-  "Sistema de produtividade"
-];
+const AREA_SUBAREAS = {
+  "Plixel": [
+    "Vendas e Prospecção",
+    "Criação e Produção",
+    "Gestão e Organização",
+    "Conteúdo e Marketing",
+    "Clientes e Entregas"
+  ],
+  "Igreja / Espiritualidade": [
+    "Devocional e Oração",
+    "EBD / Ensino",
+    "Louvor",
+    "UJADIS",
+    "Ações e Ministério"
+  ],
+  "Família & Relacionamento": [
+    "Tempo a dois (Isa)",
+    "Família estendida",
+    "Comunicação e conexão"
+  ],
+  "Saúde": [
+    "Treino físico",
+    "Alimentação",
+    "Sono e descanso",
+    "Saúde mental"
+  ],
+  "Casa & Rotina": [
+    "Limpeza e ordem",
+    "Compras e suprimentos",
+    "Organização pessoal"
+  ],
+  "Finanças": [
+    "Financeiro pessoal",
+    "Financeiro Plixel",
+    "Gestão e orçamento"
+  ],
+  "Estudo & Desenvolvimento": [
+    "Design e marketing",
+    "Vendas e gestão",
+    "Idiomas / Inglês",
+    "Desenvolvimento pessoal"
+  ],
+  "Planejamento & Estratégia": [
+    "Planejamento semanal / diário",
+    "Revisão e análise",
+    "Metas e visão",
+    "Sistema de produtividade"
+  ]
+};
+const AREAS = Object.keys(AREA_SUBAREAS);
+const SUBAREAS = Array.from(new Set(Object.values(AREA_SUBAREAS).flat()));
 
 const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
 const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
@@ -739,21 +707,29 @@ function saveColumnWidths(){
   try{ localStorage.setItem(COLUMN_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(_){ }
 }
 
+const FILTER_MULTI_KEYS = ["status","responsible","priority","duration","area","subarea"];
 const FILTER_DEFAULTS = {
   text: "",
-  status: "",
-  responsible: "",
-  priority: "",
-  duration: "",
-  area: "",
-  subarea: "",
+  status: [],
+  responsible: [],
+  priority: [],
+  duration: [],
+  area: [],
+  subarea: [],
   dateFrom: "",
   dateTo: "",
   week: "",
   includeNoDate: true,
   onlyNoDate: false
 };
-const filterState = { ...FILTER_DEFAULTS };
+function cloneFilterDefaults(){
+  const clone = { ...FILTER_DEFAULTS };
+  FILTER_MULTI_KEYS.forEach(key=>{
+    clone[key] = [...FILTER_DEFAULTS[key]];
+  });
+  return clone;
+}
+const filterState = cloneFilterDefaults();
 const DATA_REPO = {
   owner: "plixeldesign",
   repo: "Tarefas",
@@ -1044,6 +1020,101 @@ function optionsMarkup(list, current, includeEmpty=false){
   });
   return parts.join("");
 }
+function toSelectionArray(value){
+  if(Array.isArray(value)) return value.filter(v=>v!=null && v!=="");
+  if(value==null || value==="") return [];
+  return [value];
+}
+function toNormalizedSet(selection){
+  const entries = toSelectionArray(selection).map(val=> normalizeText(val)).filter(Boolean);
+  return new Set(entries);
+}
+function multiOptionsMarkup(list, selection){
+  const chosen = toSelectionArray(selection);
+  const normalizedChosen = chosen.map(val=> normalizeText(val)).filter(Boolean);
+  const listNorms = list.map(opt=> normalizeText(opt));
+  const parts = [];
+  chosen.forEach(val=>{
+    const norm = normalizeText(val);
+    if(norm && !listNorms.includes(norm)){
+      parts.push(`<option value="${escAttr(val)}" selected>${escHtml(val)}</option>`);
+    }
+  });
+  const selectedSet = new Set(normalizedChosen);
+  list.forEach(opt=>{
+    const norm = normalizeText(opt);
+    const selected = selectedSet.has(norm) ? " selected" : "";
+    parts.push(`<option value="${escAttr(opt)}"${selected}>${escHtml(opt)}</option>`);
+  });
+  return parts.join("");
+}
+function subareasForAreas(areas){
+  const list = [];
+  toSelectionArray(areas).forEach(area=>{
+    const bucket = AREA_SUBAREAS[area] || [];
+    bucket.forEach(item=>{
+      if(!list.some(existing=> normalizeText(existing) === normalizeText(item))){
+        list.push(item);
+      }
+    });
+  });
+  if(!list.length){
+    return SUBAREAS.slice();
+  }
+  return list;
+}
+function subareaOptionsMarkup(areas, current, includeEmpty=false){
+  const options = subareasForAreas(areas);
+  return optionsMarkup(options, current, includeEmpty);
+}
+function getSelectedValues(select){
+  if(!select) return [];
+  return Array.from(select.selectedOptions || [])
+    .map(opt=> opt.value)
+    .filter(value=> value != null && value !== "");
+}
+function buildAreaOptionsMarkup(selected){
+  const parts = ['<option value="">Área</option>'];
+  AREAS.forEach(area=>{
+    const selectedAttr = normalizeText(area) === normalizeText(selected) ? " selected" : "";
+    parts.push(`<option value="${escAttr(area)}"${selectedAttr}>${escHtml(area)}</option>`);
+  });
+  return parts.join("");
+}
+function buildSubareaOptionsMarkup(areaValue, selected){
+  const hasArea = !!areaValue;
+  const label = hasArea ? "Subárea" : "Selecione uma área primeiro";
+  const parts = [`<option value="">${escHtml(label)}</option>`];
+  const list = hasArea ? subareasForAreas(areaValue) : [];
+  list.forEach(item=>{
+    const selectedAttr = normalizeText(item) === normalizeText(selected) ? " selected" : "";
+    parts.push(`<option value="${escAttr(item)}"${selectedAttr}>${escHtml(item)}</option>`);
+  });
+  return parts.join("");
+}
+function syncAreaSubareaSelects(areaSelect, subareaSelect, areaValue=null, subareaValue=null){
+  if(areaSelect){
+    const value = areaValue != null ? areaValue : areaSelect.value;
+    areaSelect.innerHTML = buildAreaOptionsMarkup(value);
+    areaSelect.value = value || "";
+  }
+  if(subareaSelect){
+    const areaVal = areaSelect ? areaSelect.value : (areaValue || "");
+    const subValue = subareaValue != null ? subareaValue : subareaSelect.value;
+    subareaSelect.innerHTML = buildSubareaOptionsMarkup(areaVal, subValue);
+    const hasArea = !!areaVal;
+    subareaSelect.disabled = !hasArea;
+    if(hasArea){
+      subareaSelect.value = subValue && normalizeText(subValue) ? subValue : "";
+    }else{
+      subareaSelect.value = "";
+    }
+    applySelectColor(subareaSelect);
+  }
+  if(areaSelect){
+    applySelectColor(areaSelect);
+  }
+}
 function stringHash(str){
   let hash = 0;
   for(let i=0;i<str.length;i++){
@@ -1074,6 +1145,12 @@ function colorFor(field, value){
 }
 function applySelectColor(select){
   if(!select || !select.dataset) return;
+  if(select.multiple){
+    select.style.backgroundColor = "";
+    select.style.borderColor = "";
+    select.style.color = "";
+    return;
+  }
   const field = select.dataset.color;
   if(!field) return;
   const color = colorFor(field, select.value);
@@ -1535,6 +1612,12 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.durationTag = sanitizeOptionField(copy.durationTag ?? copy.duration, DURATIONS);
   copy.area = sanitizeOptionField(copy.area, AREAS);
   copy.subarea = sanitizeOptionField(copy.subarea, SUBAREAS);
+  if(copy.area){
+    const allowedSet = new Set(subareasForAreas(copy.area).map(item=> normalizeText(item)));
+    if(copy.subarea && !allowedSet.has(normalizeText(copy.subarea))){
+      copy.subarea = null;
+    }
+  }
   copy.notes = sanitizeNotes(copy.notes);
   copy.emoji = cleanString(copy.emoji||"") || null;
   applyDerived(copy);
@@ -1753,7 +1836,7 @@ function renderAll(){
         <td data-col="priority"><select class="table-input colorful" data-color="priority" data-field="priority">${optionsMarkup(PRIORITIES, t.priority, true)}</select></td>
         <td data-col="duration"><select class="table-input colorful" data-color="duration" data-field="durationTag">${optionsMarkup(DURATIONS, t.durationTag, true)}</select></td>
         <td data-col="area"><select class="table-input colorful" data-color="area" data-field="area">${optionsMarkup(AREAS, t.area, true)}</select></td>
-        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(SUBAREAS, t.subarea, true)}</select></td>
+        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${subareaOptionsMarkup(t.area, t.subarea, true)}</select></td>
         <td data-col="notes"><textarea class="table-input" data-field="notes" rows="2">${escHtml(t.notes||"")}</textarea></td>
         <td data-col="week">${t.weekNumber||""}</td>
         <td data-col="actions">
@@ -1769,6 +1852,13 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
+  const statusFilterOptions = multiOptionsMarkup(STATUS, filterState.status);
+  const responsibleFilterOptions = multiOptionsMarkup(RESPONSIBLES, filterState.responsible);
+  const priorityFilterOptions = multiOptionsMarkup(PRIORITIES, filterState.priority);
+  const durationFilterOptions = multiOptionsMarkup(DURATIONS, filterState.duration);
+  const areaFilterOptions = multiOptionsMarkup(AREAS, filterState.area);
+  const availableFilterSubareas = subareasForAreas(filterState.area);
+  const subareaFilterOptions = multiOptionsMarkup(availableFilterSubareas, filterState.subarea);
   const filterMarkup = `
     <div class="filter-grid">
       <label>
@@ -1777,38 +1867,38 @@ function renderAll(){
       </label>
       <label>
         <span>Status</span>
-        <select id="filter-status" class="colorful" data-color="status">
-          ${optionsMarkup(STATUS, filterState.status, true)}
+        <select id="filter-status" class="colorful" data-color="status" multiple>
+          ${statusFilterOptions}
         </select>
       </label>
       <label>
         <span>Respons&aacute;vel</span>
-        <select id="filter-responsible" class="colorful" data-color="responsible">
-          ${optionsMarkup(RESPONSIBLES, filterState.responsible, true)}
+        <select id="filter-responsible" class="colorful" data-color="responsible" multiple>
+          ${responsibleFilterOptions}
         </select>
       </label>
       <label>
         <span>Prioridade</span>
-        <select id="filter-priority" class="colorful" data-color="priority">
-          ${optionsMarkup(PRIORITIES, filterState.priority, true)}
+        <select id="filter-priority" class="colorful" data-color="priority" multiple>
+          ${priorityFilterOptions}
         </select>
       </label>
       <label>
         <span>Tempo para conclus&atilde;o</span>
-        <select id="filter-duration" class="colorful" data-color="duration">
-          ${optionsMarkup(DURATIONS, filterState.duration, true)}
+        <select id="filter-duration" class="colorful" data-color="duration" multiple>
+          ${durationFilterOptions}
         </select>
       </label>
       <label>
         <span>&Aacute;rea</span>
-        <select id="filter-area" class="colorful" data-color="area">
-          ${optionsMarkup(AREAS, filterState.area, true)}
+        <select id="filter-area" class="colorful" data-color="area" multiple>
+          ${areaFilterOptions}
         </select>
       </label>
       <label>
         <span>Sub&aacute;rea</span>
-        <select id="filter-subarea" class="colorful" data-color="subarea">
-          ${optionsMarkup(SUBAREAS, filterState.subarea, true)}
+        <select id="filter-subarea" class="colorful" data-color="subarea" multiple>
+          ${subareaFilterOptions}
         </select>
       </label>
       <label>
@@ -1828,8 +1918,7 @@ function renderAll(){
       <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
       <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
     </div>
-    <div class="filter-actions">
-      <button class="btn tiny" type="button" data-range="today">Hoje</button>
+    <div class="filter-actions">\r\n      <span class="muted small">Use Ctrl/Cmd para selecionar múltiplos itens</span>\r\n      <button class="btn tiny" type="button" data-range="today">Hoje</button>
       <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
       <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
       <button class="btn tiny" type="button" data-range="week">Esta semana</button>
@@ -1890,7 +1979,18 @@ function renderAll(){
   ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
     const ctrl = controls[key];
     if(ctrl){
-      ctrl.onchange = (e)=>{ filterState[key] = e.target.value; renderAll(); };
+      ctrl.addEventListener("change", ()=>{
+        const values = getSelectedValues(ctrl);
+        filterState[key] = values;
+        if(key === "area"){
+          const allowed = subareasForAreas(values);
+          const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+          const currentSubareas = toSelectionArray(filterState.subarea);
+          const filtered = currentSubareas.filter(item=> allowedNorm.has(normalizeText(item)));
+          filterState.subarea = filtered;
+        }
+        renderAll();
+      });
     }
   });
   if(controls.dateFrom){
@@ -2084,18 +2184,19 @@ function handleTableChange(e){
   updateTask(id, patch);
 }
 function resetFilterState(){
-  Object.keys(FILTER_DEFAULTS).forEach(key=>{
-    filterState[key] = FILTER_DEFAULTS[key];
+  const fresh = cloneFilterDefaults();
+  Object.keys(fresh).forEach(key=>{
+    filterState[key] = fresh[key];
   });
 }
 function applyFilters(tasks){
   const query = normalizeText(filterState.text);
-  const statusNorm = normalizeText(filterState.status);
-  const respNorm = normalizeText(filterState.responsible);
-  const priorityNorm = normalizeText(filterState.priority);
-  const durationNorm = normalizeText(filterState.duration);
-  const areaNorm = normalizeText(filterState.area);
-  const subareaNorm = normalizeText(filterState.subarea);
+  const statusSet = toNormalizedSet(filterState.status);
+  const respSet = toNormalizedSet(filterState.responsible);
+  const prioritySet = toNormalizedSet(filterState.priority);
+  const durationSet = toNormalizedSet(filterState.duration);
+  const areaSet = toNormalizedSet(filterState.area);
+  const subareaSet = toNormalizedSet(filterState.subarea);
   const from = filterState.dateFrom || "";
   const to = filterState.dateTo || "";
   const includeNoDate = !!filterState.includeNoDate;
@@ -2118,12 +2219,30 @@ function applyFilters(tasks){
       ].filter(Boolean).join(" "));
       if(!haystack.includes(query)) return false;
     }
-    if(statusNorm && normalizeText(task.status)!==statusNorm) return false;
-    if(respNorm && normalizeText(task.responsible||"")!==respNorm) return false;
-    if(priorityNorm && normalizeText(task.priority||"")!==priorityNorm) return false;
-    if(durationNorm && normalizeText(task.durationTag||"")!==durationNorm) return false;
-    if(areaNorm && normalizeText(task.area||"")!==areaNorm) return false;
-    if(subareaNorm && normalizeText(task.subarea||"")!==subareaNorm) return false;
+    if(statusSet.size){
+      const taskStatus = normalizeText(task.status);
+      if(!statusSet.has(taskStatus)) return false;
+    }
+    if(respSet.size){
+      const taskResp = normalizeText(task.responsible||"");
+      if(!respSet.has(taskResp)) return false;
+    }
+    if(prioritySet.size){
+      const taskPriority = normalizeText(task.priority||"");
+      if(!prioritySet.has(taskPriority)) return false;
+    }
+    if(durationSet.size){
+      const taskDuration = normalizeText(task.durationTag||"");
+      if(!durationSet.has(taskDuration)) return false;
+    }
+    if(areaSet.size){
+      const taskArea = normalizeText(task.area||"");
+      if(!areaSet.has(taskArea)) return false;
+    }
+    if(subareaSet.size){
+      const taskSubarea = normalizeText(task.subarea||"");
+      if(!subareaSet.has(taskSubarea)) return false;
+    }
     if(onlyNoDate){
       if(task.dueAt) return false;
     }else{
@@ -2394,10 +2513,26 @@ function updateTask(id, patch){
     t.durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
   }
   if(patch.area!==undefined){
-    t.area = sanitizeOptionField(patch.area, AREAS);
+    const areaValue = sanitizeOptionField(patch.area, AREAS);
+    t.area = areaValue;
+    if(areaValue){
+      const allowedSet = new Set(subareasForAreas(areaValue).map(item=> normalizeText(item)));
+      if(t.subarea && !allowedSet.has(normalizeText(t.subarea))){
+        t.subarea = null;
+      }
+    }else{
+      t.subarea = null;
+    }
   }
   if(patch.subarea!==undefined){
-    t.subarea = sanitizeOptionField(patch.subarea, SUBAREAS);
+    let subValue = sanitizeOptionField(patch.subarea, SUBAREAS);
+    if(subValue && t.area){
+      const allowedSet = new Set(subareasForAreas(t.area).map(item=> normalizeText(item)));
+      if(!allowedSet.has(normalizeText(subValue))){
+        subValue = null;
+      }
+    }
+    t.subarea = subValue;
   }
   if(patch.emoji!==undefined){
     t.emoji = patch.emoji || null;
@@ -2500,6 +2635,16 @@ function initApp(){
     });
     window.setTab = setTab;
   }
+  const areaEl = document.getElementById("area");
+  const subareaEl = document.getElementById("subarea");
+  if(areaEl){
+    syncAreaSubareaSelects(areaEl, subareaEl, areaEl.value || "", subareaEl ? subareaEl.value || "" : "");
+    areaEl.addEventListener("change", ()=>{
+      syncAreaSubareaSelects(areaEl, subareaEl, areaEl.value || "", null);
+    });
+  }else if(subareaEl){
+    subareaEl.disabled = true;
+  }
   const addTaskBtn = document.getElementById("addTask");
   if(addTaskBtn){
     addTaskBtn.addEventListener("click", ()=>{
@@ -2512,13 +2657,21 @@ function initApp(){
       const respEl = document.getElementById("resp");
       const prioEl = document.getElementById("prio");
       const durEl = document.getElementById("dur");
-      const areaEl = document.getElementById("area");
-      const subareaEl = document.getElementById("subarea");
       const notesEl = document.getElementById("notes");
       const title = titleEl ? titleEl.value.trim() : "";
       if(!title){ alert("Informe a tarefa"); return; }
       const due = combineDateAndTime(dueDateEl ? dueDateEl.value : "", dueTimeEl ? dueTimeEl.value : "");
       const endTime = padTime(endEl ? endEl.value : "");
+      const areaValue = areaEl && areaEl.value ? areaEl.value : null;
+      const subareaRaw = subareaEl && subareaEl.value ? subareaEl.value : null;
+      let safeSubarea = null;
+      if(subareaRaw){
+        const allowedSubareas = areaValue ? subareasForAreas(areaValue) : SUBAREAS;
+        const allowedSet = new Set(allowedSubareas.map(item=> normalizeText(item)));
+        if(allowedSet.has(normalizeText(subareaRaw))){
+          safeSubarea = subareaRaw;
+        }
+      }
       addTask({
         emoji: emojiEl && emojiEl.value ? emojiEl.value : null,
         title,
@@ -2528,8 +2681,8 @@ function initApp(){
         responsible: respEl && respEl.value ? respEl.value : null,
         priority: prioEl && prioEl.value ? prioEl.value : null,
         durationTag: durEl && durEl.value ? durEl.value : null,
-        area: areaEl && areaEl.value ? areaEl.value : null,
-        subarea: subareaEl && subareaEl.value ? subareaEl.value : null,
+        area: areaValue,
+        subarea: safeSubarea,
         notes: sanitizeNotes(notesEl ? notesEl.value : "")
       });
       if(emojiEl) emojiEl.value = "";
@@ -2544,6 +2697,7 @@ function initApp(){
       if(durEl) durEl.value = DURATIONS[1];
       if(areaEl) areaEl.value = "";
       if(subareaEl) subareaEl.value = "";
+      syncAreaSubareaSelects(areaEl, subareaEl, areaEl ? areaEl.value : "", null);
       render(currentTab);
     });
   }
@@ -2683,6 +2837,14 @@ window.addEventListener("load", ()=>{ startApp(); }, { once: true });
 </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
 
 
 
