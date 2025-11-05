@@ -266,12 +266,12 @@
   .date-stack{display:grid;grid-template-columns:1fr;gap:6px}
   .date-stack input{width:100%}
   .divider{height:1px;background:#202031;margin:8px 0}
-  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
-  .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
-  .filter-grid input,.filter-grid select{width:100%}
-  .filter-grid select[multiple]{min-height:94px;padding:6px 8px;line-height:1.4;overflow-y:auto}
-  .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-  .filter-actions .muted{margin-right:4px}
+  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px}
+  .filter-grid .filter-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
+  .filter-grid .filter-field input{width:100%}
+  .filter-grid .filter-field .filter-input{width:100%}
+  .filter-grid .filter-field .multi-select{width:100%}
+  .filter-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
   .filter-panel{
     padding:22px 24px 24px;
     border-radius:20px;
@@ -304,6 +304,12 @@
     box-shadow:0 0 0 1px rgba(102,217,239,0.35),0 12px 24px -18px rgba(102,217,239,0.6);
     background:rgba(18,20,32,0.95);
   }
+  input[type="date"]{
+    color-scheme:dark;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator{
+    filter:invert(1);
+  }
   .filter-panel select:not([multiple]){
     background-image:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
   }
@@ -325,22 +331,7 @@
     flex-basis:100%;
     color:rgba(255,255,255,0.45);
     font-size:11px;
-    margin-bottom:2px;
-  }
-  .filter-chip{
-    border:none;
-    border-radius:12px;
-    padding:8px 14px;
-    background:rgba(255,255,255,0.04);
-    color:rgba(255,255,255,0.76);
-    font-size:12px;
-    letter-spacing:0.02em;
-    cursor:pointer;
-    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease;
-  }
-  .filter-chip:hover{
-    background:rgba(102,217,239,0.16);
-    color:var(--accent);
+    margin-bottom:4px;
   }
   .filter-actions .btn.primary,
   .filter-actions #filter-reset{
@@ -359,6 +350,114 @@
   #filter-reset:hover{
     transform:translateY(-1px);
     box-shadow:0 14px 22px -16px rgba(213,168,67,0.8);
+  }
+  .filter-chip{
+    border:none;
+    border-radius:12px;
+    padding:8px 14px;
+    background:rgba(255,255,255,0.05);
+    color:rgba(255,255,255,0.78);
+    font-size:12px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .filter-chip:hover{
+    background:rgba(102,217,239,0.18);
+    color:var(--accent);
+  }
+  .multi-select{
+    position:relative;
+  }
+  .multi-select.disabled .multi-trigger{
+    cursor:not-allowed;
+    opacity:0.4;
+  }
+  .multi-trigger[disabled]{
+    cursor:not-allowed;
+    opacity:0.4;
+  }
+  .multi-trigger{
+    width:100%;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:rgba(13,15,24,0.82);
+    padding:10px 12px;
+    color:var(--fg);
+    font-size:12px;
+    letter-spacing:0.01em;
+    cursor:pointer;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
+  }
+  .multi-trigger .chevron{
+    margin-left:10px;
+    font-size:10px;
+    color:rgba(255,255,255,0.6);
+    transition:transform 0.2s ease;
+  }
+  .multi-select.open .multi-trigger{
+    border-color:rgba(102,217,239,0.55);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.35),0 12px 24px -18px rgba(102,217,239,0.6);
+    background:rgba(18,20,32,0.95);
+    color:var(--accent);
+  }
+  .multi-select.open .multi-trigger .chevron{
+    transform:rotate(180deg);
+    color:var(--accent);
+  }
+  .multi-menu{
+    position:absolute;
+    inset:calc(100% + 8px) auto auto 0;
+    width:min(260px, 100%);
+    background:rgba(13,15,24,0.95);
+    border:1px solid rgba(255,255,255,0.08);
+    border-radius:16px;
+    box-shadow:0 16px 36px -20px rgba(0,0,0,0.75);
+    padding:8px 0;
+    max-height:220px;
+    overflow:auto;
+    opacity:0;
+    pointer-events:none;
+    transform:translateY(-6px);
+    transition:opacity 0.18s ease, transform 0.18s ease;
+    z-index:15;
+  }
+  .multi-select.open .multi-menu{
+    opacity:1;
+    pointer-events:auto;
+    transform:translateY(0);
+  }
+  .multi-option{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:8px 14px;
+    font-size:12px;
+    color:rgba(236,236,241,0.9);
+    cursor:pointer;
+    transition:background 0.15s ease;
+  }
+  .multi-option:hover{
+    background:rgba(102,217,239,0.12);
+  }
+  .multi-option input{
+    accent-color:var(--accent);
+  }
+  .multi-empty{
+    display:block;
+    padding:12px 14px;
+    font-size:11px;
+    color:rgba(255,255,255,0.45);
+    text-align:center;
+  }
+  .filter-label{
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.03em;
+    color:rgba(255,255,255,0.72);
   }
   .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
   .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
@@ -450,6 +549,7 @@
   }
   .collapsible.open .collapsible-body{
     opacity:1;
+    overflow:visible;
   }
   .emoji-select{width:56px;text-align:center;font-size:16px}
   .emoji-select option{font-size:16px}
@@ -1117,25 +1217,6 @@ function toNormalizedSet(selection){
   const entries = toSelectionArray(selection).map(val=> normalizeText(val)).filter(Boolean);
   return new Set(entries);
 }
-function multiOptionsMarkup(list, selection){
-  const chosen = toSelectionArray(selection);
-  const normalizedChosen = chosen.map(val=> normalizeText(val)).filter(Boolean);
-  const listNorms = list.map(opt=> normalizeText(opt));
-  const parts = [];
-  chosen.forEach(val=>{
-    const norm = normalizeText(val);
-    if(norm && !listNorms.includes(norm)){
-      parts.push(`<option value="${escAttr(val)}" selected>${escHtml(val)}</option>`);
-    }
-  });
-  const selectedSet = new Set(normalizedChosen);
-  list.forEach(opt=>{
-    const norm = normalizeText(opt);
-    const selected = selectedSet.has(norm) ? " selected" : "";
-    parts.push(`<option value="${escAttr(opt)}"${selected}>${escHtml(opt)}</option>`);
-  });
-  return parts.join("");
-}
 function subareasForAreas(areas){
   const list = [];
   toSelectionArray(areas).forEach(area=>{
@@ -1155,11 +1236,104 @@ function subareaOptionsMarkup(areas, current, includeEmpty=false){
   const options = subareasForAreas(areas);
   return optionsMarkup(options, current, includeEmpty);
 }
-function getSelectedValues(select){
-  if(!select) return [];
-  return Array.from(select.selectedOptions || [])
-    .map(opt=> opt.value)
-    .filter(value=> value != null && value !== "");
+function selectionSummary(values, placeholder, limit=2){
+  const list = toSelectionArray(values);
+  if(!list.length) return placeholder;
+  if(list.length <= limit) return list.join(", ");
+  return `${list.slice(0, limit).join(", ")} +${list.length - limit}`;
+}
+function renderFilterMultiField(field, label, options, selectedValues, placeholder, emptyMessage){
+  const list = toSelectionArray(selectedValues);
+  const summary = selectionSummary(list, placeholder);
+  const selectedNorm = new Set(list.map(val=> normalizeText(val)));
+  const hasOptions = Array.isArray(options) && options.length > 0;
+  const menuContent = hasOptions
+    ? options.map(opt=>{
+        const checked = selectedNorm.has(normalizeText(opt)) ? " checked" : "";
+        return `<label class="multi-option"><input type="checkbox" value="${escAttr(opt)}"${checked}/><span>${escHtml(opt)}</span></label>`;
+      }).join("")
+    : `<span class="multi-empty">${escHtml(emptyMessage || "Nenhuma op\u00e7\u00e3o")}</span>`;
+  const disabledAttr = hasOptions ? "" : " disabled";
+  const disabledClass = hasOptions ? "" : " disabled";
+  return `
+        <div class="filter-field" data-field="${field}">
+          <span class="filter-label">${escHtml(label)}</span>
+          <div class="multi-select${disabledClass}" data-field="${field}">
+            <button type="button" class="multi-trigger" data-field="${field}" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
+              <span class="value">${escHtml(summary)}</span>
+              <span class="chevron">&#9662;</span>
+            </button>
+            <div class="multi-menu" role="listbox" tabindex="-1">
+              ${menuContent}
+            </div>
+          </div>
+        </div>`;
+}
+function setupFilterMultiSelects(container){
+  if(!container) return;
+  const globalScope = typeof window !== "undefined" ? window : null;
+  if(globalScope && globalScope._filterMultiDocHandler){
+    document.removeEventListener("click", globalScope._filterMultiDocHandler);
+    globalScope._filterMultiDocHandler = null;
+  }
+  const selects = Array.from(container.querySelectorAll(".multi-select"));
+  if(!selects.length) return;
+  const closeAll = ()=>{
+    selects.forEach(el=>{
+      el.classList.remove("open");
+      const trigger = el.querySelector(".multi-trigger");
+      if(trigger) trigger.setAttribute("aria-expanded","false");
+    });
+  };
+  const docHandler = evt=>{
+    if(!evt.target.closest(".multi-select")){
+      closeAll();
+    }
+  };
+  document.addEventListener("click", docHandler);
+  if(globalScope){
+    globalScope._filterMultiDocHandler = docHandler;
+  }
+  selects.forEach(select=>{
+    if(select.classList.contains("disabled")) return;
+    const trigger = select.querySelector(".multi-trigger");
+    const menu = select.querySelector(".multi-menu");
+    const field = select.dataset.field;
+    if(trigger){
+      trigger.addEventListener("click", ev=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        const isOpen = select.classList.contains("open");
+        closeAll();
+        if(!isOpen){
+          select.classList.add("open");
+          trigger.setAttribute("aria-expanded","true");
+        }
+      });
+    }
+    if(menu){
+      menu.addEventListener("keydown", evt=>{
+        if(evt.key==="Escape"){
+          evt.preventDefault();
+          closeAll();
+          if(trigger) trigger.focus({preventScroll:true});
+        }
+      });
+      menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        cb.addEventListener("change", ()=>{
+          const values = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked')).map(input=> input.value);
+          filterState[field] = values;
+          if(field === "area"){
+            const allowed = subareasForAreas(values);
+            const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+            const filtered = toSelectionArray(filterState.subarea).filter(item=> allowedNorm.has(normalizeText(item)));
+            filterState.subarea = filtered;
+          }
+          renderAll();
+        });
+      });
+    }
+  });
 }
 function buildAreaOptionsMarkup(selected){
   const parts = ['<option value="">Área</option>'];
@@ -1940,68 +2114,39 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
-  const statusFilterOptions = multiOptionsMarkup(STATUS, filterState.status);
-  const responsibleFilterOptions = multiOptionsMarkup(RESPONSIBLES, filterState.responsible);
-  const priorityFilterOptions = multiOptionsMarkup(PRIORITIES, filterState.priority);
-  const durationFilterOptions = multiOptionsMarkup(DURATIONS, filterState.duration);
-  const areaFilterOptions = multiOptionsMarkup(AREAS, filterState.area);
   const availableFilterSubareas = subareasForAreas(filterState.area);
-  const subareaFilterOptions = multiOptionsMarkup(availableFilterSubareas, filterState.subarea);
+  const selectedAreasFilter = toSelectionArray(filterState.area);
+  const subareaPlaceholder = selectedAreasFilter.length
+    ? "Selecionar sub\u00e1reas..."
+    : "Selecione uma \u00e1rea";
+  const subareaEmptyMessage = selectedAreasFilter.length
+    ? "Sem sub\u00e1reas dispon\u00edveis"
+    : "Selecione uma \u00e1rea primeiro";
   const filterMarkup = `
     <div class="filter-panel">
       <div class="filter-grid">
-        <label>
-          <span>Texto</span>
-          <input id="filter-text" class="filter-input" placeholder="T&iacute;tulo, notas, pessoa..." />
-        </label>
-        <label>
-          <span>Status</span>
-          <select id="filter-status" class="filter-input colorful" data-color="status" multiple>
-            ${statusFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>Respons&aacute;vel</span>
-          <select id="filter-responsible" class="filter-input colorful" data-color="responsible" multiple>
-            ${responsibleFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>Prioridade</span>
-          <select id="filter-priority" class="filter-input colorful" data-color="priority" multiple>
-            ${priorityFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>Tempo para conclus&atilde;o</span>
-          <select id="filter-duration" class="filter-input colorful" data-color="duration" multiple>
-            ${durationFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>&Aacute;rea</span>
-          <select id="filter-area" class="filter-input colorful" data-color="area" multiple>
-            ${areaFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>Sub&aacute;rea</span>
-          <select id="filter-subarea" class="filter-input colorful" data-color="subarea" multiple>
-            ${subareaFilterOptions}
-          </select>
-        </label>
-        <label>
-          <span>Data inicial</span>
+        <div class="filter-field">
+          <span class="filter-label">Texto</span>
+          <input id="filter-text" class="filter-input" placeholder="Buscar t&iacute;tulo..." />
+        </div>
+        ${renderFilterMultiField("status","Status", STATUS, filterState.status, "Selecionar status...", "Nenhum status cadastrado")}
+        ${renderFilterMultiField("responsible","Respons&aacute;vel", RESPONSIBLES, filterState.responsible, "Selecionar respons\u00e1veis...", "Nenhum respons\u00e1vel cadastrado")}
+        ${renderFilterMultiField("priority","Prioridade", PRIORITIES, filterState.priority, "Selecionar prioridades...", "Nenhuma prioridade cadastrada")}
+        ${renderFilterMultiField("duration","Tempo para conclus&atilde;o", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma op\u00e7\u00e3o cadastrada")}
+        ${renderFilterMultiField("area","&Aacute;rea", AREAS, filterState.area, "Selecionar \u00e1reas...", "Nenhuma \u00e1rea cadastrada")}
+        ${renderFilterMultiField("subarea","Sub&aacute;rea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
+        <div class="filter-field">
+          <span class="filter-label">Data inicial</span>
           <input type="date" id="filter-date-from" class="filter-input" />
-        </label>
-        <label>
-          <span>Data final</span>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">Data final</span>
           <input type="date" id="filter-date-to" class="filter-input" />
-        </label>
-        <label>
-          <span>Semana</span>
+        </div>
+        <div class="filter-field">
+          <span class="filter-label">Semana</span>
           <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" />
-        </label>
+        </div>
       </div>
       <div class="filter-flags">
         <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
@@ -2022,6 +2167,7 @@ function renderAll(){
   const filterContainer = document.getElementById("filterContainer");
   if(filterContainer){
     filterContainer.innerHTML = filterMarkup;
+    setupFilterMultiSelects(filterContainer);
   }
   view.innerHTML = `
     <div class="table-surface">
@@ -2043,12 +2189,6 @@ function renderAll(){
   `;
   const controls = {
     text: document.getElementById("filter-text"),
-    status: document.getElementById("filter-status"),
-    responsible: document.getElementById("filter-responsible"),
-    priority: document.getElementById("filter-priority"),
-    duration: document.getElementById("filter-duration"),
-    area: document.getElementById("filter-area"),
-    subarea: document.getElementById("filter-subarea"),
     dateFrom: document.getElementById("filter-date-from"),
     dateTo: document.getElementById("filter-date-to"),
     week: document.getElementById("filter-week"),
@@ -2068,23 +2208,6 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
-  ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
-    const ctrl = controls[key];
-    if(ctrl){
-      ctrl.addEventListener("change", ()=>{
-        const values = getSelectedValues(ctrl);
-        filterState[key] = values;
-        if(key === "area"){
-          const allowed = subareasForAreas(values);
-          const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
-          const currentSubareas = toSelectionArray(filterState.subarea);
-          const filtered = currentSubareas.filter(item=> allowedNorm.has(normalizeText(item)));
-          filterState.subarea = filtered;
-        }
-        renderAll();
-      });
-    }
-  });
   if(controls.dateFrom){
     controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
   }
@@ -2929,6 +3052,7 @@ window.addEventListener("load", ()=>{ startApp(); }, { once: true });
 </script>
 </body>
 </html>
+
 
 
 
