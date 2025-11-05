@@ -266,14 +266,33 @@
   .date-stack{display:grid;grid-template-columns:1fr;gap:6px}
   .date-stack input{width:100%}
   .divider{height:1px;background:#202031;margin:8px 0}
-  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
-  .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
-  .filter-grid input,.filter-grid select{width:100%}
-  .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-  .filter-actions .muted{margin-right:4px}
-  .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
-  .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
-  .filter-flags input{margin-right:4px}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
+.filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.filter-grid input,.filter-grid select{width:100%}
+.filter-field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.filter-label{font-size:12px;color:var(--muted);font-weight:500}
+.filter-input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.92);color:var(--fg);transition:border-color .2s ease,box-shadow .2s ease;background-clip:padding-box}
+.filter-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(102,217,239,0.25)}
+.multi-select{position:relative}
+.multi-select.disabled{opacity:0.45}
+.multi-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.9);color:var(--fg);cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;text-align:left}
+.multi-trigger:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(102,217,239,0.25)}
+.multi-select.open .multi-trigger{border-color:rgba(102,217,239,0.55);box-shadow:0 0 0 1px rgba(102,217,239,0.4),0 12px 24px -20px rgba(102,217,239,0.8);background:rgba(18,24,38,0.95)}
+.multi-select.disabled .multi-trigger{cursor:not-allowed}
+.multi-trigger .value{flex:1;display:inline-flex;justify-content:flex-start;align-items:center;color:var(--fg);text-align:left}
+.multi-trigger .chevron{font-size:10px;color:var(--muted)}
+.multi-select.open .multi-trigger .chevron{transform:rotate(180deg);color:var(--accent)}
+.multi-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(12,12,22,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 8px;box-shadow:0 16px 32px -18px rgba(0,0,0,0.75);max-height:220px;overflow:auto;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease;text-align:left;z-index:40}
+.multi-select.open .multi-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
+.multi-option{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:8px;color:var(--fg);cursor:pointer;text-align:left}
+.multi-option input{margin:0}
+.multi-option:hover{background:rgba(102,217,239,0.12)}
+.multi-empty{display:block;padding:8px 10px;color:var(--muted);text-align:left}
+.filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.filter-actions .hint{font-size:11px;color:var(--muted);margin-right:4px}
+.colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
+.filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.filter-flags input{margin-right:4px}
   .section-title{margin:6px 0 4px;color:#bbb;font-weight:500}
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--muted)}
   .small{font-size:11px}
@@ -599,12 +618,11 @@ const SUBAREAS = [
   "Devocional e Oração",
   "EBD / Ensino",
   "Louvor",
-  "Obras",
-  "Eventos",
-  "Tempo a dois",
+  "UJADIS",
+  "Ações e Ministério",
+  "Tempo a dois (Isa)",
   "Família estendida",
   "Comunicação e conexão",
-  "Amigos",
   "Treino físico",
   "Alimentação",
   "Sono e descanso",
@@ -624,6 +642,55 @@ const SUBAREAS = [
   "Metas e visão",
   "Sistema de produtividade"
 ];
+const AREA_SUBAREA_MAP = {
+  "Plixel": [
+    "Vendas e Prospecção",
+    "Criação e Produção",
+    "Gestão e Organização",
+    "Conteúdo e Marketing",
+    "Clientes e Entregas"
+  ],
+  "Igreja / Espiritualidade": [
+    "Devocional e Oração",
+    "EBD / Ensino",
+    "Louvor",
+    "UJADIS",
+    "Ações e Ministério"
+  ],
+  "Família & Relacionamento": [
+    "Tempo a dois (Isa)",
+    "Família estendida",
+    "Comunicação e conexão"
+  ],
+  "Saúde": [
+    "Treino físico",
+    "Alimentação",
+    "Sono e descanso",
+    "Saúde mental"
+  ],
+  "Casa & Rotina": [
+    "Limpeza e ordem",
+    "Compras e suprimentos",
+    "Organização pessoal"
+  ],
+  "Finanças": [
+    "Financeiro pessoal",
+    "Financeiro Plixel",
+    "Gestão e orçamento"
+  ],
+  "Estudo & Desenvolvimento": [
+    "Design e marketing",
+    "Vendas e gestão",
+    "Idiomas / Inglês",
+    "Desenvolvimento pessoal"
+  ],
+  "Planejamento & Estratégia": [
+    "Planejamento semanal / diário",
+    "Revisão e análise",
+    "Metas e visão",
+    "Sistema de produtividade"
+  ]
+};
 
 const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
 const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
@@ -737,21 +804,29 @@ function saveColumnWidths(){
   try{ localStorage.setItem(COLUMN_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(_){ }
 }
 
+const FILTER_MULTI_KEYS = ["status","responsible","priority","duration","area","subarea"];
 const FILTER_DEFAULTS = {
   text: "",
-  status: "",
-  responsible: "",
-  priority: "",
-  duration: "",
-  area: "",
-  subarea: "",
+  status: [],
+  responsible: [],
+  priority: [],
+  duration: [],
+  area: [],
+  subarea: [],
   dateFrom: "",
   dateTo: "",
   week: "",
   includeNoDate: true,
   onlyNoDate: false
 };
-const filterState = { ...FILTER_DEFAULTS };
+function cloneFilterDefaults(){
+  const clone = { ...FILTER_DEFAULTS };
+  FILTER_MULTI_KEYS.forEach(key=>{
+    clone[key] = [...FILTER_DEFAULTS[key]];
+  });
+  return clone;
+}
+const filterState = cloneFilterDefaults();
 const initialNow = new Date().toISOString();
 const stateStored = load(LS_KEY);
 let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
@@ -862,18 +937,148 @@ function escHtml(value){
 function escAttr(value){
   return escHtml(value).replace(/"/g,"&quot;");
 }
+function toSelectionArray(value){
+  if(Array.isArray(value)) return value.filter(v=> v!=null && v!=="");
+  if(value==null || value==="") return [];
+  return [value];
+}
+function toNormalizedSet(values){
+  return new Set(toSelectionArray(values).map(val=> normalizeText(val)).filter(Boolean));
+}
+function selectionSummary(values, placeholder, limit=2){
+  const items = toSelectionArray(values);
+  if(!items.length) return placeholder;
+  if(items.length <= limit) return items.join(", ");
+  return `${items.slice(0, limit).join(", ")} +${items.length - limit}`;
+}
+function renderFilterMultiField(field, label, options, selectedValues, placeholder, emptyMessage){
+  const values = toSelectionArray(selectedValues);
+  const summary = selectionSummary(values, placeholder);
+  const normalizedSelected = new Set(values.map(v=> normalizeText(v)));
+  const hasOptions = Array.isArray(options) && options.length > 0;
+  const menuContent = hasOptions
+    ? options.map(opt=>{
+        const checked = normalizedSelected.has(normalizeText(opt)) ? " checked" : "";
+        return `<label class="multi-option"><input type="checkbox" value="${escAttr(opt)}"${checked} /><span>${escHtml(opt)}</span></label>`;
+      }).join("")
+    : `<span class="multi-empty">${escHtml(emptyMessage || "Nenhuma opção disponível")}</span>`;
+  const disabledAttr = hasOptions ? "" : " disabled";
+  const disabledClass = hasOptions ? "" : " disabled";
+  return `
+      <div class="filter-field" data-field="${field}">
+        <span class="filter-label">${escHtml(label)}</span>
+        <div class="multi-select${disabledClass}" data-field="${field}">
+          <button type="button" class="multi-trigger" data-field="${field}" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
+            <span class="value">${escHtml(summary)}</span>
+            <span class="chevron">&#9662;</span>
+          </button>
+          <div class="multi-menu" role="listbox" tabindex="-1">
+            ${menuContent}
+          </div>
+        </div>
+      </div>`;
+}
+function subareasForAreas(areaValues){
+  const selected = toSelectionArray(areaValues);
+  if(!selected.length) return [];
+  const byKey = Object.create(null);
+  Object.keys(AREA_SUBAREA_MAP).forEach(area=>{
+    byKey[normalizeText(area)] = AREA_SUBAREA_MAP[area];
+  });
+  const result = new Set();
+  selected.forEach(area=>{
+    const direct = AREA_SUBAREA_MAP[area];
+    const fallback = byKey[normalizeText(area)];
+    (direct || fallback || []).forEach(sub=> result.add(sub));
+  });
+  return Array.from(result);
+}
+function setupFilterMultiSelects(container){
+  if(!container) return;
+  const selects = Array.from(container.querySelectorAll(".multi-select"));
+  if(!selects.length) return;
+  const closeAll = ()=>{
+    selects.forEach(select=>{
+      select.classList.remove("open");
+      const trigger = select.querySelector(".multi-trigger");
+      if(trigger) trigger.setAttribute("aria-expanded","false");
+    });
+  };
+  if(document._filterMultiDocHandler){
+    document.removeEventListener("click", document._filterMultiDocHandler);
+  }
+  const docHandler = evt=>{
+    if(!evt.target.closest(".multi-select")){
+      closeAll();
+    }
+  };
+  document.addEventListener("click", docHandler);
+  document._filterMultiDocHandler = docHandler;
+  selects.forEach(select=>{
+    if(select.classList.contains("disabled")) return;
+    const trigger = select.querySelector(".multi-trigger");
+    const menu = select.querySelector(".multi-menu");
+    const field = select.dataset.field;
+    if(trigger){
+      trigger.addEventListener("click", ev=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        const open = select.classList.contains("open");
+        closeAll();
+        if(!open){
+          select.classList.add("open");
+          trigger.setAttribute("aria-expanded","true");
+        }
+      });
+      trigger.addEventListener("keydown", ev=>{
+        if(ev.key === " " || ev.key === "Enter"){
+          ev.preventDefault();
+          trigger.click();
+        }else if(ev.key === "Escape"){
+          closeAll();
+        }
+      });
+    }
+    if(menu){
+      menu.addEventListener("keydown", ev=>{
+        if(ev.key === "Escape"){
+          ev.preventDefault();
+          closeAll();
+          if(trigger) trigger.focus({preventScroll:true});
+        }
+      });
+      menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        cb.addEventListener("change", ()=>{
+          const values = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked')).map(input=> input.value);
+          filterState[field] = values;
+          if(field === "area"){
+            const allowed = subareasForAreas(values);
+            const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+            const filtered = toSelectionArray(filterState.subarea).filter(item=> allowedNorm.has(normalizeText(item)));
+            filterState.subarea = filtered;
+          }
+          renderAll();
+        });
+      });
+    }
+  });
+}
 function optionsMarkup(list, current, includeEmpty=false){
-  const currentNorm = normalizeText(current);
+  const selectedSet = toNormalizedSet(current);
+  const known = new Map();
+  list.forEach(opt=> known.set(normalizeText(opt), opt));
   const parts = [];
   if(includeEmpty){
     parts.push(`<option value="">--</option>`);
   }
-  const hasCurrent = currentNorm && list.some(opt=> normalizeText(opt)===currentNorm);
-  if(current && !hasCurrent){
-    parts.push(`<option value="${escAttr(current)}" selected>${escHtml(current)}</option>`);
-  }
+  toSelectionArray(current).forEach(val=>{
+    const norm = normalizeText(val);
+    if(norm && !known.has(norm)){
+      parts.push(`<option value="${escAttr(val)}" selected>${escHtml(val)}</option>`);
+    }
+  });
   list.forEach(opt=>{
-    const selected = normalizeText(opt)===currentNorm ? " selected" : "";
+    const selected = selectedSet.has(normalizeText(opt)) ? " selected" : "";
     parts.push(`<option value="${escAttr(opt)}"${selected}>${escHtml(opt)}</option>`);
   });
   return parts.join("");
@@ -1603,78 +1808,55 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
+    const selectedAreas = toSelectionArray(filterState.area);
+  const availableFilterSubareas = subareasForAreas(selectedAreas);
+  const hasAreaSelection = selectedAreas.length > 0;
+  const subareaPlaceholder = hasAreaSelection ? "Selecionar subáreas..." : "Selecione uma área";
+  const subareaEmptyMessage = hasAreaSelection ? "Nenhuma subárea disponível" : "Escolha uma área para liberar as subáreas";
   const filterMarkup = `
     <div class="filter-grid">
-      <label>
-        <span>Texto</span>
-        <input id="filter-text" placeholder="T&iacute;tulo, notas, pessoa..." />
-      </label>
-      <label>
-        <span>Status</span>
-        <select id="filter-status" class="colorful" data-color="status">
-          ${optionsMarkup(STATUS, filterState.status, true)}
-        </select>
-      </label>
-      <label>
-        <span>Respons&aacute;vel</span>
-        <select id="filter-responsible" class="colorful" data-color="responsible">
-          ${optionsMarkup(RESPONSIBLES, filterState.responsible, true)}
-        </select>
-      </label>
-      <label>
-        <span>Prioridade</span>
-        <select id="filter-priority" class="colorful" data-color="priority">
-          ${optionsMarkup(PRIORITIES, filterState.priority, true)}
-        </select>
-      </label>
-      <label>
-        <span>Tempo para conclus&atilde;o</span>
-        <select id="filter-duration" class="colorful" data-color="duration">
-          ${optionsMarkup(DURATIONS, filterState.duration, true)}
-        </select>
-      </label>
-      <label>
-        <span>&Aacute;rea</span>
-        <select id="filter-area" class="colorful" data-color="area">
-          ${optionsMarkup(AREAS, filterState.area, true)}
-        </select>
-      </label>
-      <label>
-        <span>Sub&aacute;rea</span>
-        <select id="filter-subarea" class="colorful" data-color="subarea">
-          ${optionsMarkup(SUBAREAS, filterState.subarea, true)}
-        </select>
-      </label>
-      <label>
-        <span>Data inicial</span>
-        <input type="date" id="filter-date-from" />
-      </label>
-      <label>
-        <span>Data final</span>
-        <input type="date" id="filter-date-to" />
-      </label>
-      <label>
-        <span>Semana</span>
-        <input type="number" id="filter-week" min="1" max="53" placeholder="Ex: 42" />
-      </label>
+      <div class="filter-field">
+        <span class="filter-label">Texto</span>
+        <input id="filter-text" class="filter-input" placeholder="Buscar título, notas ou responsável..." value="${escAttr(filterState.text)}" />
+      </div>
+      ${renderFilterMultiField("status","Status", STATUS, filterState.status, "Selecionar status...", "Nenhum status cadastrado")}
+      ${renderFilterMultiField("responsible","Responsável", RESPONSIBLES, filterState.responsible, "Selecionar responsáveis...", "Nenhum responsável cadastrado")}
+      ${renderFilterMultiField("priority","Prioridade", PRIORITIES, filterState.priority, "Selecionar prioridades...", "Nenhuma prioridade cadastrada")}
+      ${renderFilterMultiField("duration","Tempo para conclusão", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma opção cadastrada")}
+      ${renderFilterMultiField("area","Área", AREAS, filterState.area, "Selecionar áreas...", "Nenhuma área cadastrada")}
+      ${renderFilterMultiField("subarea","Subárea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
+      <div class="filter-field">
+        <span class="filter-label">Data inicial</span>
+        <input type="date" id="filter-date-from" class="filter-input" value="${escAttr(filterState.dateFrom || "")}" />
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Data final</span>
+        <input type="date" id="filter-date-to" class="filter-input" value="${escAttr(filterState.dateTo || "")}" />
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Semana</span>
+        <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" value="${escAttr(filterState.week || "")}" />
+      </div>
     </div>
     <div class="filter-flags">
       <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
       <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
     </div>
     <div class="filter-actions">
-      <button class="btn tiny" type="button" data-range="today">Hoje</button>
-      <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
-      <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
-      <button class="btn tiny" type="button" data-range="week">Esta semana</button>
-      <button class="btn tiny" type="button" data-range="month">Este m&ecirc;s</button>
-      <button class="btn tiny" type="button" data-range="clear">Limpar datas</button>
+      <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para marcar múltiplos itens</span>
+      <button class="filter-chip" type="button" data-range="today">Hoje</button>
+      <button class="filter-chip" type="button" data-range="tomorrow">Amanhã</button>
+      <button class="filter-chip" type="button" data-range="next7">Próximos 7 dias</button>
+      <button class="filter-chip" type="button" data-range="week">Esta semana</button>
+      <button class="filter-chip" type="button" data-range="month">Este mês</button>
+      <button class="filter-chip" type="button" data-range="clear">Limpar datas</button>
       <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
     </div>
   `;
   const filterContainer = document.getElementById("filterContainer");
   if(filterContainer){
     filterContainer.innerHTML = filterMarkup;
+    setupFilterMultiSelects(filterContainer);
   }
   view.innerHTML = `
     <div class="table-surface">
@@ -1696,12 +1878,6 @@ function renderAll(){
   `;
   const controls = {
     text: document.getElementById("filter-text"),
-    status: document.getElementById("filter-status"),
-    responsible: document.getElementById("filter-responsible"),
-    priority: document.getElementById("filter-priority"),
-    duration: document.getElementById("filter-duration"),
-    area: document.getElementById("filter-area"),
-    subarea: document.getElementById("filter-subarea"),
     dateFrom: document.getElementById("filter-date-from"),
     dateTo: document.getElementById("filter-date-to"),
     week: document.getElementById("filter-week"),
@@ -1721,12 +1897,6 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
-  ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
-    const ctrl = controls[key];
-    if(ctrl){
-      ctrl.onchange = (e)=>{ filterState[key] = e.target.value; renderAll(); };
-    }
-  });
   if(controls.dateFrom){
     controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
   }
@@ -1778,11 +1948,8 @@ function renderAll(){
     });
   }
   setupColorizedSelects(view);
-  if(filterContainer){
-    setupColorizedSelects(filterContainer);
-    if(filterCollapse && filterCollapse.isOpen()){
-      filterCollapse.setOpen(true);
-    }
+  if(filterContainer && filterCollapse && filterCollapse.isOpen()){
+    filterCollapse.setOpen(true);
   }
   const tableScroll = view.querySelector(".table-scroll");
   const tableEl = tableScroll ? tableScroll.querySelector("table") : null;
@@ -1918,18 +2085,19 @@ function handleTableChange(e){
   updateTask(id, patch);
 }
 function resetFilterState(){
-  Object.keys(FILTER_DEFAULTS).forEach(key=>{
-    filterState[key] = FILTER_DEFAULTS[key];
+  const fresh = cloneFilterDefaults();
+  Object.keys(fresh).forEach(key=>{
+    filterState[key] = fresh[key];
   });
 }
 function applyFilters(tasks){
   const query = normalizeText(filterState.text);
-  const statusNorm = normalizeText(filterState.status);
-  const respNorm = normalizeText(filterState.responsible);
-  const priorityNorm = normalizeText(filterState.priority);
-  const durationNorm = normalizeText(filterState.duration);
-  const areaNorm = normalizeText(filterState.area);
-  const subareaNorm = normalizeText(filterState.subarea);
+  const statusSet = toNormalizedSet(filterState.status);
+  const respSet = toNormalizedSet(filterState.responsible);
+  const prioritySet = toNormalizedSet(filterState.priority);
+  const durationSet = toNormalizedSet(filterState.duration);
+  const areaSet = toNormalizedSet(filterState.area);
+  const subareaSet = toNormalizedSet(filterState.subarea);
   const from = filterState.dateFrom || "";
   const to = filterState.dateTo || "";
   const includeNoDate = !!filterState.includeNoDate;
@@ -1952,12 +2120,18 @@ function applyFilters(tasks){
       ].filter(Boolean).join(" "));
       if(!haystack.includes(query)) return false;
     }
-    if(statusNorm && normalizeText(task.status)!==statusNorm) return false;
-    if(respNorm && normalizeText(task.responsible||"")!==respNorm) return false;
-    if(priorityNorm && normalizeText(task.priority||"")!==priorityNorm) return false;
-    if(durationNorm && normalizeText(task.durationTag||"")!==durationNorm) return false;
-    if(areaNorm && normalizeText(task.area||"")!==areaNorm) return false;
-    if(subareaNorm && normalizeText(task.subarea||"")!==subareaNorm) return false;
+    const taskStatusNorm = normalizeText(task.status);
+    const taskResponsibleNorm = normalizeText(task.responsible||"");
+    const taskPriorityNorm = normalizeText(task.priority||"");
+    const taskDurationNorm = normalizeText(task.durationTag||"");
+    const taskAreaNorm = normalizeText(task.area||"");
+    const taskSubareaNorm = normalizeText(task.subarea||"");
+    if(statusSet.size && !statusSet.has(taskStatusNorm)) return false;
+    if(respSet.size && !respSet.has(taskResponsibleNorm)) return false;
+    if(prioritySet.size && !prioritySet.has(taskPriorityNorm)) return false;
+    if(durationSet.size && !durationSet.has(taskDurationNorm)) return false;
+    if(areaSet.size && !areaSet.has(taskAreaNorm)) return false;
+    if(subareaSet.size && !subareaSet.has(taskSubareaNorm)) return false;
     if(onlyNoDate){
       if(task.dueAt) return false;
     }else{
@@ -2500,6 +2674,10 @@ window.addEventListener("load", initApp, { once: true });
 </script>
 </body>
 </html>
+
+
+
+
 
 
 
