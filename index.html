@@ -1,7 +1,7 @@
-﻿ï»¿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8" />
+<meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Tarefas (Local)</title>
 <style>
@@ -266,201 +266,11 @@
   .date-stack{display:grid;grid-template-columns:1fr;gap:6px}
   .date-stack input{width:100%}
   .divider{height:1px;background:#202031;margin:8px 0}
-  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:8px}
-  .filter-grid .filter-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:var(--muted)}
-  .filter-grid .filter-field input{width:100%}
-  .filter-grid .filter-field .filter-input{width:100%}
-  .filter-grid .filter-field .multi-select{width:100%}
-  .filter-actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:8px}
-  .filter-panel{
-    padding:22px 24px 24px;
-    border-radius:20px;
-    border:1px solid rgba(255,255,255,0.04);
-    background:radial-gradient(circle at top right, rgba(60,60,82,0.24), rgba(22,23,33,0.92));
-    box-shadow:0 18px 38px -24px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04);
-    display:flex;
-    flex-direction:column;
-    gap:16px;
-  }
-  .filter-panel label span{
-    font-size:12px;
-    font-weight:500;
-    letter-spacing:0.03em;
-    color:rgba(255,255,255,0.72);
-  }
-  .filter-panel .filter-input{
-    appearance:none;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.05);
-    background:rgba(13,15,24,0.82);
-    color:var(--fg);
-    padding:10px 12px;
-    font-size:12px;
-    transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
-  }
-  .filter-panel .filter-input:focus{
-    outline:none;
-    border-color:rgba(102,217,239,0.55);
-    box-shadow:0 0 0 1px rgba(102,217,239,0.35),0 12px 24px -18px rgba(102,217,239,0.6);
-    background:rgba(18,20,32,0.95);
-  }
-  input[type="date"]{
-    color-scheme:dark;
-  }
-  input[type="date"]::-webkit-calendar-picker-indicator{
-    filter:invert(1);
-  }
-  .filter-panel select:not([multiple]){
-    background-image:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
-  }
-  .filter-panel select:not([multiple]){
-    padding-right:32px;
-    background-repeat:no-repeat;
-    background-position:right 12px center;
-    background-size:12px 12px;
-  }
-  .filter-panel select[multiple]{
-    border-radius:16px;
-    background:rgba(13,15,24,0.82);
-  }
-  .filter-actions{
-    justify-content:flex-start;
-    gap:8px;
-  }
-  .filter-actions .hint{
-    flex-basis:100%;
-    color:rgba(255,255,255,0.45);
-    font-size:11px;
-    margin-bottom:4px;
-  }
-  .filter-actions .btn.primary,
-  .filter-actions #filter-reset{
-    margin-left:auto;
-  }
-  #filter-reset{
-    border:none;
-    border-radius:14px;
-    padding:9px 18px;
-    background:linear-gradient(135deg, #ad7b1d, #d5a843);
-    color:#0f0f14;
-    font-weight:600;
-    cursor:pointer;
-    transition:transform 0.2s ease, box-shadow 0.2s ease;
-  }
-  #filter-reset:hover{
-    transform:translateY(-1px);
-    box-shadow:0 14px 22px -16px rgba(213,168,67,0.8);
-  }
-  .filter-chip{
-    border:none;
-    border-radius:12px;
-    padding:8px 14px;
-    background:rgba(255,255,255,0.05);
-    color:rgba(255,255,255,0.78);
-    font-size:12px;
-    letter-spacing:0.02em;
-    cursor:pointer;
-    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease;
-  }
-  .filter-chip:hover{
-    background:rgba(102,217,239,0.18);
-    color:var(--accent);
-  }
-  .multi-select{
-    position:relative;
-  }
-  .multi-select.disabled .multi-trigger{
-    cursor:not-allowed;
-    opacity:0.4;
-  }
-  .multi-trigger[disabled]{
-    cursor:not-allowed;
-    opacity:0.4;
-  }
-  .multi-trigger{
-    width:100%;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    border-radius:14px;
-    border:1px solid rgba(255,255,255,0.05);
-    background:rgba(13,15,24,0.82);
-    padding:10px 12px;
-    color:var(--fg);
-    font-size:12px;
-    letter-spacing:0.01em;
-    cursor:pointer;
-    transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, color 0.2s ease;
-  }
-  .multi-trigger .chevron{
-    margin-left:10px;
-    font-size:10px;
-    color:rgba(255,255,255,0.6);
-    transition:transform 0.2s ease;
-  }
-  .multi-select.open .multi-trigger{
-    border-color:rgba(102,217,239,0.55);
-    box-shadow:0 0 0 1px rgba(102,217,239,0.35),0 12px 24px -18px rgba(102,217,239,0.6);
-    background:rgba(18,20,32,0.95);
-    color:var(--accent);
-  }
-  .multi-select.open .multi-trigger .chevron{
-    transform:rotate(180deg);
-    color:var(--accent);
-  }
-  .multi-menu{
-    position:absolute;
-    inset:calc(100% + 8px) auto auto 0;
-    width:min(260px, 100%);
-    background:rgba(13,15,24,0.95);
-    border:1px solid rgba(255,255,255,0.08);
-    border-radius:16px;
-    box-shadow:0 16px 36px -20px rgba(0,0,0,0.75);
-    padding:8px 0;
-    max-height:220px;
-    overflow:auto;
-    opacity:0;
-    pointer-events:none;
-    transform:translateY(-6px);
-    transition:opacity 0.18s ease, transform 0.18s ease;
-    z-index:15;
-  }
-  .multi-select.open .multi-menu{
-    opacity:1;
-    pointer-events:auto;
-    transform:translateY(0);
-  }
-  .multi-option{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    padding:8px 14px;
-    font-size:12px;
-    color:rgba(236,236,241,0.9);
-    cursor:pointer;
-    transition:background 0.15s ease;
-  }
-  .multi-option:hover{
-    background:rgba(102,217,239,0.12);
-  }
-  .multi-option input{
-    margin:0;
-    margin-right:2px;
-    accent-color:var(--accent);
-  }
-  .multi-empty{
-    display:block;
-    padding:12px 14px;
-    font-size:11px;
-    color:rgba(255,255,255,0.45);
-    text-align:center;
-  }
-  .filter-label{
-    font-size:12px;
-    font-weight:500;
-    letter-spacing:0.03em;
-    color:rgba(255,255,255,0.72);
-  }
+  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
+  .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+  .filter-grid input,.filter-grid select{width:100%}
+  .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+  .filter-actions .muted{margin-right:4px}
   .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
   .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
   .filter-flags input{margin-right:4px}
@@ -551,7 +361,6 @@
   }
   .collapsible.open .collapsible-body{
     opacity:1;
-    overflow:visible;
   }
   .emoji-select{width:56px;text-align:center;font-size:16px}
   .emoji-select option{font-size:16px}
@@ -632,7 +441,7 @@
   <div class="layout-stack">
     <section class="card collapsible" id="controlCard" data-collapsible="controls">
       <div class="collapsible-header" role="button" tabindex="0" aria-expanded="false">
-        <h3>Nova tarefa &amp; importaÃ§Ã£o</h3>
+        <h3>Nova tarefa &amp; importação</h3>
         <div class="row header-actions">
           <button class="btn tiny" type="button" data-role="collapse-toggle" data-collapsible-target="controlCard">Expandir</button>
           <span class="chevron" aria-hidden="true">&#9654;</span>
@@ -649,7 +458,7 @@
               </div>
               <div class="row date-row">
                 <input id="dueDate" type="date" aria-label="Data da tarefa" />
-                <input id="dueTime" type="time" placeholder="Hora inÃ­cio" aria-label="Hora inÃ­cio" />
+                <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
                 <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
               </div>
               <select id="status" class="colorful" data-color="status">
@@ -658,10 +467,10 @@
                 <option value="Bloqueada">Bloqueada</option>
                 <option value="Reagendar">Reagendar</option>
                 <option value="Cancelado">Cancelado</option>
-                <option value="ConcluÃ­do">ConcluÃ­do</option>
+                <option value="Concluído">Concluído</option>
               </select>
               <select id="resp" class="colorful" data-color="responsible">
-                <option value="" selected>ResponsÃ¡vel</option>
+                <option value="" selected>Responsável</option>
                 <option value="Daniel">Daniel</option>
                 <option value="Maysa">Maysa</option>
                 <option value="Daniel e Maysa">Daniel e Maysa</option>
@@ -669,21 +478,61 @@
               <select id="prio" class="colorful" data-color="priority">
                 <option value="">Prioridade</option>
                 <option value="Baixa">Baixa</option>
-                <option value="MÃ©dia" selected>MÃ©dia</option>
+                <option value="Média" selected>Média</option>
                 <option value="Alta">Alta</option>
-                <option value="AltÃ­ssima">AltÃ­ssima</option>
+                <option value="Altíssima">Altíssima</option>
               </select>
               <select id="dur" class="colorful" data-color="duration">
-                <option value="">Tempo para conclusÃ£o</option>
-                <option value="RÃ¡pido">RÃ¡pido</option>
-                <option value="MÃ©dio" selected>MÃ©dio</option>
+                <option value="">Tempo para conclusão</option>
+                <option value="Rápido">Rápido</option>
+                <option value="Médio" selected>Médio</option>
                 <option value="Demorado">Demorado</option>
               </select>
               <select id="area" class="colorful" data-color="area">
-                <option value="">Ãrea</option>
+                <option value="">Área</option>
+                <option value="Plixel">Plixel</option>
+                <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
+                <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
+                <option value="Saúde">Saúde</option>
+                <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
+                <option value="Finanças">Finanças</option>
+                <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
+                <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
               </select>
-              <select id="subarea" class="colorful" data-color="subarea" disabled>
-                <option value="">Selecione uma Ã¡rea primeiro</option>
+              <select id="subarea" class="colorful" data-color="subarea">
+                <option value="">Subárea</option>
+                <option value="Vendas e Prospecção">Vendas e Prospecção</option>
+                <option value="Criação e Produção">Criação e Produção</option>
+                <option value="Gestão e Organização">Gestão e Organização</option>
+                <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
+                <option value="Clientes e Entregas">Clientes e Entregas</option>
+                <option value="Devocional e Oração">Devocional e Oração</option>
+                <option value="EBD / Ensino">EBD / Ensino</option>
+                <option value="Louvor">Louvor</option>
+                <option value="Obras">Obras</option>
+                <option value="Eventos">Eventos</option>
+                <option value="Tempo a dois">Tempo a dois</option>
+                <option value="Família estendida">Família estendida</option>
+                <option value="Comunicação e conexão">Comunicação e conexão</option>
+                <option value="Amigos">Amigos</option>
+                <option value="Treino físico">Treino físico</option>
+                <option value="Alimentação">Alimentação</option>
+                <option value="Sono e descanso">Sono e descanso</option>
+                <option value="Saúde mental">Saúde mental</option>
+                <option value="Limpeza e ordem">Limpeza e ordem</option>
+                <option value="Compras e suprimentos">Compras e suprimentos</option>
+                <option value="Organização pessoal">Organização pessoal</option>
+                <option value="Financeiro pessoal">Financeiro pessoal</option>
+                <option value="Financeiro Plixel">Financeiro Plixel</option>
+                <option value="Gestão e orçamento">Gestão e orçamento</option>
+                <option value="Design e marketing">Design e marketing</option>
+                <option value="Vendas e gestão">Vendas e gestão</option>
+                <option value="Idiomas / Inglês">Idiomas / Inglês</option>
+                <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
+                <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
+                <option value="Revisão e análise">Revisão e análise</option>
+                <option value="Metas e visão">Metas e visão</option>
+                <option value="Sistema de produtividade">Sistema de produtividade</option>
               </select>
               <textarea id="notes" rows="2" placeholder="Notas"></textarea>
               <div class="row">
@@ -698,7 +547,7 @@
               <button class="btn" id="importBtn">Importar JSON</button>
               <input type="file" id="importFile" accept=".json" style="display:none" />
               <button class="btn" id="exportBtn">Exportar JSON</button>
-              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importaÃ§Ã£o</button>
+              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
               <div id="importDirInfo" class="status-msg"></div>
               <div id="importStatus" class="status-msg"></div>
             </div>
@@ -727,75 +576,70 @@
 <script>
 const LS_KEY = "tarefas_local_v1";
 const LS_REC_KEY = "tarefas_rec_v1";
-const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","ConcluÃ­do"];
+const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
 const RESPONSIBLES = ["Daniel","Maysa","Daniel e Maysa"];
-const PRIORITIES = ["Baixa","MÃ©dia","Alta","AltÃ­ssima"];
-const DURATIONS = ["RÃ¡pido","MÃ©dio","Demorado"];
-const AREA_SUBAREAS = {
-  "Plixel": [
-    "Vendas e ProspecÃ§Ã£o",
-    "CriaÃ§Ã£o e ProduÃ§Ã£o",
-    "GestÃ£o e OrganizaÃ§Ã£o",
-    "ConteÃºdo e Marketing",
-    "Clientes e Entregas"
-  ],
-  "Igreja / Espiritualidade": [
-    "Devocional e OraÃ§Ã£o",
-    "EBD / Ensino",
-    "Louvor",
-    "UJADIS",
-    "AÃ§Ãµes e MinistÃ©rio"
-  ],
-  "FamÃ­lia & Relacionamento": [
-    "Tempo a dois (Isa)",
-    "FamÃ­lia estendida",
-    "ComunicaÃ§Ã£o e conexÃ£o"
-  ],
-  "SaÃºde": [
-    "Treino fÃ­sico",
-    "AlimentaÃ§Ã£o",
-    "Sono e descanso",
-    "SaÃºde mental"
-  ],
-  "Casa & Rotina": [
-    "Limpeza e ordem",
-    "Compras e suprimentos",
-    "OrganizaÃ§Ã£o pessoal"
-  ],
-  "FinanÃ§as": [
-    "Financeiro pessoal",
-    "Financeiro Plixel",
-    "GestÃ£o e orÃ§amento"
-  ],
-  "Estudo & Desenvolvimento": [
-    "Design e marketing",
-    "Vendas e gestÃ£o",
-    "Idiomas / InglÃªs",
-    "Desenvolvimento pessoal"
-  ],
-  "Planejamento & EstratÃ©gia": [
-    "Planejamento semanal / diÃ¡rio",
-    "RevisÃ£o e anÃ¡lise",
-    "Metas e visÃ£o",
-    "Sistema de produtividade"
-  ]
-};
-const AREAS = Object.keys(AREA_SUBAREAS);
-const SUBAREAS = Array.from(new Set(Object.values(AREA_SUBAREAS).flat()));const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
+const PRIORITIES = ["Baixa","Média","Alta","Altíssima"];
+const DURATIONS = ["Rápido","Médio","Demorado"];
+const AREAS = [
+  "Plixel",
+  "Igreja / Espiritualidade",
+  "Família & Relacionamento",
+  "Saúde",
+  "Casa & Rotina",
+  "Finanças",
+  "Estudo & Desenvolvimento",
+  "Planejamento & Estratégia"
+];
+const SUBAREAS = [
+  "Vendas e Prospecção",
+  "Criação e Produção",
+  "Gestão e Organização",
+  "Conteúdo e Marketing",
+  "Clientes e Entregas",
+  "Devocional e Oração",
+  "EBD / Ensino",
+  "Louvor",
+  "Obras",
+  "Eventos",
+  "Tempo a dois",
+  "Família estendida",
+  "Comunicação e conexão",
+  "Amigos",
+  "Treino físico",
+  "Alimentação",
+  "Sono e descanso",
+  "Saúde mental",
+  "Limpeza e ordem",
+  "Compras e suprimentos",
+  "Organização pessoal",
+  "Financeiro pessoal",
+  "Financeiro Plixel",
+  "Gestão e orçamento",
+  "Design e marketing",
+  "Vendas e gestão",
+  "Idiomas / Inglês",
+  "Desenvolvimento pessoal",
+  "Planejamento semanal / diário",
+  "Revisão e análise",
+  "Metas e visão",
+  "Sistema de produtividade"
+];
+
+const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
 const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
 const COLUMN_LABELS = {
   emoji:'Emoji',
   title:'Tarefa',
-  date:'Data / horÃ¡rios',
+  date:'Data / horários',
   status:'Status',
-  responsible:'ResponsÃ¡vel',
+  responsible:'Responsável',
   priority:'Prioridade',
   duration:'Tempo',
-  area:'Ãrea',
-  subarea:'SubÃ¡rea',
+  area:'Área',
+  subarea:'Subárea',
   notes:'Notas',
-  week:'NÂº Semana',
-  actions:'AÃ§Ãµes'
+  week:'Nº Semana',
+  actions:'Ações'
 };
 const COLUMN_DEFAULT_WIDTHS = {
   emoji:68,
@@ -877,8 +721,6 @@ window._tableResizeHandler = null;
 let controlCollapse = null;
 let filterCollapse = null;
 let appInitialized = false;
-let bootstrapCompleted = false;
-let bootstrapLoadedRemote = false;
 
 function loadColumnWidths(){
   try{
@@ -895,201 +737,29 @@ function saveColumnWidths(){
   try{ localStorage.setItem(COLUMN_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(_){ }
 }
 
-const FILTER_MULTI_KEYS = ["status","responsible","priority","duration","area","subarea"];
 const FILTER_DEFAULTS = {
   text: "",
-  status: [],
-  responsible: [],
-  priority: [],
-  duration: [],
-  area: [],
-  subarea: [],
+  status: "",
+  responsible: "",
+  priority: "",
+  duration: "",
+  area: "",
+  subarea: "",
   dateFrom: "",
   dateTo: "",
   week: "",
   includeNoDate: true,
   onlyNoDate: false
 };
-function cloneFilterDefaults(){
-  const clone = { ...FILTER_DEFAULTS };
-  FILTER_MULTI_KEYS.forEach(key=>{
-    clone[key] = [...FILTER_DEFAULTS[key]];
-  });
-  return clone;
-}
-const filterState = cloneFilterDefaults();
-const DATA_REPO = {
-  owner: "plixeldesign",
-  repo: "Tarefas",
-  file: "tarefas.json",
-  token: ""
-};
-const GH_TOKEN_STORAGE_KEY = "tarefas_github_pat";
-let repoSha = null;
-let remoteEnabled = false;
-
-function ensureToken(){
-  if(DATA_REPO.token) return true;
-  const stored = typeof localStorage !== "undefined" ? localStorage.getItem(GH_TOKEN_STORAGE_KEY) : null;
-  if(stored){
-    DATA_REPO.token = stored.trim();
-    if(DATA_REPO.token) return true;
-  }
-  if(typeof window !== "undefined"){
-    const entered = window.prompt("Informe o token do GitHub (PAT) para sincronizar as tarefas. Clique em Cancelar para usar apenas este dispositivo.");
-    if(entered && entered.trim()){
-      DATA_REPO.token = entered.trim();
-      try{ localStorage.setItem(GH_TOKEN_STORAGE_KEY, DATA_REPO.token); }catch(_){}
-      return true;
-    }
-  }
-  return false;
-}
-
-async function githubRequest(method="GET", body){
-  const url = `https://api.github.com/repos/${DATA_REPO.owner}/${DATA_REPO.repo}/contents/${DATA_REPO.file}`;
-  const headers = { "Accept":"application/vnd.github+json" };
-  if(DATA_REPO.token){
-    headers["Authorization"] = `Bearer ${DATA_REPO.token}`;
-  }
-  const response = await fetch(url, {
-    method,
-    headers,
-    body: body ? JSON.stringify(body) : undefined
-  });
-  if(method === "GET" && response.status === 404){
-    return null;
-  }
-  if(!response.ok){
-    const text = await response.text();
-    throw new Error(`GitHub API error (${response.status}): ${text}`);
-  }
-  return await response.json();
-}
-
-async function loadRemoteState(){
-  if(!remoteEnabled) return null;
-  const data = await githubRequest("GET");
-  if(!data || !data.content){
-    repoSha = data && data.sha ? data.sha : null;
-    return null;
-  }
-  repoSha = data.sha;
-  const decoded = JSON.parse(decodeBase64Utf8(data.content));
-  return decoded;
-}
-
-async function saveRemoteState(payload){
-  if(!remoteEnabled) return;
-  const body = {
-    message: `Atualiza tarefas ${new Date().toISOString()}`,
-    content: encodeBase64Utf8(JSON.stringify(payload, null, 2))
-  };
-  if(repoSha) body.sha = repoSha;
-  const result = await githubRequest("PUT", body);
-  if(result && result.content && result.content.sha){
-    repoSha = result.content.sha;
-  }else if(result && result.sha){
-    repoSha = result.sha;
-  }
-}
-
-function loadLocal(key){
-  try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; }
-}
-function saveLocal(key, value){
-  try{ localStorage.setItem(key, JSON.stringify(value)); }catch(_){}
-}
-function encodeBase64Utf8(str){
-  try{
-    if(typeof TextEncoder !== "undefined"){
-      const bytes = new TextEncoder().encode(str);
-      let binary = "";
-      bytes.forEach(b=>{ binary += String.fromCharCode(b); });
-      return btoa(binary);
-    }
-  }catch(err){
-    console.error("Erro ao codificar Base64 UTF-8 (TextEncoder)", err);
-  }
-  try{
-    return btoa(unescape(encodeURIComponent(str)));
-  }catch(err2){
-    console.error("Erro ao codificar Base64 UTF-8", err2);
-    return btoa(str);
-  }
-}
-function decodeBase64Utf8(value){
-  try{
-    if(typeof TextDecoder !== "undefined"){
-      const binary = atob(value);
-      const bytes = Uint8Array.from(binary, c=> c.charCodeAt(0));
-      return new TextDecoder().decode(bytes);
-    }
-  }catch(err){
-    console.error("Erro ao decodificar Base64 UTF-8 (TextDecoder)", err);
-  }
-  try{
-    return decodeURIComponent(escape(atob(value)));
-  }catch(err2){
-    console.error("Erro ao decodificar Base64 UTF-8", err2);
-    return atob(value);
-  }
-}
-
-let state = { tasks: [], lastId: 0 };
-let recState = { recs: [], lastId: 0 };
-
-async function bootstrapState(){
-  remoteEnabled = ensureToken();
-  if(remoteEnabled){
-    try{
-      const remote = await loadRemoteState();
-      if(remote && Array.isArray(remote.tasks)){
-        const nowIso = new Date().toISOString();
-        state = normalizeStateData(remote, nowIso);
-      }
-      if(remote && Array.isArray(remote.recorrentes)){
-        recState = normalizeRecState({ recs: remote.recorrentes, lastId: remote.recorrentes.length });
-      }
-      if(remote){
-        bootstrapLoadedRemote = true;
-        return;
-      }
-    }catch(err){
-      console.error("Falha ao carregar dados do GitHub, usando armazenamento local.", err);
-      remoteEnabled = false;
-    }
-  }
-  const nowIso = new Date().toISOString();
-  const localState = loadLocal(LS_KEY);
-  const localRec = loadLocal(LS_REC_KEY);
-  state = localState ? normalizeStateData(localState, nowIso) : { tasks: [], lastId: 0 };
-  recState = localRec ? normalizeRecState(localRec) : { recs: [], lastId: 0 };
-}
-
-async function persistAll(){
-  const payload = {
-    tasks: state.tasks,
-    recorrentes: recState.recs
-  };
-  if(remoteEnabled){
-    try{
-      await saveRemoteState(payload);
-      return;
-    }catch(err){
-      console.error("Falha ao salvar no GitHub, usando armazenamento local como fallback.", err);
-      remoteEnabled = false;
-    }
-  }
-  saveLocal(LS_KEY, state);
-  saveLocal(LS_REC_KEY, recState);
-}
-function persistAllSafe(){
-  const maybePromise = persistAll();
-  if(maybePromise && typeof maybePromise.catch === "function"){
-    maybePromise.catch(err=> console.error("Falha ao persistir dados.", err));
-  }
-}
+const filterState = { ...FILTER_DEFAULTS };
+const initialNow = new Date().toISOString();
+const stateStored = load(LS_KEY);
+let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
+const recStored = load(LS_REC_KEY);
+let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+function saveRec(){ localStorage.setItem(LS_REC_KEY, JSON.stringify(recState)); }
+function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; } }
 /* --------- Util --------- */
 const fmt = d => d ? new Date(d).toLocaleString('pt-BR',{hour12:false}) : "";
 const fmtDate = d => d ? new Date(d).toLocaleDateString('pt-BR') : "";
@@ -1208,175 +878,6 @@ function optionsMarkup(list, current, includeEmpty=false){
   });
   return parts.join("");
 }
-function toSelectionArray(value){
-  if(Array.isArray(value)) return value.filter(v=>v!=null && v!=="");
-  if(value==null || value==="") return [];
-  return [value];
-}
-function toNormalizedSet(selection){
-  const entries = toSelectionArray(selection).map(val=> normalizeText(val)).filter(Boolean);
-  return new Set(entries);
-}
-function subareasForAreas(areas){
-  const list = [];
-  toSelectionArray(areas).forEach(area=>{
-    const bucket = AREA_SUBAREAS[area] || [];
-    bucket.forEach(item=>{
-      if(!list.some(existing=> normalizeText(existing) === normalizeText(item))){
-        list.push(item);
-      }
-    });
-  });
-  if(!list.length){
-    return SUBAREAS.slice();
-  }
-  return list;
-}
-function subareaOptionsMarkup(areas, current, includeEmpty=false){
-  const options = subareasForAreas(areas);
-  return optionsMarkup(options, current, includeEmpty);
-}
-function selectionSummary(values, placeholder, limit=2){
-  const list = toSelectionArray(values);
-  if(!list.length) return placeholder;
-  if(list.length <= limit) return list.join(", ");
-  return `${list.slice(0, limit).join(", ")} +${list.length - limit}`;
-}
-function renderFilterMultiField(field, label, options, selectedValues, placeholder, emptyMessage){
-  const list = toSelectionArray(selectedValues);
-  const summary = selectionSummary(list, placeholder);
-  const selectedNorm = new Set(list.map(val=> normalizeText(val)));
-  const hasOptions = Array.isArray(options) && options.length > 0;
-  const menuContent = hasOptions
-    ? options.map(opt=>{
-        const checked = selectedNorm.has(normalizeText(opt)) ? " checked" : "";
-        return `<label class="multi-option"><input type="checkbox" value="${escAttr(opt)}"${checked}/><span>${escHtml(opt)}</span></label>`;
-      }).join("")
-    : `<span class="multi-empty">${escHtml(emptyMessage || "Nenhuma op\u00e7\u00e3o")}</span>`;
-  const disabledAttr = hasOptions ? "" : " disabled";
-  const disabledClass = hasOptions ? "" : " disabled";
-  return `
-        <div class="filter-field" data-field="${field}">
-          <span class="filter-label">${escHtml(label)}</span>
-          <div class="multi-select${disabledClass}" data-field="${field}">
-            <button type="button" class="multi-trigger" data-field="${field}" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
-              <span class="value">${escHtml(summary)}</span>
-              <span class="chevron">&#9662;</span>
-            </button>
-            <div class="multi-menu" role="listbox" tabindex="-1">
-              ${menuContent}
-            </div>
-          </div>
-        </div>`;
-}
-function setupFilterMultiSelects(container){
-  if(!container) return;
-  const globalScope = typeof window !== "undefined" ? window : null;
-  if(globalScope && globalScope._filterMultiDocHandler){
-    document.removeEventListener("click", globalScope._filterMultiDocHandler);
-    globalScope._filterMultiDocHandler = null;
-  }
-  const selects = Array.from(container.querySelectorAll(".multi-select"));
-  if(!selects.length) return;
-  const closeAll = ()=>{
-    selects.forEach(el=>{
-      el.classList.remove("open");
-      const trigger = el.querySelector(".multi-trigger");
-      if(trigger) trigger.setAttribute("aria-expanded","false");
-    });
-  };
-  const docHandler = evt=>{
-    if(!evt.target.closest(".multi-select")){
-      closeAll();
-    }
-  };
-  document.addEventListener("click", docHandler);
-  if(globalScope){
-    globalScope._filterMultiDocHandler = docHandler;
-  }
-  selects.forEach(select=>{
-    if(select.classList.contains("disabled")) return;
-    const trigger = select.querySelector(".multi-trigger");
-    const menu = select.querySelector(".multi-menu");
-    const field = select.dataset.field;
-    if(trigger){
-      trigger.addEventListener("click", ev=>{
-        ev.preventDefault();
-        ev.stopPropagation();
-        const isOpen = select.classList.contains("open");
-        closeAll();
-        if(!isOpen){
-          select.classList.add("open");
-          trigger.setAttribute("aria-expanded","true");
-        }
-      });
-    }
-    if(menu){
-      menu.addEventListener("keydown", evt=>{
-        if(evt.key==="Escape"){
-          evt.preventDefault();
-          closeAll();
-          if(trigger) trigger.focus({preventScroll:true});
-        }
-      });
-      menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-        cb.addEventListener("change", ()=>{
-          const values = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked')).map(input=> input.value);
-          filterState[field] = values;
-          if(field === "area"){
-            const allowed = subareasForAreas(values);
-            const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
-            const filtered = toSelectionArray(filterState.subarea).filter(item=> allowedNorm.has(normalizeText(item)));
-            filterState.subarea = filtered;
-          }
-          renderAll();
-        });
-      });
-    }
-  });
-}
-function buildAreaOptionsMarkup(selected){
-  const parts = ['<option value="">Ãrea</option>'];
-  AREAS.forEach(area=>{
-    const selectedAttr = normalizeText(area) === normalizeText(selected) ? " selected" : "";
-    parts.push(`<option value="${escAttr(area)}"${selectedAttr}>${escHtml(area)}</option>`);
-  });
-  return parts.join("");
-}
-function buildSubareaOptionsMarkup(areaValue, selected){
-  const hasArea = !!areaValue;
-  const label = hasArea ? "SubÃ¡rea" : "Selecione uma Ã¡rea primeiro";
-  const parts = [`<option value="">${escHtml(label)}</option>`];
-  const list = hasArea ? subareasForAreas(areaValue) : [];
-  list.forEach(item=>{
-    const selectedAttr = normalizeText(item) === normalizeText(selected) ? " selected" : "";
-    parts.push(`<option value="${escAttr(item)}"${selectedAttr}>${escHtml(item)}</option>`);
-  });
-  return parts.join("");
-}
-function syncAreaSubareaSelects(areaSelect, subareaSelect, areaValue=null, subareaValue=null){
-  if(areaSelect){
-    const value = areaValue != null ? areaValue : areaSelect.value;
-    areaSelect.innerHTML = buildAreaOptionsMarkup(value);
-    areaSelect.value = value || "";
-  }
-  if(subareaSelect){
-    const areaVal = areaSelect ? areaSelect.value : (areaValue || "");
-    const subValue = subareaValue != null ? subareaValue : subareaSelect.value;
-    subareaSelect.innerHTML = buildSubareaOptionsMarkup(areaVal, subValue);
-    const hasArea = !!areaVal;
-    subareaSelect.disabled = !hasArea;
-    if(hasArea){
-      subareaSelect.value = subValue && normalizeText(subValue) ? subValue : "";
-    }else{
-      subareaSelect.value = "";
-    }
-    applySelectColor(subareaSelect);
-  }
-  if(areaSelect){
-    applySelectColor(areaSelect);
-  }
-}
 function stringHash(str){
   let hash = 0;
   for(let i=0;i<str.length;i++){
@@ -1407,12 +908,6 @@ function colorFor(field, value){
 }
 function applySelectColor(select){
   if(!select || !select.dataset) return;
-  if(select.multiple){
-    select.style.backgroundColor = "";
-    select.style.borderColor = "";
-    select.style.color = "";
-    return;
-  }
   const field = select.dataset.color;
   if(!field) return;
   const color = colorFor(field, select.value);
@@ -1672,7 +1167,7 @@ function addTask(t){
   task.createdAt = nowIso;
   task.updatedAt = nowIso;
   state.tasks.push(task);
-  persistAllSafe();
+  save();
 }
 function supportsFileSystemAccess(){
   try{
@@ -1715,7 +1210,7 @@ async function persistDirectoryHandle(handle){
       tx.objectStore(IMPORT_DIR_STORE).put(handle, IMPORT_DIR_KEY);
     });
   }catch(err){
-    console.warn("NÃ£o foi possÃ­vel gravar a pasta de importaÃ§Ã£o:", err);
+    console.warn("Não foi possível gravar a pasta de importação:", err);
   }
 }
 async function loadStoredDirectoryHandle(){
@@ -1729,7 +1224,7 @@ async function loadStoredDirectoryHandle(){
       req.onerror = ()=>reject(req.error);
     });
   }catch(err){
-    console.warn("NÃ£o foi possÃ­vel recuperar a pasta de importaÃ§Ã£o:", err);
+    console.warn("Não foi possível recuperar a pasta de importação:", err);
     return null;
   }
 }
@@ -1803,13 +1298,13 @@ async function restoreImportDirectory(){
         importDirHandle = stored;
         updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
       }else{
-        updateImportDirInfo("Selecione a pasta para salvar as importaÃ§Ãµes.", "error");
+        updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
       }
     }else{
-      updateImportDirInfo("Selecione a pasta para salvar as importaÃ§Ãµes.");
+      updateImportDirInfo("Selecione a pasta para salvar as importações.");
     }
   }catch(err){
-    console.warn("Falha ao restaurar pasta de importaÃ§Ã£o", err);
+    console.warn("Falha ao restaurar pasta de importação", err);
   }
 }
 /* --------- UI base --------- */
@@ -1874,12 +1369,6 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.durationTag = sanitizeOptionField(copy.durationTag ?? copy.duration, DURATIONS);
   copy.area = sanitizeOptionField(copy.area, AREAS);
   copy.subarea = sanitizeOptionField(copy.subarea, SUBAREAS);
-  if(copy.area){
-    const allowedSet = new Set(subareasForAreas(copy.area).map(item=> normalizeText(item)));
-    if(copy.subarea && !allowedSet.has(normalizeText(copy.subarea))){
-      copy.subarea = null;
-    }
-  }
   copy.notes = sanitizeNotes(copy.notes);
   copy.emoji = cleanString(copy.emoji||"") || null;
   applyDerived(copy);
@@ -1907,25 +1396,25 @@ function parseNotionTasks(rows, nowIso){
   rows.forEach(row=>{
     if(!row || typeof row!=="object") return;
     const get = fieldGetter(row);
-    const title = cleanString(get(["tarefa","nome","name","titulo","tÃ­tulo"]));
+    const title = cleanString(get(["tarefa","nome","name","titulo","título"]));
     if(!title) return;
-    const dateInfo = parseNotionDate(cleanString(get(["data","date","inicio","inÃ­cio","start"])));
-    const status = mapStatus(get(["status","situaÃ§Ã£o","situacao","fase","etapa"]));
-    const responsible = cleanString(get(["responsavel","responsÃ¡vel","assignee","responsibility"]));
+    const dateInfo = parseNotionDate(cleanString(get(["data","date","inicio","início","start"])));
+    const status = mapStatus(get(["status","situação","situacao","fase","etapa"]));
+    const responsible = cleanString(get(["responsavel","responsável","assignee","responsibility"]));
     const priority = cleanString(firstNonEmpty(
       get(["prioridade","priority"]),
-      get(["importancia","importÃ¢ncia"])
+      get(["importancia","importância"])
     ));
     const duration = cleanString(firstNonEmpty(
-      get(["tempo","tempo conclusao","tempo conclusÃ£o","tempoconclusao","tempoconclusÃ£o"]),
-      get(["duracao","duraÃ§Ã£o","duration"]),
+      get(["tempo","tempo conclusao","tempo conclusão","tempoconclusao","tempoconclusão"]),
+      get(["duracao","duração","duration"]),
       get(["tempo gasto","tempogasto"])
     ));
-    const area = cleanString(get(["area","Ã¡rea"]));
-    const subarea = cleanString(get(["subarea","subÃ¡rea"]));
+    const area = cleanString(get(["area","área"]));
+    const subarea = cleanString(get(["subarea","subárea"]));
     const notes = cleanString(firstNonEmpty(
-      get(["notas","notes","observacoes","observaÃ§Ãµes"]),
-      get(["descricao","descriÃ§Ã£o","description"])
+      get(["notas","notes","observacoes","observações"]),
+      get(["descricao","descrição","description"])
     ));
     tasks.push({
       id: tasks.length+1,
@@ -2023,7 +1512,7 @@ function parseNotionDate(raw){
   const endTime = timeMatches[1] ? padTime(`${timeMatches[1][1]}:${timeMatches[1][2]}`) : null;
   return { start: startIso, end: endTime };
 }
-/* --------- RenderizaÃ§Ãµes --------- */
+/* --------- Renderizações --------- */
 let currentTab = "all";
 function render(tab){
   currentTab = tab;
@@ -2089,8 +1578,8 @@ function renderAll(){
         <td data-col="date">
           <div class="stack date-stack">
             <input type="date" class="table-input" data-field="dueDate" value="${dueDateVal}" placeholder="DD/MM/AAAA" aria-label="Data da tarefa" />
-            <input type="time" class="table-input" data-field="dueTime" value="${dueTimeVal}" placeholder="HH:MM" aria-label="Hora de inÃ­cio" />
-            <input type="time" class="table-input" data-field="endTime" value="${endTimeVal}" placeholder="HH:MM" aria-label="Hora de tÃ©rmino" />
+            <input type="time" class="table-input" data-field="dueTime" value="${dueTimeVal}" placeholder="HH:MM" aria-label="Hora de início" />
+            <input type="time" class="table-input" data-field="endTime" value="${endTimeVal}" placeholder="HH:MM" aria-label="Hora de término" />
           </div>
         </td>
         <td data-col="status"><select class="table-input colorful" data-color="status" data-field="status">${optionsMarkup(STATUS, t.status)}</select></td>
@@ -2098,7 +1587,7 @@ function renderAll(){
         <td data-col="priority"><select class="table-input colorful" data-color="priority" data-field="priority">${optionsMarkup(PRIORITIES, t.priority, true)}</select></td>
         <td data-col="duration"><select class="table-input colorful" data-color="duration" data-field="durationTag">${optionsMarkup(DURATIONS, t.durationTag, true)}</select></td>
         <td data-col="area"><select class="table-input colorful" data-color="area" data-field="area">${optionsMarkup(AREAS, t.area, true)}</select></td>
-        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${subareaOptionsMarkup(t.area, t.subarea, true)}</select></td>
+        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(SUBAREAS, t.subarea, true)}</select></td>
         <td data-col="notes"><textarea class="table-input" data-field="notes" rows="2">${escHtml(t.notes||"")}</textarea></td>
         <td data-col="week">${t.weekNumber||""}</td>
         <td data-col="actions">
@@ -2114,60 +1603,78 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
-  const availableFilterSubareas = subareasForAreas(filterState.area);
-  const selectedAreasFilter = toSelectionArray(filterState.area);
-  const subareaPlaceholder = selectedAreasFilter.length
-    ? "Selecionar sub\u00e1reas..."
-    : "Selecione uma \u00e1rea";
-  const subareaEmptyMessage = selectedAreasFilter.length
-    ? "Sem sub\u00e1reas dispon\u00edveis"
-    : "Selecione uma \u00e1rea primeiro";
   const filterMarkup = `
-    <div class="filter-panel">
-      <div class="filter-grid">
-        <div class="filter-field">
-          <span class="filter-label">Texto</span>
-          <input id="filter-text" class="filter-input" placeholder="Buscar tÃtulo..." />
-        </div>
-        ${renderFilterMultiField("status","Status", STATUS, filterState.status, "Selecionar status...", "Nenhum status cadastrado")}
-        ${renderFilterMultiField("responsible","ResponsÃvel", RESPONSIBLES, filterState.responsible, "Selecionar responsÃ¡veis...", "Nenhum responsÃ¡vel cadastrado")}
-        ${renderFilterMultiField("priority","Prioridade", PRIORITIES, filterState.priority, "Selecionar prioridades...", "Nenhuma prioridade cadastrada")}
-        ${renderFilterMultiField("duration","Tempo para conclusÃ£o", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma opÃ§Ã£o cadastrada")}
-        ${renderFilterMultiField("area","Ãrea", AREAS, filterState.area, "Selecionar Ã¡reas...", "Nenhuma Ã¡rea cadastrada")}
-        ${renderFilterMultiField("subarea","SubÃrea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
-        <div class="filter-field">
-          <span class="filter-label">Data inicial</span>
-          <input type="date" id="filter-date-from" class="filter-input" />
-        </div>
-        <div class="filter-field">
-          <span class="filter-label">Data final</span>
-          <input type="date" id="filter-date-to" class="filter-input" />
-        </div>
-        <div class="filter-field">
-          <span class="filter-label">Semana</span>
-          <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" />
-        </div>
-      </div>
-      <div class="filter-flags">
-        <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
-        <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
-      </div>
-      <div class="filter-actions">
-        <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para selecionar mÃšltiplos itens</span>
-        <button class="filter-chip" type="button" data-range="today">Hoje</button>
-        <button class="filter-chip" type="button" data-range="tomorrow">AmanhÃ£</button>
-        <button class="filter-chip" type="button" data-range="next7">PrÃ“ximos 7 dias</button>
-        <button class="filter-chip" type="button" data-range="week">Esta semana</button>
-        <button class="filter-chip" type="button" data-range="month">Este mÃŠs</button>
-        <button class="filter-chip" type="button" data-range="clear">Limpar datas</button>
-        <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
-      </div>
+    <div class="filter-grid">
+      <label>
+        <span>Texto</span>
+        <input id="filter-text" placeholder="T&iacute;tulo, notas, pessoa..." />
+      </label>
+      <label>
+        <span>Status</span>
+        <select id="filter-status" class="colorful" data-color="status">
+          ${optionsMarkup(STATUS, filterState.status, true)}
+        </select>
+      </label>
+      <label>
+        <span>Respons&aacute;vel</span>
+        <select id="filter-responsible" class="colorful" data-color="responsible">
+          ${optionsMarkup(RESPONSIBLES, filterState.responsible, true)}
+        </select>
+      </label>
+      <label>
+        <span>Prioridade</span>
+        <select id="filter-priority" class="colorful" data-color="priority">
+          ${optionsMarkup(PRIORITIES, filterState.priority, true)}
+        </select>
+      </label>
+      <label>
+        <span>Tempo para conclus&atilde;o</span>
+        <select id="filter-duration" class="colorful" data-color="duration">
+          ${optionsMarkup(DURATIONS, filterState.duration, true)}
+        </select>
+      </label>
+      <label>
+        <span>&Aacute;rea</span>
+        <select id="filter-area" class="colorful" data-color="area">
+          ${optionsMarkup(AREAS, filterState.area, true)}
+        </select>
+      </label>
+      <label>
+        <span>Sub&aacute;rea</span>
+        <select id="filter-subarea" class="colorful" data-color="subarea">
+          ${optionsMarkup(SUBAREAS, filterState.subarea, true)}
+        </select>
+      </label>
+      <label>
+        <span>Data inicial</span>
+        <input type="date" id="filter-date-from" />
+      </label>
+      <label>
+        <span>Data final</span>
+        <input type="date" id="filter-date-to" />
+      </label>
+      <label>
+        <span>Semana</span>
+        <input type="number" id="filter-week" min="1" max="53" placeholder="Ex: 42" />
+      </label>
+    </div>
+    <div class="filter-flags">
+      <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
+      <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
+    </div>
+    <div class="filter-actions">
+      <button class="btn tiny" type="button" data-range="today">Hoje</button>
+      <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
+      <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
+      <button class="btn tiny" type="button" data-range="week">Esta semana</button>
+      <button class="btn tiny" type="button" data-range="month">Este m&ecirc;s</button>
+      <button class="btn tiny" type="button" data-range="clear">Limpar datas</button>
+      <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
     </div>
   `;
   const filterContainer = document.getElementById("filterContainer");
   if(filterContainer){
     filterContainer.innerHTML = filterMarkup;
-    setupFilterMultiSelects(filterContainer);
   }
   view.innerHTML = `
     <div class="table-surface">
@@ -2189,6 +1696,12 @@ function renderAll(){
   `;
   const controls = {
     text: document.getElementById("filter-text"),
+    status: document.getElementById("filter-status"),
+    responsible: document.getElementById("filter-responsible"),
+    priority: document.getElementById("filter-priority"),
+    duration: document.getElementById("filter-duration"),
+    area: document.getElementById("filter-area"),
+    subarea: document.getElementById("filter-subarea"),
     dateFrom: document.getElementById("filter-date-from"),
     dateTo: document.getElementById("filter-date-to"),
     week: document.getElementById("filter-week"),
@@ -2208,6 +1721,12 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
+  ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
+    const ctrl = controls[key];
+    if(ctrl){
+      ctrl.onchange = (e)=>{ filterState[key] = e.target.value; renderAll(); };
+    }
+  });
   if(controls.dateFrom){
     controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
   }
@@ -2399,19 +1918,18 @@ function handleTableChange(e){
   updateTask(id, patch);
 }
 function resetFilterState(){
-  const fresh = cloneFilterDefaults();
-  Object.keys(fresh).forEach(key=>{
-    filterState[key] = fresh[key];
+  Object.keys(FILTER_DEFAULTS).forEach(key=>{
+    filterState[key] = FILTER_DEFAULTS[key];
   });
 }
 function applyFilters(tasks){
   const query = normalizeText(filterState.text);
-  const statusSet = toNormalizedSet(filterState.status);
-  const respSet = toNormalizedSet(filterState.responsible);
-  const prioritySet = toNormalizedSet(filterState.priority);
-  const durationSet = toNormalizedSet(filterState.duration);
-  const areaSet = toNormalizedSet(filterState.area);
-  const subareaSet = toNormalizedSet(filterState.subarea);
+  const statusNorm = normalizeText(filterState.status);
+  const respNorm = normalizeText(filterState.responsible);
+  const priorityNorm = normalizeText(filterState.priority);
+  const durationNorm = normalizeText(filterState.duration);
+  const areaNorm = normalizeText(filterState.area);
+  const subareaNorm = normalizeText(filterState.subarea);
   const from = filterState.dateFrom || "";
   const to = filterState.dateTo || "";
   const includeNoDate = !!filterState.includeNoDate;
@@ -2434,30 +1952,12 @@ function applyFilters(tasks){
       ].filter(Boolean).join(" "));
       if(!haystack.includes(query)) return false;
     }
-    if(statusSet.size){
-      const taskStatus = normalizeText(task.status);
-      if(!statusSet.has(taskStatus)) return false;
-    }
-    if(respSet.size){
-      const taskResp = normalizeText(task.responsible||"");
-      if(!respSet.has(taskResp)) return false;
-    }
-    if(prioritySet.size){
-      const taskPriority = normalizeText(task.priority||"");
-      if(!prioritySet.has(taskPriority)) return false;
-    }
-    if(durationSet.size){
-      const taskDuration = normalizeText(task.durationTag||"");
-      if(!durationSet.has(taskDuration)) return false;
-    }
-    if(areaSet.size){
-      const taskArea = normalizeText(task.area||"");
-      if(!areaSet.has(taskArea)) return false;
-    }
-    if(subareaSet.size){
-      const taskSubarea = normalizeText(task.subarea||"");
-      if(!subareaSet.has(taskSubarea)) return false;
-    }
+    if(statusNorm && normalizeText(task.status)!==statusNorm) return false;
+    if(respNorm && normalizeText(task.responsible||"")!==respNorm) return false;
+    if(priorityNorm && normalizeText(task.priority||"")!==priorityNorm) return false;
+    if(durationNorm && normalizeText(task.durationTag||"")!==durationNorm) return false;
+    if(areaNorm && normalizeText(task.area||"")!==areaNorm) return false;
+    if(subareaNorm && normalizeText(task.subarea||"")!==subareaNorm) return false;
     if(onlyNoDate){
       if(task.dueAt) return false;
     }else{
@@ -2551,7 +2051,7 @@ function renderKanban(){
       <div class="status-msg">Semana ${monday.toLocaleDateString()} - ${sunday.toLocaleDateString()}</div>
       <div class="row">
         ${actionBtn("&larr; Semana anterior", ()=>shiftWeek(-7))}
-        ${actionBtn("PrÃ“xima semana &rarr;", ()=>shiftWeek(7))}
+        ${actionBtn("Pr&oacute;xima semana &rarr;", ()=>shiftWeek(7))}
       </div>
     </div>
     <div class="kanban">
@@ -2573,7 +2073,7 @@ function renderKanban(){
         t.updatedAt = new Date().toISOString();
       }
     });
-    persistAllSafe(); render("kanban");
+    save(); render("kanban");
   }
 }
 /* Por dia */
@@ -2629,8 +2129,8 @@ function renderRec(){
       </div>
       <div class="row">
         <select id="r_weekday">
-          <option value="0">Segunda</option><option value="1">TerÃ§a</option><option value="2">Quarta</option>
-          <option value="3">Quinta</option><option value="4">Sexta</option><option value="5">SÃbado</option>
+          <option value="0">Segunda</option><option value="1">Ter&ccedil;a</option><option value="2">Quarta</option>
+          <option value="3">Quinta</option><option value="4">Sexta</option><option value="5">S&aacute;bado</option>
           <option value="6">Domingo</option>
         </select>
         <input id="r_time" placeholder="HH:MM (opcional)" />
@@ -2644,7 +2144,7 @@ function renderRec(){
       </div>
       <div style="overflow:auto">
         <table>
-          <thead><tr><th>Tarefa</th><th>Dia</th><th>Hora</th><th>ResponsÃvel</th><th>Prioridade</th><th>Tempo</th><th>AÃ§Ãµes</th></tr></thead>
+          <thead><tr><th>Tarefa</th><th>Dia</th><th>Hora</th><th>Respons&aacute;vel</th><th>Prioridade</th><th>Tempo</th><th>A&ccedil;&otilde;es</th></tr></thead>
           <tbody>${recRows}</tbody>
         </table>
       </div>
@@ -2662,11 +2162,11 @@ function renderRec(){
       priority: document.getElementById("r_prio").value,
       durationTag: document.getElementById("r_dur").value
     });
-    persistAllSafe(); render("rec");
+    saveRec(); render("rec");
   };
   setupColorizedSelects(view);
 }
-/* --------- AÃ§Ãµes --------- */
+/* --------- Ações --------- */
 function actionBtn(label, fn, cls=""){ 
   const id = "b"+Math.random().toString(36).slice(2);
   setTimeout(()=>{ const el=document.getElementById(id); if(el) el.onclick=fn; },0);
@@ -2728,26 +2228,10 @@ function updateTask(id, patch){
     t.durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
   }
   if(patch.area!==undefined){
-    const areaValue = sanitizeOptionField(patch.area, AREAS);
-    t.area = areaValue;
-    if(areaValue){
-      const allowedSet = new Set(subareasForAreas(areaValue).map(item=> normalizeText(item)));
-      if(t.subarea && !allowedSet.has(normalizeText(t.subarea))){
-        t.subarea = null;
-      }
-    }else{
-      t.subarea = null;
-    }
+    t.area = sanitizeOptionField(patch.area, AREAS);
   }
   if(patch.subarea!==undefined){
-    let subValue = sanitizeOptionField(patch.subarea, SUBAREAS);
-    if(subValue && t.area){
-      const allowedSet = new Set(subareasForAreas(t.area).map(item=> normalizeText(item)));
-      if(!allowedSet.has(normalizeText(subValue))){
-        subValue = null;
-      }
-    }
-    t.subarea = subValue;
+    t.subarea = sanitizeOptionField(patch.subarea, SUBAREAS);
   }
   if(patch.emoji!==undefined){
     t.emoji = patch.emoji || null;
@@ -2757,7 +2241,7 @@ function updateTask(id, patch){
   }
   applyDerived(t);
   t.updatedAt = nowIso;
-  persistAllSafe();
+  save();
   render(currentTab);
 }
 function editTaskPrompt(id){
@@ -2769,7 +2253,7 @@ function editTaskPrompt(id){
   const resp = prompt("Respons\u00e1vel (opcional):", t.responsible||"");
   const prio = prompt(`Prioridade (${PRIORITIES.join(", ")}):`, t.priority||PRIORITIES[1]);
   const dur = prompt(`Tempo (${DURATIONS.join(", ")}):`, t.durationTag||DURATIONS[1]);
-  const area = prompt("Ãrea (opcional):", t.area||"");
+  const area = prompt("Área (opcional):", t.area||"");
   const subarea = prompt("Sub\u00e1rea (opcional):", t.subarea||"");
   const notes = prompt("Notas (opcional):", t.notes||"");
   updateTask(id, {
@@ -2792,16 +2276,16 @@ function resched(id, days){
   t.status = STATUS[0];
   applyDerived(t);
   t.updatedAt = new Date().toISOString();
-  persistAllSafe(); render(currentTab);
+  save(); render(currentTab);
 }
 function delTask(id){
   if(!confirm("Excluir tarefa?")) return;
-  state.tasks = state.tasks.filter(x=>x.id!==id); persistAllSafe(); render(currentTab);
+  state.tasks = state.tasks.filter(x=>x.id!==id); save(); render(currentTab);
 }
 /* Recorrentes */
 function delRec(id){
   if(!confirm("Excluir recorrente")) return;
-  recState.recs = recState.recs.filter(r=>r.id!==id); persistAllSafe(); render("rec");
+  recState.recs = recState.recs.filter(r=>r.id!==id); saveRec(); render("rec");
 }
 function generateWeek(baseMonday){
   if(!(baseMonday instanceof Date)) baseMonday = new Date(baseMonday);
@@ -2850,16 +2334,6 @@ function initApp(){
     });
     window.setTab = setTab;
   }
-  const areaEl = document.getElementById("area");
-  const subareaEl = document.getElementById("subarea");
-  if(areaEl){
-    syncAreaSubareaSelects(areaEl, subareaEl, areaEl.value || "", subareaEl ? subareaEl.value || "" : "");
-    areaEl.addEventListener("change", ()=>{
-      syncAreaSubareaSelects(areaEl, subareaEl, areaEl.value || "", null);
-    });
-  }else if(subareaEl){
-    subareaEl.disabled = true;
-  }
   const addTaskBtn = document.getElementById("addTask");
   if(addTaskBtn){
     addTaskBtn.addEventListener("click", ()=>{
@@ -2872,21 +2346,13 @@ function initApp(){
       const respEl = document.getElementById("resp");
       const prioEl = document.getElementById("prio");
       const durEl = document.getElementById("dur");
+      const areaEl = document.getElementById("area");
+      const subareaEl = document.getElementById("subarea");
       const notesEl = document.getElementById("notes");
       const title = titleEl ? titleEl.value.trim() : "";
       if(!title){ alert("Informe a tarefa"); return; }
       const due = combineDateAndTime(dueDateEl ? dueDateEl.value : "", dueTimeEl ? dueTimeEl.value : "");
       const endTime = padTime(endEl ? endEl.value : "");
-      const areaValue = areaEl && areaEl.value ? areaEl.value : null;
-      const subareaRaw = subareaEl && subareaEl.value ? subareaEl.value : null;
-      let safeSubarea = null;
-      if(subareaRaw){
-        const allowedSubareas = areaValue ? subareasForAreas(areaValue) : SUBAREAS;
-        const allowedSet = new Set(allowedSubareas.map(item=> normalizeText(item)));
-        if(allowedSet.has(normalizeText(subareaRaw))){
-          safeSubarea = subareaRaw;
-        }
-      }
       addTask({
         emoji: emojiEl && emojiEl.value ? emojiEl.value : null,
         title,
@@ -2896,8 +2362,8 @@ function initApp(){
         responsible: respEl && respEl.value ? respEl.value : null,
         priority: prioEl && prioEl.value ? prioEl.value : null,
         durationTag: durEl && durEl.value ? durEl.value : null,
-        area: areaValue,
-        subarea: safeSubarea,
+        area: areaEl && areaEl.value ? areaEl.value : null,
+        subarea: subareaEl && subareaEl.value ? subareaEl.value : null,
         notes: sanitizeNotes(notesEl ? notesEl.value : "")
       });
       if(emojiEl) emojiEl.value = "";
@@ -2912,7 +2378,6 @@ function initApp(){
       if(durEl) durEl.value = DURATIONS[1];
       if(areaEl) areaEl.value = "";
       if(subareaEl) subareaEl.value = "";
-      syncAreaSubareaSelects(areaEl, subareaEl, areaEl ? areaEl.value : "", null);
       render(currentTab);
     });
   }
@@ -2944,23 +2409,23 @@ function initApp(){
         const txt = await file.text();
         const data = JSON.parse(txt);
         if(!applyImportedData(data)){
-          throw new Error("Formato de arquivo nÃ£o reconhecido");
+          throw new Error("Formato de arquivo não reconhecido");
         }
-        persistAllSafe(); render(currentTab || "all");
+        save(); saveRec(); render(currentTab || "all");
         let persistNote = "";
         const persistResult = await persistImportedFile(file);
         if(persistResult){
           if(persistResult.path){
             persistNote = ` - Copiado para ${persistResult.path}`;
-            updateImportDirInfo(`CÃ³pia salva em: ${persistResult.path}`, "success");
+            updateImportDirInfo(`Cópia salva em: ${persistResult.path}`, "success");
           }else if(persistResult.missing){
-            updateImportDirInfo("Selecione a pasta para salvar automaticamente as importaÃ§Ãµes.", "error");
+            updateImportDirInfo("Selecione a pasta para salvar automaticamente as importações.", "error");
           }else if(persistResult.permission === false){
-            updateImportDirInfo("Permita acesso de escrita para salvar as importaÃ§Ãµes.", "error");
+            updateImportDirInfo("Permita acesso de escrita para salvar as importações.", "error");
           }else if(persistResult.unsupported){
-            updateImportDirInfo("Este navegador nÃ£o suporta salvar automaticamente os arquivos importados.", "error");
+            updateImportDirInfo("Este navegador não suporta salvar automaticamente os arquivos importados.", "error");
           }else if(persistResult.error){
-            updateImportDirInfo("Erro ao salvar uma cÃ³pia do arquivo importado.", "error");
+            updateImportDirInfo("Erro ao salvar uma cópia do arquivo importado.", "error");
           }
         }
         if(importStatus){
@@ -2983,11 +2448,11 @@ function initApp(){
   const chooseImportDirBtn = document.getElementById("chooseImportDir");
   if(chooseImportDirBtn){
     if(!supportsFileSystemAccess()){
-      updateImportDirInfo("Salvar automaticamente requer um navegador compatÃ­vel.", "error");
+      updateImportDirInfo("Salvar automaticamente requer um navegador compatível.", "error");
     }
     chooseImportDirBtn.addEventListener("click", async ()=>{
       if(!supportsFileSystemAccess()){
-        updateImportDirInfo("Seu navegador nÃ£o permite salvar automaticamente os arquivos importados.", "error");
+        updateImportDirInfo("Seu navegador não permite salvar automaticamente os arquivos importados.", "error");
         return;
       }
       try{
@@ -2998,16 +2463,16 @@ function initApp(){
           await persistDirectoryHandle(handle);
           updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
         }else{
-          updateImportDirInfo("PermissÃ£o negada para a pasta escolhida.", "error");
+          updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
         }
       }catch(err){
         if(err && err.name === "AbortError") return;
-        console.error("Erro ao selecionar pasta de importaÃ§Ã£o", err);
-        updateImportDirInfo("NÃ£o foi possÃ­vel selecionar a pasta.", "error");
+        console.error("Erro ao selecionar pasta de importação", err);
+        updateImportDirInfo("Não foi possível selecionar a pasta.", "error");
       }
     });
   }else if(!supportsFileSystemAccess()){
-    updateImportDirInfo("Seu navegador nÃ£o suporta salvar automaticamente os arquivos importados.", "error");
+    updateImportDirInfo("Seu navegador não suporta salvar automaticamente os arquivos importados.", "error");
   }
   controlCollapse = setupCollapsible("controlCard", {
     defaultOpen:false,
@@ -3025,55 +2490,16 @@ function initApp(){
   }
   setTab("all");
 }
-async function startApp(){
-  if(appInitialized) return;
-  if(!bootstrapCompleted){
-    try{
-      await bootstrapState();
-    }catch(err){
-      console.error("Falha ao preparar dados iniciais, iniciando com armazenamento local.", err);
-    }finally{
-      bootstrapCompleted = true;
-    }
-  }
-  initApp();
-  if(remoteEnabled && !bootstrapLoadedRemote && (state.tasks.length || recState.recs.length)){
-    persistAllSafe();
-  }
-}
-
 if(document.readyState === "loading"){
-  document.addEventListener("DOMContentLoaded", ()=>{ startApp(); }, { once: true });
+  document.addEventListener("DOMContentLoaded", initApp, { once: true });
 }else{
-  startApp();
+  initApp();
 }
-window.addEventListener("load", ()=>{ startApp(); }, { once: true });
+window.addEventListener("load", initApp, { once: true });
 
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
