@@ -272,6 +272,94 @@
   .filter-grid select[multiple]{min-height:94px;padding:6px 8px;line-height:1.4;overflow-y:auto}
   .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
   .filter-actions .muted{margin-right:4px}
+  .filter-panel{
+    padding:22px 24px 24px;
+    border-radius:20px;
+    border:1px solid rgba(255,255,255,0.04);
+    background:radial-gradient(circle at top right, rgba(60,60,82,0.24), rgba(22,23,33,0.92));
+    box-shadow:0 18px 38px -24px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.04);
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+  }
+  .filter-panel label span{
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.03em;
+    color:rgba(255,255,255,0.72);
+  }
+  .filter-panel .filter-input{
+    appearance:none;
+    border-radius:14px;
+    border:1px solid rgba(255,255,255,0.05);
+    background:rgba(13,15,24,0.82);
+    color:var(--fg);
+    padding:10px 12px;
+    font-size:12px;
+    transition:border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+  .filter-panel .filter-input:focus{
+    outline:none;
+    border-color:rgba(102,217,239,0.55);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.35),0 12px 24px -18px rgba(102,217,239,0.6);
+    background:rgba(18,20,32,0.95);
+  }
+  .filter-panel select:not([multiple]){
+    background-image:linear-gradient(135deg, rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+  }
+  .filter-panel select:not([multiple]){
+    padding-right:32px;
+    background-repeat:no-repeat;
+    background-position:right 12px center;
+    background-size:12px 12px;
+  }
+  .filter-panel select[multiple]{
+    border-radius:16px;
+    background:rgba(13,15,24,0.82);
+  }
+  .filter-actions{
+    justify-content:flex-start;
+    gap:8px;
+  }
+  .filter-actions .hint{
+    flex-basis:100%;
+    color:rgba(255,255,255,0.45);
+    font-size:11px;
+    margin-bottom:2px;
+  }
+  .filter-chip{
+    border:none;
+    border-radius:12px;
+    padding:8px 14px;
+    background:rgba(255,255,255,0.04);
+    color:rgba(255,255,255,0.76);
+    font-size:12px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  }
+  .filter-chip:hover{
+    background:rgba(102,217,239,0.16);
+    color:var(--accent);
+  }
+  .filter-actions .btn.primary,
+  .filter-actions #filter-reset{
+    margin-left:auto;
+  }
+  #filter-reset{
+    border:none;
+    border-radius:14px;
+    padding:9px 18px;
+    background:linear-gradient(135deg, #ad7b1d, #d5a843);
+    color:#0f0f14;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  #filter-reset:hover{
+    transform:translateY(-1px);
+    box-shadow:0 14px 22px -16px rgba(213,168,67,0.8);
+  }
   .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
   .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
   .filter-flags input{margin-right:4px}
@@ -1860,71 +1948,75 @@ function renderAll(){
   const availableFilterSubareas = subareasForAreas(filterState.area);
   const subareaFilterOptions = multiOptionsMarkup(availableFilterSubareas, filterState.subarea);
   const filterMarkup = `
-    <div class="filter-grid">
-      <label>
-        <span>Texto</span>
-        <input id="filter-text" placeholder="T&iacute;tulo, notas, pessoa..." />
-      </label>
-      <label>
-        <span>Status</span>
-        <select id="filter-status" class="colorful" data-color="status" multiple>
-          ${statusFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>Respons&aacute;vel</span>
-        <select id="filter-responsible" class="colorful" data-color="responsible" multiple>
-          ${responsibleFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>Prioridade</span>
-        <select id="filter-priority" class="colorful" data-color="priority" multiple>
-          ${priorityFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>Tempo para conclus&atilde;o</span>
-        <select id="filter-duration" class="colorful" data-color="duration" multiple>
-          ${durationFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>&Aacute;rea</span>
-        <select id="filter-area" class="colorful" data-color="area" multiple>
-          ${areaFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>Sub&aacute;rea</span>
-        <select id="filter-subarea" class="colorful" data-color="subarea" multiple>
-          ${subareaFilterOptions}
-        </select>
-      </label>
-      <label>
-        <span>Data inicial</span>
-        <input type="date" id="filter-date-from" />
-      </label>
-      <label>
-        <span>Data final</span>
-        <input type="date" id="filter-date-to" />
-      </label>
-      <label>
-        <span>Semana</span>
-        <input type="number" id="filter-week" min="1" max="53" placeholder="Ex: 42" />
-      </label>
-    </div>
-    <div class="filter-flags">
-      <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
-      <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
-    </div>
-    <div class="filter-actions">\r\n      <span class="muted small">Use Ctrl/Cmd para selecionar múltiplos itens</span>\r\n      <button class="btn tiny" type="button" data-range="today">Hoje</button>
-      <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
-      <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
-      <button class="btn tiny" type="button" data-range="week">Esta semana</button>
-      <button class="btn tiny" type="button" data-range="month">Este m&ecirc;s</button>
-      <button class="btn tiny" type="button" data-range="clear">Limpar datas</button>
-      <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
+    <div class="filter-panel">
+      <div class="filter-grid">
+        <label>
+          <span>Texto</span>
+          <input id="filter-text" class="filter-input" placeholder="T&iacute;tulo, notas, pessoa..." />
+        </label>
+        <label>
+          <span>Status</span>
+          <select id="filter-status" class="filter-input colorful" data-color="status" multiple>
+            ${statusFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>Respons&aacute;vel</span>
+          <select id="filter-responsible" class="filter-input colorful" data-color="responsible" multiple>
+            ${responsibleFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>Prioridade</span>
+          <select id="filter-priority" class="filter-input colorful" data-color="priority" multiple>
+            ${priorityFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>Tempo para conclus&atilde;o</span>
+          <select id="filter-duration" class="filter-input colorful" data-color="duration" multiple>
+            ${durationFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>&Aacute;rea</span>
+          <select id="filter-area" class="filter-input colorful" data-color="area" multiple>
+            ${areaFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>Sub&aacute;rea</span>
+          <select id="filter-subarea" class="filter-input colorful" data-color="subarea" multiple>
+            ${subareaFilterOptions}
+          </select>
+        </label>
+        <label>
+          <span>Data inicial</span>
+          <input type="date" id="filter-date-from" class="filter-input" />
+        </label>
+        <label>
+          <span>Data final</span>
+          <input type="date" id="filter-date-to" class="filter-input" />
+        </label>
+        <label>
+          <span>Semana</span>
+          <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" />
+        </label>
+      </div>
+      <div class="filter-flags">
+        <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
+        <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
+      </div>
+      <div class="filter-actions">
+        <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para selecionar m&uacute;ltiplos itens</span>
+        <button class="filter-chip" type="button" data-range="today">Hoje</button>
+        <button class="filter-chip" type="button" data-range="tomorrow">Amanh&atilde;</button>
+        <button class="filter-chip" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
+        <button class="filter-chip" type="button" data-range="week">Esta semana</button>
+        <button class="filter-chip" type="button" data-range="month">Este m&ecirc;s</button>
+        <button class="filter-chip" type="button" data-range="clear">Limpar datas</button>
+        <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
+      </div>
     </div>
   `;
   const filterContainer = document.getElementById("filterContainer");
@@ -2837,6 +2929,9 @@ window.addEventListener("load", ()=>{ startApp(); }, { once: true });
 </script>
 </body>
 </html>
+
+
+
 
 
 
