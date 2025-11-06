@@ -624,32 +624,35 @@
   }
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--muted)}
   .small{font-size:11px}
-  .card.collapsible{
+.card.collapsible{
     padding:0;
-    background:var(--panel);
-    border-radius:14px;
-    border:1px solid var(--panel-border);
-    overflow:hidden;
-    box-shadow:0 18px 36px -30px var(--shadow);
+    background:transparent;
+    border-radius:18px;
+    border:none;
+    box-shadow:none;
   }
   .collapsible-header{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    padding:14px 16px;
-    background:linear-gradient(135deg, rgba(35,35,55,0.85), rgba(22,22,34,0.85));
+    padding:16px 20px;
+    margin:0;
+    background:linear-gradient(135deg, rgba(24,24,40,0.95), rgba(10,10,18,0.96));
+    border:1px solid rgba(122,85,27,0.35);
+    border-radius:16px;
     cursor:pointer;
     user-select:none;
     transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;
-    border-bottom:1px solid rgba(255,255,255,0.04);
+    box-shadow:0 18px 36px -30px var(--shadow);
   }
   .collapsible-header:hover{
-    background:linear-gradient(135deg, rgba(42,42,66,0.9), rgba(26,26,40,0.9));
+    border-color:rgba(255,217,158,0.45);
+    box-shadow:0 18px 36px -24px rgba(0,0,0,0.85);
   }
   .collapsible.open .collapsible-header{
-    border-bottom-color:rgba(102,217,239,0.28);
-    box-shadow:inset 0 -1px 0 rgba(102,217,239,0.22);
+    border-color:rgba(255,217,158,0.55);
+    box-shadow:0 22px 44px -28px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05);
   }
   .collapsible-header h3{
     margin:0;
@@ -681,18 +684,19 @@
   .collapsible-header .chevron{
     width:22px;
     height:22px;
-    border-radius:8px;
+    border-radius:50%;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.05);
     color:var(--muted);
     font-size:12px;
     transition:background .2s ease,color .2s ease,box-shadow .2s ease;
   }
   .collapsible.open .collapsible-header .chevron{
-    background:var(--accent-soft);
+    background:rgba(102,217,239,0.18);
     color:var(--accent);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.25);
   }
   .collapsible-header:hover .chevron{
     color:var(--fg);
@@ -700,14 +704,17 @@
   .collapsible-body{
     max-height:0;
     overflow:hidden;
-    padding:0 16px;
-    background:linear-gradient(180deg, rgba(20,20,32,0.92) 0%, rgba(12,12,22,0.92) 100%);
-    border-top:1px solid rgba(255,255,255,0.04);
+    padding:0 20px;
+    margin-top:6px;
+    background:linear-gradient(180deg, rgba(20,20,32,0.94) 0%, rgba(12,12,22,0.95) 100%);
+    border:1px solid rgba(122,85,27,0.28);
+    border-radius:16px;
     transition:max-height .25s ease,padding .25s ease,opacity .2s ease;
     opacity:0;
   }
   .collapsible.open .collapsible-body{
     opacity:1;
+    box-shadow:0 22px 48px -32px var(--shadow);
   }
   .emoji-select{width:56px;text-align:center;font-size:16px}
   .emoji-select option{font-size:16px}
