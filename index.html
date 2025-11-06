@@ -273,6 +273,7 @@
 .filter-label{font-size:12px;color:var(--muted);font-weight:500}
 .filter-input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.92);color:var(--fg);transition:border-color .2s ease,box-shadow .2s ease;background-clip:padding-box}
 .filter-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(102,217,239,0.25)}
+.filter-input.date-input{letter-spacing:0.02em}
 .multi-select{position:relative}
 .multi-select.disabled{opacity:0.45}
 .multi-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.9);color:var(--fg);cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;text-align:left}
@@ -945,6 +946,42 @@ function toSelectionArray(value){
 }
 function toNormalizedSet(values){
   return new Set(toSelectionArray(values).map(val=> normalizeText(val)).filter(Boolean));
+}
+function formatIsoDateForDisplay(iso){
+  if(!iso) return "";
+  const parts = iso.split("-");
+  if(parts.length !== 3) return iso;
+  const [y,m,d] = parts;
+  return `${d}/${m}/${y}`;
+}
+function parseDateFilterInput(raw){
+  if(!raw) return { valid: true, iso: "", display: "" };
+  const clean = raw.trim();
+  if(!clean) return { valid: true, iso: "", display: "" };
+  const digitsOnly = clean.replace(/[^0-9]/g,"");
+  let iso = "";
+  let display = "";
+  const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
+  const brPattern = /^\d{2}\/\d{2}\/\d{4}$/;
+  if(isoPattern.test(clean)){
+    iso = clean;
+    display = formatIsoDateForDisplay(iso);
+  }else if(brPattern.test(clean)){
+    const [day,month,year] = clean.split("/");
+    iso = `${year}-${month}-${day}`;
+    display = clean;
+  }else if(/^\d{8}$/.test(digitsOnly)){
+    const day = digitsOnly.slice(0,2);
+    const month = digitsOnly.slice(2,4);
+    const year = digitsOnly.slice(4);
+    iso = `${year}-${month}-${day}`;
+    display = `${day}/${month}/${year}`;
+  }else{
+    return { valid: false };
+  }
+  const test = new Date(iso);
+  if(Number.isNaN(test.getTime())) return { valid: false };
+  return { valid: true, iso, display };
 }
 function selectionSummary(values, placeholder, limit=2){
   const items = toSelectionArray(values);
@@ -1828,11 +1865,11 @@ function renderAll(){
       ${renderFilterMultiField("subarea","Subárea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
       <div class="filter-field">
         <span class="filter-label">Data inicial</span>
-        <input type="date" id="filter-date-from" class="filter-input" value="${escAttr(filterState.dateFrom || "")}" />
+        <input type="text" id="filter-date-from" class="filter-input date-input" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" value="${escAttr(formatIsoDateForDisplay(filterState.dateFrom))}" />
       </div>
       <div class="filter-field">
         <span class="filter-label">Data final</span>
-        <input type="date" id="filter-date-to" class="filter-input" value="${escAttr(filterState.dateTo || "")}" />
+        <input type="text" id="filter-date-to" class="filter-input date-input" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" value="${escAttr(formatIsoDateForDisplay(filterState.dateTo))}" />
       </div>
       <div class="filter-field">
         <span class="filter-label">Semana</span>
@@ -1886,8 +1923,8 @@ function renderAll(){
     onlyNoDate: document.getElementById("filter-only-nodate")
   };
   if(controls.text) controls.text.value = filterState.text;
-  if(controls.dateFrom) controls.dateFrom.value = filterState.dateFrom || "";
-  if(controls.dateTo) controls.dateTo.value = filterState.dateTo || "";
+  if(controls.dateFrom) controls.dateFrom.value = formatIsoDateForDisplay(filterState.dateFrom);
+  if(controls.dateTo) controls.dateTo.value = formatIsoDateForDisplay(filterState.dateTo);
   if(controls.week) controls.week.value = filterState.week || "";
   if(controls.includeNoDate) controls.includeNoDate.checked = !!filterState.includeNoDate;
   if(controls.onlyNoDate) controls.onlyNoDate.checked = !!filterState.onlyNoDate;
@@ -1898,24 +1935,35 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
-  if(controls.dateFrom){
-    controls.dateFrom.addEventListener("input", e=>{
-      filterState.dateFrom = e.target.value;
+  const attachDateHandler = (ctrlKey, inputEl)=>{
+    if(!inputEl) return;
+    if(inputEl.dataset.dateHandlerAttached) return;
+    const commit = value=>{
+      const parsed = parseDateFilterInput(value);
+      if(!parsed.valid){
+        inputEl.value = formatIsoDateForDisplay(filterState[ctrlKey]);
+        return;
+      }
+      const nextIso = parsed.iso;
+      if(filterState[ctrlKey] !== nextIso){
+        filterState[ctrlKey] = nextIso;
+        renderAll();
+      }else{
+        inputEl.value = parsed.display;
+      }
+    };
+    inputEl.addEventListener("change", e=> commit(e.target.value));
+    inputEl.addEventListener("blur", e=> commit(e.target.value));
+    inputEl.addEventListener("keydown", ev=>{
+      if(ev.key === "Enter"){
+        ev.preventDefault();
+        commit(ev.target.value);
+      }
     });
-    controls.dateFrom.addEventListener("change", e=>{
-      filterState.dateFrom = e.target.value;
-      renderAll();
-    });
-  }
-  if(controls.dateTo){
-    controls.dateTo.addEventListener("input", e=>{
-      filterState.dateTo = e.target.value;
-    });
-    controls.dateTo.addEventListener("change", e=>{
-      filterState.dateTo = e.target.value;
-      renderAll();
-    });
-  }
+    inputEl.dataset.dateHandlerAttached = "1";
+  };
+  attachDateHandler("dateFrom", controls.dateFrom);
+  attachDateHandler("dateTo", controls.dateTo);
   if(controls.week){
     controls.week.oninput = (e)=>{
       const clean = e.target.value.replace(/[^0-9]/g,"").slice(0,2);
