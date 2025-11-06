@@ -1215,38 +1215,38 @@ let importDirHandle = null;
 
 const COLOR_PALETTES = {
   status: {
-    "A fazer": ["#4b5563", "#f9fafb"],
-    "Em progresso": ["#2563eb", "#f8fafc"],
-    "Bloqueada": ["#dc2626", "#ffffff"],
-    "Reagendar": ["#f59e0b", "#111827"],
-    "Cancelado": ["#6b7280", "#f9fafb"],
-    "Conclu\u00eddo": ["#22c55e", "#052e16"]
+    "A fazer":       { bg: "#2A2F38", text: "#E5E7EB", border: "#3A404B" },
+    "Em progresso":  { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" },
+    "Bloqueada":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" },
+    "Reagendar":     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Cancelado":     { bg: "#2C2F36", text: "#CBD5E1", border: "#94A3B8" },
+    "Concluído":     { bg: "#0C2A1A", text: "#BBF7D0", border: "#22C55E" }
   },
   priority: {
-    "Baixa": ["#38bdf8", "#0f172a"],
-    "M\u00e9dia": ["#10b981", "#022c22"],
-    "Alta": ["#f97316", "#111111"],
-    "Alt\u00edssima": ["#ec4899", "#ffffff"]
+    "Baixa":         { bg: "#07283A", text: "#A5E8FF", border: "#38BDF8" },
+    "Média":         { bg: "#072920", text: "#A7F3D0", border: "#10B981" },
+    "Alta":          { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" },
+    "Altíssima":     { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" }
   },
   duration: {
-    "R\u00e1pido": ["#4ade80", "#064e3b"],
-    "M\u00e9dio": ["#818cf8", "#1e1b4b"],
-    "Demorado": ["#c084fc", "#33124d"]
+    "Rápido":        { bg: "#0A2E24", text: "#86EFAC", border: "#4ADE80" },
+    "Médio":         { bg: "#10143A", text: "#C7D2FE", border: "#818CF8" },
+    "Demorado":      { bg: "#221038", text: "#E9D5FF", border: "#A855F7" }
   },
   responsible: {
-    "Daniel": ["#f97316", "#111111"],
-    "Maysa": ["#a855f7", "#ffffff"],
-    "Daniel e Maysa": ["#6366f1", "#f8fafc"]
+    "Daniel":        { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" },
+    "Maysa":         { bg: "#2A1240", text: "#E9D5FF", border: "#A855F7" },
+    "Daniel e Maysa":{ bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   },
   area: {
-    "Plixel": ["#4f46e5", "#f9fafb"],
-    "Igreja / Espiritualidade": ["#f59e0b", "#111827"],
-    "Fam\u00edlia & Relacionamento": ["#ec4899", "#ffffff"],
-    "Sa\u00fade": ["#10b981", "#022c22"],
-    "Casa & Rotina": ["#94a3b8", "#111827"],
-    "Finan\u00e7as": ["#14b8a6", "#022c22"],
-    "Estudo & Desenvolvimento": ["#6366f1", "#f9fafb"],
-    "Planejamento & Estrat\u00e9gia": ["#0ea5e9", "#082f49"]
+    "Plixel":                     { bg: "#0F1538", text: "#C7D2FE", border: "#4F46E5" },
+    "Igreja / Espiritualidade":   { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Família & Relacionamento":   { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" },
+    "Saúde":                      { bg: "#072920", text: "#A7F3D0", border: "#10B981" },
+    "Casa & Rotina":              { bg: "#232831", text: "#E5E7EB", border: "#94A3B8" },
+    "Finanças":                   { bg: "#072A2A", text: "#99F6E4", border: "#14B8A6" },
+    "Estudo & Desenvolvimento":   { bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" },
+    "Planejamento & Estratégia":  { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" }
   }
 };
 let columnWidths = loadColumnWidths();
@@ -1645,20 +1645,26 @@ function stringToColorPair(str){
   const hue = hash % 360;
   const light = 38 + (hash % 24);
   const bg = `hsl(${hue}, 65%, ${light}%)`;
-  const fg = light > 55 ? "#111111" : "#f9fafb";
-  return { bg, fg };
+  const text = light > 55 ? "#111111" : "#f9fafb";
+  return { bg, text, border: bg };
 }
 function colorFor(field, value){
   if(!value) return null;
   const palette = COLOR_PALETTES[field];
-  if(palette && palette[value]){
-    const [bg, fg] = palette[value];
-    return { bg, fg };
+  const entry = palette ? palette[value] : null;
+  if(entry){
+    if(Array.isArray(entry)){
+      const [bg, text] = entry;
+      return { bg, text, border: bg };
+    }
+    if(typeof entry === "object"){
+      const bg = entry.bg || (entry.backgroundColor || entry.background) || "#2A2F38";
+      const text = entry.text || entry.color || "#f3f4ff";
+      const border = entry.border || bg;
+      return { bg, text, border };
+    }
   }
-  if(field==="subarea" || !palette || !palette[value]){
-    return stringToColorPair(value);
-  }
-  return null;
+  return stringToColorPair(value);
 }
 function hslWithAlpha(hslString, alpha){
   if(!hslString || typeof hslString !== "string") return `rgba(122,85,27,${alpha})`;
@@ -1678,7 +1684,7 @@ function applySelectColor(select){
   if(shell && shell.classList.contains('no-fill')){
     select.style.backgroundColor = "transparent";
     select.style.borderColor = "transparent";
-    select.style.color = "#f3f4ff";
+    select.style.color = color ? (color.text || "#f3f4ff") : "#f3f4ff";
     if(color){
       shell.classList.add('has-accent');
       const accentBorder = hslWithAlpha(color.bg, 0.55);
@@ -1696,8 +1702,8 @@ function applySelectColor(select){
   }
   if(color){
     select.style.backgroundColor = color.bg;
-    select.style.borderColor = color.bg;
-    select.style.color = color.fg;
+    select.style.borderColor = color.border || color.bg;
+    select.style.color = color.text || "#f3f4ff";
   }else{
     select.style.backgroundColor = "";
     select.style.borderColor = "";
@@ -3276,6 +3282,7 @@ window.addEventListener("load", initApp, { once: true });
 </script>
 </body>
 </html>
+
 
 
 
