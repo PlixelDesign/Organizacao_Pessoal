@@ -13,8 +13,9 @@
     --panel:#181827;
     --panel-hover:#1f1f30;
     --panel-border:#25253a;
-    --accent-soft:rgba(102,217,239,0.14);
-    --accent:#66d9ef;
+  --accent-soft:rgba(102,217,239,0.14);
+  --accent:#66d9ef;
+  --accent-gold:#7a551b;
     --ok:#33d17a;
     --warn:#f6d32d;
     --danger:#ff5f56;
@@ -200,14 +201,14 @@
   .status-msg.error{color:#ff8a8a;}
   .status-msg.success{color:var(--accent);}
   .btn.primary{
-    border-color:var(--accent);
-    color:#05202a;
-    background:linear-gradient(135deg, rgba(102,217,239,0.35), rgba(102,217,239,0.18));
-    box-shadow:0 10px 24px -18px rgba(102,217,239,0.75);
+    border-color:rgba(122,85,27,0.6);
+    color:#f9f4eb;
+    background:linear-gradient(135deg, rgba(122,85,27,0.85), rgba(122,85,27,0.6));
+    box-shadow:0 12px 28px -18px rgba(122,85,27,0.65);
   }
   .btn.primary:hover{
-    background:linear-gradient(135deg, rgba(102,217,239,0.45), rgba(102,217,239,0.24));
-    color:#02151b;
+    background:linear-gradient(135deg, rgba(122,85,27,0.95), rgba(122,85,27,0.75));
+    color:#fffaf0;
   }
   .btn.ok{border-color:var(--ok);color:var(--ok)}
   .btn.warn{border-color:var(--warn);color:var(--warn)}
@@ -296,6 +297,265 @@
 .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
 .filter-flags input{margin-right:4px}
   .section-title{margin:6px 0 4px;color:#bbb;font-weight:500}
+  .new-task-card{
+    background:linear-gradient(145deg, rgba(20,20,30,0.9), rgba(12,12,20,0.95));
+    border:1px solid rgba(122,85,27,0.25);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 20px 40px -30px rgba(0,0,0,0.85);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .new-task-card .section-title{
+    margin:0;
+    font-size:16px;
+    color:#f5f0e8;
+  }
+  .task-card-subtitle{
+    font-size:12px;
+    color:#9a98b1;
+    margin-top:4px;
+  }
+  .task-card-header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .quick-flags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    align-items:center;
+  }
+  .quick-flags__title{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#c6c3d9;
+  }
+  .quick-flag{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:#b8b6cc;
+    background:rgba(122,85,27,0.08);
+    border:1px solid rgba(122,85,27,0.2);
+    padding:6px 10px;
+    border-radius:14px;
+    transition:background .2s ease,border-color .2s ease,color .2s ease;
+  }
+  .quick-flag input{
+    appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:5px;
+    border:1px solid rgba(122,85,27,0.45);
+    background:rgba(12,12,20,0.9);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .2s ease,border-color .2s ease;
+    position:relative;
+  }
+  .quick-flag input:checked{
+    background:var(--accent-gold);
+    border-color:rgba(255,217,158,0.85);
+  }
+  .quick-flag input:checked::after{
+    content:"";
+    width:9px;
+    height:6px;
+    border-left:2px solid #0b0b0f;
+    border-bottom:2px solid #0b0b0f;
+    transform:rotate(-45deg) translateY(-1px);
+  }
+  .quick-flag:hover{
+    background:rgba(122,85,27,0.16);
+    border-color:rgba(255,217,158,0.35);
+    color:#f3d9a7;
+  }
+  .task-form-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  }
+  .form-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .form-field label{
+    font-size:12px;
+    font-weight:500;
+    color:#cfcde0;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .form-field .label-icon{
+    width:14px;
+    height:14px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .input-shell{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 12px;
+    min-height:44px;
+    border-radius:12px;
+    border:1px solid rgba(122,85,27,0.18);
+    background:linear-gradient(135deg, rgba(18,18,28,0.95), rgba(12,12,22,0.92));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .input-shell.with-icon{
+    padding-left:40px;
+  }
+  .input-shell .field-icon{
+    position:absolute;
+    left:14px;
+    width:18px;
+    height:18px;
+    color:#c6c3d9;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .input-shell input,
+  .input-shell select,
+  .input-shell textarea{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#f3f4ff;
+    font-size:13px;
+    font-family:inherit;
+    padding:12px 0;
+    outline:none;
+  }
+  .input-shell select{
+    appearance:none;
+    padding-right:28px;
+    cursor:pointer;
+  }
+  .input-shell select::-ms-expand{display:none}
+  .input-shell textarea{
+    resize:vertical;
+    min-height:80px;
+  }
+  .input-shell input::placeholder,
+  .input-shell textarea::placeholder{
+    color:#8080a0;
+  }
+  .input-shell:focus-within{
+    border-color:rgba(255,217,158,0.6);
+    box-shadow:0 0 0 1px rgba(255,217,158,0.35);
+  }
+  .input-shell.dropdown::after{
+    content:"";
+    position:absolute;
+    right:16px;
+    width:10px;
+    height:6px;
+    background:linear-gradient(180deg, rgba(255,217,158,0.8), rgba(122,85,27,0.8));
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    pointer-events:none;
+  }
+  .emoji-field .input-shell{
+    min-width:90px;
+    padding-left:14px;
+  }
+  .emoji-field select{
+    padding-left:4px;
+    text-align:center;
+    font-size:18px;
+  }
+  .form-field.span-2{
+    grid-column:span 2;
+  }
+  .form-field.full{
+    grid-column:1 / -1;
+  }
+  @media(max-width:960px){
+    .form-field.span-2{grid-column:span 1;}
+  }
+  @media(max-width:720px){
+    .task-card-header{flex-direction:column;align-items:flex-start;}
+    .quick-flags{flex-direction:column;align-items:flex-start;}
+    .quick-flags__title{letter-spacing:0.06em;}
+  }
+  .task-form-meta{
+    display:flex;
+    gap:12px;
+  }
+  .task-form-meta .task-meta-block{
+    flex:1;
+    background:rgba(8,8,16,0.65);
+    border:1px dashed rgba(122,85,27,0.25);
+    border-radius:12px;
+    padding:12px;
+    font-size:11px;
+    color:#a8a6bf;
+  }
+  .task-form-meta strong{
+    color:#f4d49b;
+    font-weight:600;
+  }
+  .task-form-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .task-form-actions .helper{
+    font-size:11px;
+    color:#8f8da8;
+  }
+  .import-card{
+    background:linear-gradient(140deg, rgba(18,18,30,0.9), rgba(10,10,18,0.95));
+    border:1px solid rgba(122,85,27,0.2);
+    border-radius:18px;
+    padding:18px;
+    margin-top:6px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    box-shadow:0 16px 36px -28px rgba(0,0,0,0.8);
+  }
+  .import-card .section-title{
+    margin:0;
+    font-size:15px;
+    color:#f6f2e8;
+  }
+  .import-actions{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+  }
+  .import-actions .btn{
+    border-color:rgba(122,85,27,0.25);
+    background:rgba(12,12,20,0.9);
+    color:#d9d6ea;
+  }
+  .import-actions .btn:hover{
+    border-color:rgba(255,217,158,0.35);
+    color:#fff;
+    background:rgba(20,20,34,0.95);
+  }
+  .import-feedback{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:11px;
+  }
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--muted)}
   .small{font-size:11px}
   .card.collapsible{
@@ -470,107 +730,258 @@
       </div>
       <div class="collapsible-body" id="controlCard-body" aria-hidden="true">
         <div class="stack">
-          <div>
-            <h3 class="section-title">Nova tarefa</h3>
-            <div class="stack">
-              <div class="row">
-                <select id="emoji" class="emoji-select"></select>
-                <input id="title" placeholder="Tarefa" style="flex:1"/>
+          <div class="new-task-card">
+            <div class="task-card-header">
+              <div>
+                <h3 class="section-title">Nova tarefa</h3>
+                <p class="task-card-subtitle">Organize os detalhes principais antes de enviar para a lista.</p>
               </div>
-              <div class="row date-row">
-                <input id="dueDate" type="date" aria-label="Data da tarefa" />
-                <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
-                <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
-              </div>
-              <select id="status" class="colorful" data-color="status">
-                <option value="A fazer" selected>A fazer</option>
-                <option value="Em progresso">Em progresso</option>
-                <option value="Bloqueada">Bloqueada</option>
-                <option value="Reagendar">Reagendar</option>
-                <option value="Cancelado">Cancelado</option>
-                <option value="Concluído">Concluído</option>
-              </select>
-              <select id="resp" class="colorful" data-color="responsible">
-                <option value="" selected>Responsável</option>
-                <option value="Daniel">Daniel</option>
-                <option value="Maysa">Maysa</option>
-                <option value="Daniel e Maysa">Daniel e Maysa</option>
-              </select>
-              <select id="prio" class="colorful" data-color="priority">
-                <option value="">Prioridade</option>
-                <option value="Baixa">Baixa</option>
-                <option value="Média" selected>Média</option>
-                <option value="Alta">Alta</option>
-                <option value="Altíssima">Altíssima</option>
-              </select>
-              <select id="dur" class="colorful" data-color="duration">
-                <option value="">Tempo para conclusão</option>
-                <option value="Rápido">Rápido</option>
-                <option value="Médio" selected>Médio</option>
-                <option value="Demorado">Demorado</option>
-              </select>
-              <select id="area" class="colorful" data-color="area">
-                <option value="">Área</option>
-                <option value="Plixel">Plixel</option>
-                <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
-                <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
-                <option value="Saúde">Saúde</option>
-                <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
-                <option value="Finanças">Finanças</option>
-                <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
-                <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
-              </select>
-              <select id="subarea" class="colorful" data-color="subarea">
-                <option value="">Subárea</option>
-                <option value="Vendas e Prospecção">Vendas e Prospecção</option>
-                <option value="Criação e Produção">Criação e Produção</option>
-                <option value="Gestão e Organização">Gestão e Organização</option>
-                <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
-                <option value="Clientes e Entregas">Clientes e Entregas</option>
-                <option value="Devocional e Oração">Devocional e Oração</option>
-                <option value="EBD / Ensino">EBD / Ensino</option>
-                <option value="Louvor">Louvor</option>
-                <option value="Obras">Obras</option>
-                <option value="Eventos">Eventos</option>
-                <option value="Tempo a dois">Tempo a dois</option>
-                <option value="Família estendida">Família estendida</option>
-                <option value="Comunicação e conexão">Comunicação e conexão</option>
-                <option value="Amigos">Amigos</option>
-                <option value="Treino físico">Treino físico</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Sono e descanso">Sono e descanso</option>
-                <option value="Saúde mental">Saúde mental</option>
-                <option value="Limpeza e ordem">Limpeza e ordem</option>
-                <option value="Compras e suprimentos">Compras e suprimentos</option>
-                <option value="Organização pessoal">Organização pessoal</option>
-                <option value="Financeiro pessoal">Financeiro pessoal</option>
-                <option value="Financeiro Plixel">Financeiro Plixel</option>
-                <option value="Gestão e orçamento">Gestão e orçamento</option>
-                <option value="Design e marketing">Design e marketing</option>
-                <option value="Vendas e gestão">Vendas e gestão</option>
-                <option value="Idiomas / Inglês">Idiomas / Inglês</option>
-                <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
-                <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
-                <option value="Revisão e análise">Revisão e análise</option>
-                <option value="Metas e visão">Metas e visão</option>
-                <option value="Sistema de produtividade">Sistema de produtividade</option>
-              </select>
-              <textarea id="notes" rows="2" placeholder="Notas"></textarea>
-              <div class="row">
-                <button class="btn primary" id="addTask">Adicionar</button>
+              <div class="quick-flags" id="quickFlags">
+                <span class="quick-flags__title">Atalhos rápidos</span>
+                <label class="quick-flag">
+                  <input type="checkbox" data-quick-target="status" data-quick-value="Concluído" data-quick-reset="A fazer">
+                  <span>Marcar como concluída</span>
+                </label>
+                <label class="quick-flag">
+                  <input type="checkbox" data-quick-target="prio" data-quick-value="Altíssima" data-quick-reset="">
+                  <span>Prioridade máxima</span>
+                </label>
+                <label class="quick-flag">
+                  <input type="checkbox" data-quick-target="resp" data-quick-value="Daniel e Maysa" data-quick-reset="">
+                  <span>Atribuir aos dois</span>
+                </label>
               </div>
             </div>
+            <div class="task-form-grid">
+              <div class="form-field emoji-field">
+                <label for="emoji">Emoji</label>
+                <div class="input-shell dropdown">
+                  <select id="emoji" class="emoji-select"></select>
+                </div>
+              </div>
+              <div class="form-field span-2">
+                <label for="title">Tarefa</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="7"></circle>
+                      <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                    </svg>
+                  </span>
+                  <input id="title" placeholder="Digite o nome da tarefa..." />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dueDate">Data</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                  </span>
+                  <input id="dueDate" type="date" aria-label="Data da tarefa" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dueTime">Hora início</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9"></circle>
+                      <polyline points="12 7 12 12 15 14"></polyline>
+                    </svg>
+                  </span>
+                  <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="endTime">Hora fim</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9"></circle>
+                      <polyline points="12 7 12 12 16 12"></polyline>
+                    </svg>
+                  </span>
+                  <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="status">Status</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  <select id="status" class="colorful" data-color="status">
+                    <option value="A fazer" selected>A fazer</option>
+                    <option value="Em progresso">Em progresso</option>
+                    <option value="Bloqueada">Bloqueada</option>
+                    <option value="Reagendar">Reagendar</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Concluído">Concluído</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="resp">Responsável</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="7" r="4"></circle>
+                      <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                    </svg>
+                  </span>
+                  <select id="resp" class="colorful" data-color="responsible">
+                    <option value="" selected>Responsável</option>
+                    <option value="Daniel">Daniel</option>
+                    <option value="Maysa">Maysa</option>
+                    <option value="Daniel e Maysa">Daniel e Maysa</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="prio">Prioridade</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2l3 7 7 .5-5.5 4.8L18 22l-6-3.6L6 22l1.5-7.7L2 9.5 9 9z"></path>
+                    </svg>
+                  </span>
+                  <select id="prio" class="colorful" data-color="priority">
+                    <option value="">Prioridade</option>
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média" selected>Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Altíssima">Altíssima</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dur">Tempo para conclusão</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 2 3 10l7 2 2 7 8-18z"></path>
+                    </svg>
+                  </span>
+                  <select id="dur" class="colorful" data-color="duration">
+                    <option value="">Tempo para conclusão</option>
+                    <option value="Rápido">Rápido</option>
+                    <option value="Médio" selected>Médio</option>
+                    <option value="Demorado">Demorado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="area">Área</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                      <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                    </svg>
+                  </span>
+                  <select id="area" class="colorful" data-color="area">
+                    <option value="">Área</option>
+                    <option value="Plixel">Plixel</option>
+                    <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
+                    <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
+                    <option value="Saúde">Saúde</option>
+                    <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
+                    <option value="Finanças">Finanças</option>
+                    <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
+                    <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="subarea">Subárea</label>
+                <div class="input-shell with-icon dropdown">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 6h16"></path>
+                      <path d="M4 12h16"></path>
+                      <path d="M4 18h16"></path>
+                    </svg>
+                  </span>
+                  <select id="subarea" class="colorful" data-color="subarea">
+                    <option value="">Subárea</option>
+                    <option value="Vendas e Prospecção">Vendas e Prospecção</option>
+                    <option value="Criação e Produção">Criação e Produção</option>
+                    <option value="Gestão e Organização">Gestão e Organização</option>
+                    <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
+                    <option value="Clientes e Entregas">Clientes e Entregas</option>
+                    <option value="Devocional e Oração">Devocional e Oração</option>
+                    <option value="EBD / Ensino">EBD / Ensino</option>
+                    <option value="Louvor">Louvor</option>
+                    <option value="Obras">Obras</option>
+                    <option value="Eventos">Eventos</option>
+                    <option value="Tempo a dois">Tempo a dois</option>
+                    <option value="Família estendida">Família estendida</option>
+                    <option value="Comunicação e conexão">Comunicação e conexão</option>
+                    <option value="Amigos">Amigos</option>
+                    <option value="Treino físico">Treino físico</option>
+                    <option value="Alimentação">Alimentação</option>
+                    <option value="Sono e descanso">Sono e descanso</option>
+                    <option value="Saúde mental">Saúde mental</option>
+                    <option value="Limpeza e ordem">Limpeza e ordem</option>
+                    <option value="Compras e suprimentos">Compras e suprimentos</option>
+                    <option value="Organização pessoal">Organização pessoal</option>
+                    <option value="Financeiro pessoal">Financeiro pessoal</option>
+                    <option value="Financeiro Plixel">Financeiro Plixel</option>
+                    <option value="Gestão e orçamento">Gestão e orçamento</option>
+                    <option value="Design e marketing">Design e marketing</option>
+                    <option value="Vendas e gestão">Vendas e gestão</option>
+                    <option value="Idiomas / Inglês">Idiomas / Inglês</option>
+                    <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
+                    <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
+                    <option value="Revisão e análise">Revisão e análise</option>
+                    <option value="Metas e visão">Metas e visão</option>
+                    <option value="Sistema de produtividade">Sistema de produtividade</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field full">
+                <label for="notes">Notas</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="13 3 13 9 19 9"></polyline>
+                      <line x1="9" y1="13" x2="15" y2="13"></line>
+                      <line x1="9" y1="17" x2="15" y2="17"></line>
+                    </svg>
+                  </span>
+                  <textarea id="notes" rows="2" placeholder="Observações, links ou lembretes adicionais"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="task-form-actions">
+              <p class="helper">Dica: use os atalhos rápidos para preencher campos recorrentes e ganhar tempo.</p>
+              <button class="btn primary" id="addTask">Adicionar</button>
+            </div>
           </div>
-          <div class="divider"></div>
-          <div>
-            <h3 class="section-title">Importar/Exportar</h3>
-            <div class="stack">
+          <div class="import-card">
+            <div>
+              <h3 class="section-title">Importar/Exportar</h3>
+              <p class="task-card-subtitle">Sincronize os arquivos de tarefas ou copie para outra máquina.</p>
+            </div>
+            <div class="import-actions">
               <button class="btn" id="importBtn">Importar JSON</button>
               <input type="file" id="importFile" accept=".json" style="display:none" />
               <button class="btn" id="exportBtn">Exportar JSON</button>
-              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+              <button class="btn" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+            </div>
+            <div class="import-feedback">
+              <div id="importStatus" class="status-msg muted"></div>
               <div id="importDirInfo" class="status-msg"></div>
-              <div id="importStatus" class="status-msg"></div>
             </div>
           </div>
         </div>
@@ -1098,6 +1509,53 @@ function setupFilterMultiSelects(container){
           renderAll();
         });
       });
+    }
+  });
+}
+function setupQuickFlagShortcuts(){
+  const flagInputs = Array.from(document.querySelectorAll('#quickFlags input[data-quick-target]'));
+  if(!flagInputs.length) return;
+  const mapByTarget = new Map();
+  flagInputs.forEach(flag=>{
+    const targetId = flag.dataset.quickTarget;
+    if(!targetId) return;
+    const targetEl = document.getElementById(targetId);
+    if(!targetEl) return;
+    if(!mapByTarget.has(targetEl)) mapByTarget.set(targetEl, []);
+    mapByTarget.get(targetEl).push(flag);
+  });
+  const syncFlag = (flag, targetEl)=>{
+    const desired = normalizeText(flag.dataset.quickValue || "");
+    const current = normalizeText(targetEl.value || "");
+    flag.checked = desired && current === desired;
+  };
+  mapByTarget.forEach((flags,targetEl)=>{
+    const applyFromFlag = flag=>{
+      const desired = flag.dataset.quickValue || "";
+      const reset = flag.dataset.quickReset || "";
+      const next = flag.checked ? desired : reset;
+      if(targetEl.value !== next){
+        targetEl.value = next;
+        if(targetEl.dataset && targetEl.dataset.color){
+          applySelectColor(targetEl);
+        }
+        const evt = new Event("change", { bubbles:true });
+        targetEl.dispatchEvent(evt);
+      }
+      flags.forEach(f=> syncFlag(f,targetEl));
+    };
+    flags.forEach(flag=>{
+      if(!flag.dataset.quickInit){
+        flag.addEventListener("change", ()=> applyFromFlag(flag));
+        flag.dataset.quickInit = "1";
+      }
+      syncFlag(flag,targetEl);
+    });
+    if(!targetEl._quickFlagWatcher){
+      targetEl.addEventListener("change", ()=>{
+        flags.forEach(flag=> syncFlag(flag,targetEl));
+      });
+      targetEl._quickFlagWatcher = true;
     }
   });
 }
@@ -2718,6 +3176,7 @@ function initApp(){
   });
   filterCollapse = setupCollapsible("filterCard", {defaultOpen:false});
   setupColorizedSelects(document.getElementById("controlCard"));
+  setupQuickFlagShortcuts();
   const emojiSelect = document.getElementById("emoji");
   if(emojiSelect){ emojiSelect.innerHTML = emojiOptions(emojiSelect.value || ""); }
   if(supportsFileSystemAccess()){
