@@ -744,13 +744,114 @@
     background:rgba(18,22,36,0.95);
   }
   th[data-col="actions"] .resizer{display:none}
-  .row-select-checkbox{
-    width:18px;height:18px;border-radius:5px;border:1px solid #3a3a46;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;
+  td[data-col="select"]{
+    text-align:center;
+    width:64px;
   }
-  .row-select-checkbox.checked{background:var(--accent);color:#0b1720;border-color:var(--accent)}
-  .row-select-checkbox span{display:none}
-  .row-select-checkbox.checked span{display:inline}
-  .selection-active tbody tr.selected{background:rgba(102,217,239,0.15)}
+  thead th[data-col="select"]{text-align:center;}
+  .row-select-checkbox{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    cursor:pointer;
+  }
+  .row-select-checkbox input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+  .row-select-checkbox span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:18px;
+    height:18px;
+    border-radius:6px;
+    border:1px solid rgba(102,217,239,0.25);
+    background:rgba(16,20,32,0.92);
+    color:transparent;
+    transition:border-color .15s ease,background .15s ease,color .15s ease;
+    font-size:12px;
+    font-weight:600;
+  }
+  .row-select-checkbox input:hover + span{
+    border-color:rgba(102,217,239,0.45);
+  }
+  .row-select-checkbox input:checked + span{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#05101a;
+  }
+  .row-select-checkbox span::after{
+    content:"";
+  }
+  .row-select-checkbox input:checked + span::after{
+    content:"✔";
+    font-size:11px;
+    line-height:1;
+  }
+  .selection-active tbody tr.selected{
+    background:rgba(102,217,239,0.18);
+    box-shadow:inset 0 0 0 1px rgba(102,217,239,0.22);
+  }
+  .table-surface.selection-mode .table-footer{
+    border-top-color:rgba(102,217,239,0.25);
+    color:#cfd5ff;
+  }
+  .selection-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 16px;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-radius:14px;
+    border:1px solid rgba(102,217,239,0.22);
+    background:linear-gradient(140deg, rgba(15,18,30,0.95), rgba(11,14,24,0.9));
+    box-shadow:0 18px 36px -30px var(--shadow);
+  }
+  .selection-bar .selection-summary{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12px;
+    color:#d6d4e6;
+  }
+  .selection-bar .selection-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .selection-bar select{
+    min-width:170px;
+    background:rgba(18,20,32,0.92);
+    border:1px solid rgba(102,217,239,0.2);
+    border-radius:10px;
+    padding:7px 10px;
+    color:var(--fg);
+    font:inherit;
+    transition:border-color .15s ease,box-shadow .15s ease;
+  }
+  .selection-bar select:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.25);
+  }
+  .selection-bar .btn.tiny{
+    border-color:rgba(102,217,239,0.28);
+    background:rgba(102,217,239,0.12);
+    color:var(--accent);
+  }
+  .selection-bar .btn.tiny:hover{
+    border-color:var(--accent);
+    background:rgba(102,217,239,0.2);
+    color:#fff;
+  }
   th .resizer{
     position:absolute;
     right:0;
@@ -1153,9 +1254,9 @@ const SUBAREA_ALIAS_MAP = {
 };
 
 const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
-const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
+const TABLE_COLUMNS = ['select','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
 const COLUMN_LABELS = {
-  emoji:'Emoji',
+  select:'',
   title:'Tarefa',
   date:'Data / horários',
   status:'Status',
@@ -1169,7 +1270,7 @@ const COLUMN_LABELS = {
   actions:'Ações'
 };
 const COLUMN_DEFAULT_WIDTHS = {
-  emoji:68,
+  select:60,
   title:230,
   date:260,
   status:150,
@@ -1647,6 +1748,7 @@ const stateStored = load(LS_KEY);
 let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
 const recStored = load(LS_REC_KEY);
 let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
+const selectedTaskIds = new Set();
 function save(opts={}){
   try{
     localStorage.setItem(LS_KEY, JSON.stringify(state));
@@ -2019,6 +2121,44 @@ function setupQuickFlagShortcuts(){
     }
   });
 }
+function clearSelection(){
+  if(!selectedTaskIds.size) return;
+  selectedTaskIds.clear();
+}
+function toggleRowSelection(id, selected){
+  if(!Number.isFinite(id)) return;
+  if(selected){
+    selectedTaskIds.add(id);
+  }else{
+    selectedTaskIds.delete(id);
+  }
+}
+function populateBulkSubareaOptions(areaValue, selectEl){
+  if(!selectEl) return;
+  const normalized = areaValue === "__clear__" ? "" : (areaValue || "");
+  const list = normalized ? subareasForAreas([normalized]) : SUBAREAS;
+  const options = [
+    `<option value="">Manter subárea</option>`,
+    `<option value="__clear__">(Remover subárea)</option>`
+  ];
+  list.forEach(opt=>{
+    options.push(`<option value="${escAttr(opt)}">${escHtml(opt)}</option>`);
+  });
+  selectEl.innerHTML = options.join("");
+}
+function bulkUpdateSelected(patch){
+  const ids = Array.from(selectedTaskIds);
+  if(!ids.length) return;
+  let changed = false;
+  ids.forEach(id=>{
+    const updated = updateTask(id, patch, { skipSave:true, skipRender:true });
+    if(updated) changed = true;
+  });
+  if(changed){
+    save({ reason:"bulk-update" });
+  }
+  render(currentTab);
+}
 function optionsMarkup(list, current, includeEmpty=false){
   const selectedSet = toNormalizedSet(current);
   const known = new Map();
@@ -2305,7 +2445,7 @@ function setupColumnResizing(tableEl){
     }
     resizer.dataset.ready = "1";
     const key = th.dataset.col;
-    if(key === "actions" || key === "emoji"){
+    if(key === "actions" || key === "select"){
       resizer.style.display = "none";
       return;
     }
@@ -2524,6 +2664,7 @@ function applyImportedData(data){
       tasks: normalized,
       lastId: normalized.reduce((max, t)=> Math.max(max, typeof t.id==="number" ? t.id : 0), 0)
     };
+    clearSelection();
     return true;
   }
   if(typeof data!=="object") return false;
@@ -2539,6 +2680,7 @@ function applyImportedData(data){
     recState = normalizeRecState(data.recState);
     applied = true;
   }
+  if(applied) clearSelection();
   return applied;
 }
 function normalizeStateData(rawState, nowIso){
@@ -2723,6 +2865,9 @@ function render(tab){
   currentTab = tab;
   const view = document.getElementById("view");
   if(!view) return;
+  if(tab !== "all" && selectedTaskIds.size){
+    clearSelection();
+  }
   const proxy = document.getElementById("tableScrollProxy");
   if(tab !== "all" && proxy){
     proxy.classList.remove("active");
@@ -2766,20 +2911,41 @@ function renderAll(){
     if(diff!==0) return diff;
     return (a.title||"").localeCompare(b.title||"");
   });
+  const visibleIdSet = new Set(sorted.map(task=> task.id));
+  selectedTaskIds.forEach(id=>{
+    if(!visibleIdSet.has(id)){
+      selectedTaskIds.delete(id);
+    }
+  });
+  const selectionCount = selectedTaskIds.size;
+  const visibleSelectedCount = sorted.reduce((acc, task)=> acc + (selectedTaskIds.has(task.id) ? 1 : 0), 0);
+  const allVisibleSelected = sorted.length > 0 && visibleSelectedCount === sorted.length;
+  const someVisibleSelected = visibleSelectedCount > 0 && visibleSelectedCount < sorted.length;
   const headerHtml = TABLE_COLUMNS.map(key=>{
+    if(key === "select"){
+      const checkedAttr = allVisibleSelected ? " checked" : "";
+      return `<th data-col="select"><label class="row-select-checkbox"><input type="checkbox" id="selectAllRows"${checkedAttr} /><span></span></label></th>`;
+    }
     const label = COLUMN_LABELS[key] || key;
     const resizer = key === 'actions' ? '' : '<span class="resizer"></span>';
     return `<th data-col="${key}">${label}${resizer}</th>`;
   }).join("");
   const rows = sorted.map(t=>{
+    const isSelected = selectedTaskIds.has(t.id);
+    const rowClass = isSelected ? "selected" : "";
     const dueParts = splitDueAt(t.dueAt);
     const dueDateVal = escAttr(dueParts.date || "");
     const dueTimeVal = escAttr(dueParts.time || "");
     const endTimeVal = escAttr(toTimeInputValue(t.endTime));
     const allowedSubareas = buildSubareaList(t.area);
     return `
-      <tr data-id="${t.id}">
-        <td data-col="emoji"><select class="table-input emoji-select" data-field="emoji">${emojiOptions(t.emoji)}</select></td>
+      <tr data-id="${t.id}" class="${rowClass}">
+        <td data-col="select">
+          <label class="row-select-checkbox">
+            <input type="checkbox" class="row-select-input" data-id="${t.id}"${isSelected ? " checked" : ""} />
+            <span></span>
+          </label>
+        </td>
         <td data-col="title"><input class="table-input" data-field="title" value="${escAttr(t.title||"")}" /></td>
         <td data-col="date">
           <div class="stack date-stack">
@@ -2809,6 +2975,49 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
+  const selectionSummaryText = selectionCount === 1
+    ? "1 tarefa selecionada"
+    : `${selectionCount} tarefas selecionadas`;
+  const selectionBar = selectionCount ? `
+    <div class="selection-bar">
+      <div class="selection-summary">
+        <span>${selectionSummaryText}</span>
+        <button class="btn tiny" type="button" id="clearSelectionBtn">Limpar seleção</button>
+      </div>
+      <div class="selection-actions">
+        <select id="bulk-status">
+          <option value="">Manter status</option>
+          ${STATUS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-responsible">
+          <option value="">Manter responsável</option>
+          <option value="__clear__">(Remover responsável)</option>
+          ${RESPONSIBLES.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-priority">
+          <option value="">Manter prioridade</option>
+          <option value="__clear__">(Remover prioridade)</option>
+          ${PRIORITIES.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-duration">
+          <option value="">Manter tempo</option>
+          <option value="__clear__">(Remover tempo)</option>
+          ${DURATIONS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-area">
+          <option value="">Manter área</option>
+          <option value="__clear__">(Remover área)</option>
+          ${AREAS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-subarea">
+          <option value="">Manter subárea</option>
+          <option value="__clear__">(Remover subárea)</option>
+          ${SUBAREAS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <button class="btn primary" type="button" id="bulkApply">Aplicar</button>
+      </div>
+    </div>
+  ` : "";
   const selectedAreas = toSelectionArray(filterState.area);
   const hasAreaSelection = selectedAreas.length > 0;
   const availableFilterSubareas = hasAreaSelection ? subareasForAreas(selectedAreas) : SUBAREAS;
@@ -2859,11 +3068,14 @@ function renderAll(){
     filterContainer.innerHTML = filterMarkup;
     setupFilterMultiSelects(filterContainer);
   }
+  const tableSurfaceClass = selectionCount ? "table-surface selection-mode" : "table-surface";
+  const tableClassName = selectionCount ? "selection-active" : "";
   view.innerHTML = `
-    <div class="table-surface">
+    ${selectionBar}
+    <div class="${tableSurfaceClass}">
       <div class="table-wrapper">
         <div class="table-scroll">
-          <table>
+          <table class="${tableClassName}">
             <thead>
               <tr>${headerHtml}</tr>
             </thead>
@@ -2877,6 +3089,76 @@ function renderAll(){
       </div>
     </div>
   `;
+  const selectAllCheckbox = document.getElementById("selectAllRows");
+  if(selectAllCheckbox){
+    selectAllCheckbox.checked = allVisibleSelected;
+    selectAllCheckbox.indeterminate = someVisibleSelected;
+    selectAllCheckbox.addEventListener("change", ()=>{
+      sorted.forEach(task=> toggleRowSelection(task.id, selectAllCheckbox.checked));
+      renderAll();
+    });
+  }
+  if(selectionCount){
+    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
+    if(clearSelectionBtn){
+      clearSelectionBtn.addEventListener("click", ()=>{
+        clearSelection();
+        renderAll();
+      });
+    }
+    const bulkStatusSelect = document.getElementById("bulk-status");
+    const bulkResponsibleSelect = document.getElementById("bulk-responsible");
+    const bulkPrioritySelect = document.getElementById("bulk-priority");
+    const bulkDurationSelect = document.getElementById("bulk-duration");
+    const bulkAreaSelect = document.getElementById("bulk-area");
+    const bulkSubareaSelect = document.getElementById("bulk-subarea");
+    if(bulkAreaSelect && bulkSubareaSelect){
+      populateBulkSubareaOptions(bulkAreaSelect.value, bulkSubareaSelect);
+      bulkAreaSelect.addEventListener("change", ()=>{
+        populateBulkSubareaOptions(bulkAreaSelect.value, bulkSubareaSelect);
+      });
+    }
+    const bulkApplyBtn = document.getElementById("bulkApply");
+    if(bulkApplyBtn){
+      bulkApplyBtn.addEventListener("click", ()=>{
+        const patch = {};
+        const statusVal = bulkStatusSelect ? bulkStatusSelect.value : "";
+        if(statusVal){
+          patch.status = statusVal;
+        }
+        const responsibleVal = bulkResponsibleSelect ? bulkResponsibleSelect.value : "";
+        if(responsibleVal){
+          patch.responsible = responsibleVal === "__clear__" ? null : responsibleVal;
+        }
+        const priorityVal = bulkPrioritySelect ? bulkPrioritySelect.value : "";
+        if(priorityVal){
+          patch.priority = priorityVal === "__clear__" ? null : priorityVal;
+        }
+        const durationVal = bulkDurationSelect ? bulkDurationSelect.value : "";
+        if(durationVal){
+          patch.durationTag = durationVal === "__clear__" ? null : durationVal;
+        }
+        const areaVal = bulkAreaSelect ? bulkAreaSelect.value : "";
+        if(areaVal){
+          if(areaVal === "__clear__"){
+            patch.area = null;
+            patch.subarea = null;
+          }else{
+            patch.area = areaVal;
+          }
+        }
+        const subareaVal = bulkSubareaSelect ? bulkSubareaSelect.value : "";
+        if(subareaVal){
+          patch.subarea = subareaVal === "__clear__" ? null : subareaVal;
+        }
+        if(!Object.keys(patch).length){
+          alert("Selecione ao menos um campo para aplicar.");
+          return;
+        }
+        bulkUpdateSelected(patch);
+      });
+    }
+  }
   const controls = {
     text: document.getElementById("filter-text"),
     dateFrom: document.getElementById("filter-date-from"),
@@ -3059,6 +3341,14 @@ function renderAll(){
 }
 function handleTableChange(e){
   if(!e.target || !["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) return;
+  if(e.target.classList.contains("row-select-input")){
+    const id = Number(e.target.dataset.id);
+    if(Number.isFinite(id)){
+      toggleRowSelection(id, e.target.checked);
+      renderAll();
+    }
+    return;
+  }
   const field = e.target.dataset.field;
   if(!field) return;
   const tr = e.target.closest("tr");
@@ -3426,58 +3716,125 @@ function card(t){
   `;
 }
 function empty(){ return `<div class="muted">Sem itens.</div>`; }
-function updateTask(id, patch){
-  const t = state.tasks.find(x=>x.id===id); if(!t) return;
-  const nowIso = new Date().toISOString();
+function updateTask(id, patch, opts={}){
+  const t = state.tasks.find(x=>x.id===id);
+  if(!t) return false;
+  let changed = false;
   if(patch.title!==undefined){
     const title = cleanString(patch.title);
-    if(title) t.title = title;
+    if(!title){
+      const titleInput = document.querySelector(`tr[data-id="${id}"] [data-field="title"]`);
+      if(titleInput) titleInput.value = t.title || "";
+      return false;
+    }
+    if(title !== t.title){
+      t.title = title;
+      changed = true;
+    }
   }
   if(patch.dueAt!==undefined){
-    t.dueAt = patch.dueAt || null;
+    const nextDue = patch.dueAt || null;
+    if((t.dueAt || null) !== (nextDue || null)){
+      t.dueAt = nextDue;
+      changed = true;
+    }
   }
   if(patch.endTime!==undefined){
     const endTime = sanitizeEndTime(patch.endTime);
-    t.endTime = endTime;
+    if((t.endTime || null) !== (endTime || null)){
+      t.endTime = endTime;
+      changed = true;
+    }
   }
   if(patch.status!==undefined){
-    t.status = mapStatus(patch.status);
+    const status = mapStatus(patch.status);
+    if(t.status !== status){
+      t.status = status;
+      changed = true;
+    }
   }
   if(patch.responsible!==undefined){
-    t.responsible = sanitizeOptionField(patch.responsible, RESPONSIBLES);
+    const responsible = sanitizeOptionField(patch.responsible, RESPONSIBLES);
+    if((t.responsible || null) !== (responsible || null)){
+      t.responsible = responsible;
+      changed = true;
+    }
   }
   if(patch.priority!==undefined){
-    t.priority = sanitizeOptionField(patch.priority, PRIORITIES);
+    const priority = sanitizeOptionField(patch.priority, PRIORITIES);
+    if((t.priority || null) !== (priority || null)){
+      t.priority = priority;
+      changed = true;
+    }
   }
   if(patch.durationTag!==undefined){
-    t.durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
+    const durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
+    if((t.durationTag || null) !== (durationTag || null)){
+      t.durationTag = durationTag;
+      changed = true;
+    }
   }
+  let areaChanged = false;
   if(patch.area!==undefined){
-    t.area = sanitizeOptionField(patch.area, AREAS);
+    const area = sanitizeOptionField(patch.area, AREAS);
+    if((t.area || null) !== (area || null)){
+      t.area = area;
+      changed = true;
+      areaChanged = true;
+    }else if(area === null){
+      areaChanged = true;
+    }
     if(t.area){
       const allowed = subareasForAreas([t.area]);
       const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
-      if(allowedNorm.size && !allowedNorm.has(normalizeText(t.subarea||""))){
+      if(t.subarea && !allowedNorm.has(normalizeText(t.subarea))){
         t.subarea = null;
+        changed = true;
       }
-    }else{
+    }else if(t.subarea){
       t.subarea = null;
+      changed = true;
     }
   }
   if(patch.subarea!==undefined){
     const allowed = t.area ? subareasForAreas([t.area]) : SUBAREAS;
-    t.subarea = sanitizeOptionField(patch.subarea, allowed.length ? allowed : SUBAREAS);
+    const subarea = sanitizeOptionField(patch.subarea, allowed.length ? allowed : SUBAREAS);
+    if((t.subarea || null) !== (subarea || null)){
+      t.subarea = subarea;
+      changed = true;
+    }
+  }else if(areaChanged && t.area){
+    const allowed = subareasForAreas([t.area]);
+    const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+    if(t.subarea && !allowedNorm.has(normalizeText(t.subarea))){
+      t.subarea = null;
+      changed = true;
+    }
   }
   if(patch.emoji!==undefined){
-    t.emoji = patch.emoji || null;
+    const emoji = patch.emoji || null;
+    if((t.emoji || null) !== (emoji || null)){
+      t.emoji = emoji;
+      changed = true;
+    }
   }
   if(patch.notes!==undefined){
-    t.notes = sanitizeNotes(patch.notes);
+    const notes = sanitizeNotes(patch.notes);
+    if((t.notes || "") !== notes){
+      t.notes = notes;
+      changed = true;
+    }
   }
+  if(!changed) return false;
   applyDerived(t);
-  t.updatedAt = nowIso;
-  save();
-  render(currentTab);
+  t.updatedAt = new Date().toISOString();
+  if(!opts.skipSave){
+    save(opts.saveOptions || {});
+  }
+  if(!opts.skipRender){
+    render(currentTab);
+  }
+  return true;
 }
 function editTaskPrompt(id){
   const t = state.tasks.find(x=>x.id===id); if(!t) return;
@@ -3515,7 +3872,10 @@ function resched(id, days){
 }
 function delTask(id){
   if(!confirm("Excluir tarefa?")) return;
-  state.tasks = state.tasks.filter(x=>x.id!==id); save(); render(currentTab);
+  state.tasks = state.tasks.filter(x=>x.id!==id);
+  selectedTaskIds.delete(id);
+  save();
+  render(currentTab);
 }
 /* Recorrentes */
 function delRec(id){
@@ -3742,6 +4102,7 @@ window.addEventListener("load", initApp, { once: true });
 </script>
 </body>
 </html>
+
 
 
 
