@@ -200,6 +200,21 @@
   .status-msg{font-size:11px;color:var(--muted);}
   .status-msg.error{color:#ff8a8a;}
   .status-msg.success{color:var(--accent);}
+  .status-msg.info{color:var(--accent);}
+  .sync-controls{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding-top:8px;
+  }
+  .sync-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .sync-buttons .btn{
+    flex:1 1 180px;
+  }
   .btn.primary{
     border-color:rgba(122,85,27,0.6);
     color:#f9f4eb;
@@ -995,16 +1010,23 @@
               <p class="task-card-subtitle">Sincronize os arquivos de tarefas ou copie para outra máquina.</p>
             </div>
             <div class="import-actions">
-              <button class="btn" id="importBtn">Importar JSON</button>
-              <input type="file" id="importFile" accept=".json" style="display:none" />
-              <button class="btn" id="exportBtn">Exportar JSON</button>
-              <button class="btn" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
-            </div>
-            <div class="import-feedback">
-              <div id="importStatus" class="status-msg muted"></div>
-              <div id="importDirInfo" class="status-msg"></div>
-            </div>
+          <button class="btn" id="importBtn">Importar JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" />
+          <button class="btn" id="exportBtn">Exportar JSON</button>
+          <button class="btn" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+        </div>
+        <div class="sync-controls">
+          <div class="sync-buttons">
+            <button class="btn" id="syncConfigure" type="button">Configurar sincronização</button>
+            <button class="btn" id="syncNow" type="button">Sincronizar agora</button>
           </div>
+          <div id="syncStatus" class="status-msg muted">Sincronização desativada.</div>
+        </div>
+        <div class="import-feedback">
+          <div id="importStatus" class="status-msg muted"></div>
+          <div id="importDirInfo" class="status-msg"></div>
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -1166,6 +1188,326 @@ const IMPORT_DIR_DB = "tarefas_import_fs";
 const IMPORT_DIR_STORE = "handles";
 const IMPORT_DIR_KEY = "importDir";
 let importDirHandle = null;
+
+const REMOTE_CONFIG = {
+  owner: "plixeldesign",
+  repo: "Tarefas",
+  filePath: "tarefas.json",
+  branch: "main",
+  tokenKey: "tarefas_github_pat"
+};
+const REMOTE_STATUS_MESSAGES = {
+  disabled: "Sincronização desativada.",
+  loading: "Carregando dados do GitHub...",
+  ready: "Sincronização com GitHub ativa.",
+  created: "Arquivo remoto será criado no próximo salvamento."
+};
+const remoteStateMeta = {
+  token: null,
+  sha: null,
+  enabled: false,
+  loading: false,
+  timer: null,
+  saveInFlight: false,
+  pending: false
+};
+
+function getStoredRemoteToken(){
+  try{
+    return localStorage.getItem(REMOTE_CONFIG.tokenKey) || "";
+  }catch(_){
+    return "";
+  }
+}
+function storeRemoteToken(token){
+  try{
+    if(token){
+      localStorage.setItem(REMOTE_CONFIG.tokenKey, token);
+    }else{
+      localStorage.removeItem(REMOTE_CONFIG.tokenKey);
+    }
+  }catch(_){ }
+}
+function updateSyncStatus(message="", tone="muted"){
+  const el = document.getElementById("syncStatus");
+  if(!el) return;
+  el.textContent = message;
+  el.classList.remove("error","success","muted","info");
+  if(tone){
+    el.classList.add(tone);
+  }
+}
+function encodeBase64(str){
+  if(typeof window !== "undefined" && window.btoa){
+    return window.btoa(unescape(encodeURIComponent(str)));
+  }
+  return Buffer.from(str, "utf8").toString("base64");
+}
+function decodeBase64(str){
+  if(typeof window !== "undefined" && window.atob){
+    return decodeURIComponent(escape(window.atob(str)));
+  }
+  return Buffer.from(str, "base64").toString("utf8");
+}
+function buildContentUrl(){
+  const pathPart = REMOTE_CONFIG.filePath.split("/").map(encodeURIComponent).join("/");
+  return `/repos/${REMOTE_CONFIG.owner}/${REMOTE_CONFIG.repo}/contents/${pathPart}`;
+}
+async function githubRequest(path, options={}){
+  const token = options.token || remoteStateMeta.token;
+  if(!token){
+    const error = new Error("Token não configurado.");
+    error.status = 401;
+    throw error;
+  }
+  const method = options.method || "GET";
+  let body = options.body || null;
+  const headers = {
+    "Accept": "application/vnd.github+json",
+    "Authorization": `Bearer ${token}`,
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  if(body && typeof body === "object"){
+    body = JSON.stringify(body);
+  }
+  if(body){
+    headers["Content-Type"] = "application/json";
+  }
+  const response = await fetch(`https://api.github.com${path}`, { method, headers, body });
+  if(response.status === 204){
+    return {};
+  }
+  const text = await response.text();
+  if(response.status === 404){
+    const error = new Error("Arquivo remoto não encontrado");
+    error.status = 404;
+    throw error;
+  }
+  if(!response.ok){
+    const error = new Error(`GitHub API error (${response.status}): ${text || response.statusText}`);
+    error.status = response.status;
+    throw error;
+  }
+  return text ? JSON.parse(text) : {};
+}
+function queuePersistAll(reason="update"){
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+  remoteStateMeta.pending = true;
+  remoteStateMeta.lastReason = reason;
+  if(remoteStateMeta.loading){
+    return;
+  }
+  if(remoteStateMeta.timer){
+    clearTimeout(remoteStateMeta.timer);
+  }
+  remoteStateMeta.timer = setTimeout(()=>{
+    flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+  }, 750);
+}
+async function flushPersistQueue(){
+  if(remoteStateMeta.timer){
+    clearTimeout(remoteStateMeta.timer);
+    remoteStateMeta.timer = null;
+  }
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token){
+    remoteStateMeta.pending = false;
+    return;
+  }
+  if(remoteStateMeta.saveInFlight){
+    remoteStateMeta.pending = true;
+    return;
+  }
+  remoteStateMeta.saveInFlight = true;
+  remoteStateMeta.pending = false;
+  updateSyncStatus("Sincronizando com GitHub...", "info");
+  try{
+    await saveRemoteState();
+    updateSyncStatus("Dados sincronizados com GitHub.", "success");
+  }catch(err){
+    console.error("Erro ao salvar no GitHub", err);
+    const msg = err && err.message ? err.message : String(err);
+    updateSyncStatus(`Falha ao salvar no GitHub: ${msg}`, "error");
+  }finally{
+    remoteStateMeta.saveInFlight = false;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }
+}
+async function loadRemotePayload(){
+  const path = buildContentUrl();
+  try{
+    const data = await githubRequest(`${path}?ref=${encodeURIComponent(REMOTE_CONFIG.branch)}`);
+    remoteStateMeta.sha = data.sha || null;
+    if(!data || !data.content){
+      return null;
+    }
+    const decoded = decodeBase64(data.content.replace(/\n/g,""));
+    const parsed = JSON.parse(decoded);
+    return { data: parsed, sha: data.sha || null };
+  }catch(err){
+    if(err && err.status === 404){
+      remoteStateMeta.sha = null;
+      return null;
+    }
+    throw err;
+  }
+}
+function normalizeRemotePayload(raw){
+  if(!raw || typeof raw !== "object") return null;
+  const payload = raw.data ? raw.data : raw;
+  let statePart = payload.state;
+  let recPart = payload.recState;
+  if(!statePart){
+    if(Array.isArray(payload.tasks)){
+      statePart = { tasks: payload.tasks, lastId: payload.lastId || 0 };
+    }
+  }
+  if(!recPart){
+    if(Array.isArray(payload.recorrentes)){
+      recPart = { recs: payload.recorrentes, lastId: payload.recLastId || 0 };
+    }else if(payload.recState){
+      recPart = payload.recState;
+    }else{
+      recPart = { recs: [], lastId: 0 };
+    }
+  }
+  return { state: statePart, recState: recPart };
+}
+function serializeAppState(){
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    state,
+    recState
+  };
+}
+async function saveRemoteState(){
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+  const payload = serializeAppState();
+  const content = encodeBase64(JSON.stringify(payload, null, 2));
+  const body = {
+    message: `chore: update tarefas (${new Date().toLocaleString("pt-BR")})`,
+    content,
+    branch: REMOTE_CONFIG.branch
+  };
+  if(remoteStateMeta.sha){
+    body.sha = remoteStateMeta.sha;
+  }
+  const response = await githubRequest(buildContentUrl(), {
+    method:"PUT",
+    body,
+    token: remoteStateMeta.token
+  });
+  if(response && response.content && response.content.sha){
+    remoteStateMeta.sha = response.content.sha;
+  }
+}
+function applyRemoteStatePayload(payload){
+  const normalized = normalizeRemotePayload(payload);
+  if(!normalized || !normalized.state){
+    return false;
+  }
+  const nowIso = new Date().toISOString();
+  state = normalizeStateData(normalized.state, nowIso);
+  recState = normalizeRecState(normalized.recState || { recs: [], lastId: 0 });
+  save({ skipRemote:true });
+  saveRec({ skipRemote:true });
+  render(currentTab || "all");
+  setupAreaSubareaBinding(document.getElementById("area"), document.getElementById("subarea"));
+  return true;
+}
+async function bootstrapRemote(force=false){
+  const storedToken = remoteStateMeta.token || getStoredRemoteToken();
+  if(!storedToken){
+    remoteStateMeta.enabled = false;
+    if(force){
+      updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+    }
+    return;
+  }
+  remoteStateMeta.token = storedToken;
+  remoteStateMeta.enabled = true;
+  updateSyncStatus(REMOTE_STATUS_MESSAGES.loading, "info");
+  remoteStateMeta.loading = true;
+  try{
+    const payload = await loadRemotePayload();
+    if(payload && payload.data){
+      remoteStateMeta.sha = payload.sha || remoteStateMeta.sha;
+      const applied = applyRemoteStatePayload(payload.data);
+      if(applied){
+        updateSyncStatus("Dados do GitHub carregados.", "success");
+      }else{
+        updateSyncStatus("Arquivo remoto vazio. Usando dados locais.", "muted");
+      }
+    }else{
+      updateSyncStatus(REMOTE_STATUS_MESSAGES.created, "muted");
+      const hasTasks = state && Array.isArray(state.tasks) && state.tasks.length > 0;
+      const hasRecs = recState && Array.isArray(recState.recs) && recState.recs.length > 0;
+      if(hasTasks || hasRecs){
+        queuePersistAll("bootstrap-create");
+      }
+    }
+  }catch(err){
+    console.error("Erro ao carregar dados do GitHub", err);
+    const msg = err && err.message ? err.message : String(err);
+    updateSyncStatus(`Erro ao acessar GitHub: ${msg}`, "error");
+    remoteStateMeta.enabled = false;
+  }finally{
+    remoteStateMeta.loading = false;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }
+}
+function setupSyncControls(){
+  const configureBtn = document.getElementById("syncConfigure");
+  const syncBtn = document.getElementById("syncNow");
+  if(configureBtn){
+    configureBtn.addEventListener("click", ()=>{
+      const current = remoteStateMeta.token || getStoredRemoteToken();
+      const input = prompt("Informe o token (PAT) do GitHub para sincronizar ou deixe em branco para remover:", current || "");
+      if(input === null) return;
+      const trimmed = input.trim();
+      if(trimmed){
+        storeRemoteToken(trimmed);
+        remoteStateMeta.token = trimmed;
+        remoteStateMeta.enabled = true;
+        updateSyncStatus("Token salvo. Carregando dados do GitHub...", "info");
+        bootstrapRemote(true);
+      }else{
+        storeRemoteToken("");
+        remoteStateMeta.token = null;
+        remoteStateMeta.enabled = false;
+        remoteStateMeta.sha = null;
+        updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+      }
+    });
+  }
+  if(syncBtn){
+    syncBtn.addEventListener("click", ()=>{
+      const token = remoteStateMeta.token || getStoredRemoteToken();
+      if(!token){
+        updateSyncStatus("Configure um token para sincronizar.", "error");
+        return;
+      }
+      remoteStateMeta.token = token;
+      remoteStateMeta.enabled = true;
+      save({ reason:"manual-sync" });
+      saveRec({ skipRemote:true });
+      flushPersistQueue();
+    });
+  }
+  const stored = getStoredRemoteToken();
+  if(stored){
+    remoteStateMeta.token = stored;
+    remoteStateMeta.enabled = true;
+    updateSyncStatus("Token carregado. Clique em \"Sincronizar agora\" para enviar alterações.", "muted");
+  }else{
+    updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+  }
+}
+
 (function setupGlobalErrorHandlers(){
   const showError = message=>{
     const status = document.getElementById("importStatus");
@@ -1189,24 +1531,24 @@ const COLOR_PALETTES = {
   status: {
     "A fazer":       { bg: "#2A2F38", text: "#E5E7EB", border: "#3A404B" },
     "Em progresso":  { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" },
-    "Bloqueada":     { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" }, 
+    "Bloqueada":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" },
     "Reagendar":     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
-    "Cancelado":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" }, 
+    "Cancelado":     { bg: "#2C2F36", text: "#CBD5E1", border: "#94A3B8" },
     "Concluído":     { bg: "#0C2A1A", text: "#BBF7D0", border: "#22C55E" }
   },
   priority: {
-    "Baixa":         { bg: "#072920", text: "#A7F3D0", border: "#10B981" }, 
-    "Média":         { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" }, 
+    "Baixa":         { bg: "#07283A", text: "#A5E8FF", border: "#38BDF8" },
+    "Média":         { bg: "#072920", text: "#A7F3D0", border: "#10B981" },
     "Alta":          { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" },
-    "Altíssima":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" } 
+    "Altíssima":     { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" }
   },
   duration: {
     "Rápido":        { bg: "#0A2E24", text: "#86EFAC", border: "#4ADE80" },
-    "Médio":         { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" }, 
-    "Demorado":      { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" } 
+    "Médio":         { bg: "#10143A", text: "#C7D2FE", border: "#818CF8" },
+    "Demorado":      { bg: "#221038", text: "#E9D5FF", border: "#A855F7" }
   },
   responsible: {
-    "Daniel":        { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" }, 
+    "Daniel":        { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" },
     "Maysa":         { bg: "#2A1240", text: "#E9D5FF", border: "#A855F7" },
     "Daniel e Maysa":{ bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   },
@@ -1303,8 +1645,20 @@ const stateStored = load(LS_KEY);
 let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
 const recStored = load(LS_REC_KEY);
 let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function saveRec(){ localStorage.setItem(LS_REC_KEY, JSON.stringify(recState)); }
+function save(opts={}){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }catch(_){ }
+  if(opts.skipRemote) return;
+  queuePersistAll(opts.reason || "state");
+}
+function saveRec(opts={}){
+  try{
+    localStorage.setItem(LS_REC_KEY, JSON.stringify(recState));
+  }catch(_){ }
+  if(opts.skipRemote) return;
+  queuePersistAll(opts.reason || "recurring");
+}
 function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; } }
 /* --------- Util --------- */
 const fmt = d => d ? new Date(d).toLocaleString('pt-BR',{hour12:false}) : "";
@@ -1986,14 +2340,15 @@ function matchOption(raw, options){
   const norm = normalizeText(clean);
   const found = options.find(opt=> normalizeText(opt)===norm);
   if(found) return found;
-  if(options === SUBAREAS){
+  if(Array.isArray(options)){
     const alias = SUBAREA_ALIAS_MAP[norm];
     if(alias){
-      const aliasMatch = options.find(opt=> normalizeText(opt)===normalizeText(alias));
+      const aliasNorm = normalizeText(alias);
+      const aliasMatch = options.find(opt=> normalizeText(opt)===aliasNorm);
       return aliasMatch || alias;
     }
   }
-  return found || clean;
+  return clean;
 }
 function sanitizeNotes(value){
   if(value==null) return "";
@@ -3365,6 +3720,8 @@ function initApp(){
   filterCollapse = setupCollapsible("filterCard", {defaultOpen:false});
   setupColorizedSelects(document.getElementById("controlCard"));
   setupAreaSubareaBinding(document.getElementById("area"), document.getElementById("subarea"));
+  setupSyncControls();
+  bootstrapRemote();
   setupQuickFlagShortcuts();
   const emojiSelect = document.getElementById("emoji");
   if(emojiSelect){ emojiSelect.innerHTML = emojiOptions(emojiSelect.value || ""); }
