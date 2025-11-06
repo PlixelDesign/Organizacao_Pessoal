@@ -966,38 +966,6 @@
                   </span>
                   <select id="subarea" class="colorful" data-color="subarea">
                     <option value="">Subárea</option>
-                    <option value="Vendas e Prospecção">Vendas e Prospecção</option>
-                    <option value="Criação e Produção">Criação e Produção</option>
-                    <option value="Gestão e Organização">Gestão e Organização</option>
-                    <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
-                    <option value="Clientes e Entregas">Clientes e Entregas</option>
-                    <option value="Devocional e Oração">Devocional e Oração</option>
-                    <option value="EBD / Ensino">EBD / Ensino</option>
-                    <option value="Louvor">Louvor</option>
-                    <option value="Obras">Obras</option>
-                    <option value="Eventos">Eventos</option>
-                    <option value="Tempo a dois">Tempo a dois</option>
-                    <option value="Família estendida">Família estendida</option>
-                    <option value="Comunicação e conexão">Comunicação e conexão</option>
-                    <option value="Amigos">Amigos</option>
-                    <option value="Treino físico">Treino físico</option>
-                    <option value="Alimentação">Alimentação</option>
-                    <option value="Sono e descanso">Sono e descanso</option>
-                    <option value="Saúde mental">Saúde mental</option>
-                    <option value="Limpeza e ordem">Limpeza e ordem</option>
-                    <option value="Compras e suprimentos">Compras e suprimentos</option>
-                    <option value="Organização pessoal">Organização pessoal</option>
-                    <option value="Financeiro pessoal">Financeiro pessoal</option>
-                    <option value="Financeiro Plixel">Financeiro Plixel</option>
-                    <option value="Gestão e orçamento">Gestão e orçamento</option>
-                    <option value="Design e marketing">Design e marketing</option>
-                    <option value="Vendas e gestão">Vendas e gestão</option>
-                    <option value="Idiomas / Inglês">Idiomas / Inglês</option>
-                    <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
-                    <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
-                    <option value="Revisão e análise">Revisão e análise</option>
-                    <option value="Metas e visão">Metas e visão</option>
-                    <option value="Sistema de produtividade">Sistema de produtividade</option>
                   </select>
                 </div>
               </div>
@@ -1086,7 +1054,7 @@ const SUBAREAS = [
   "Louvor",
   "UJADIS",
   "Ações e Ministério",
-  "Tempo a dois (Isa)",
+  "Tempo a dois (Ysa)",
   "Família estendida",
   "Comunicação e conexão",
   "Treino físico",
@@ -1124,7 +1092,7 @@ const AREA_SUBAREA_MAP = {
     "Ações e Ministério"
   ],
   "Família & Relacionamento": [
-    "Tempo a dois (Isa)",
+    "Tempo a dois (Ysa)",
     "Família estendida",
     "Comunicação e conexão"
   ],
@@ -1156,6 +1124,10 @@ const AREA_SUBAREA_MAP = {
     "Metas e visão",
     "Sistema de produtividade"
   ]
+};
+const SUBAREA_ALIAS_MAP = {
+  "tempo a dois isa": "Tempo a dois (Ysa)",
+  "tempo a dois": "Tempo a dois (Ysa)"
 };
 
 const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
@@ -1217,16 +1189,16 @@ const COLOR_PALETTES = {
   status: {
     "A fazer":       { bg: "#2A2F38", text: "#E5E7EB", border: "#3A404B" },
     "Em progresso":  { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" },
-    "Bloqueada":     { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" }, 
+    "Bloqueada":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" },
     "Reagendar":     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
-    "Cancelado":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" }, 
+    "Cancelado":     { bg: "#2C2F36", text: "#CBD5E1", border: "#94A3B8" },
     "Concluído":     { bg: "#0C2A1A", text: "#BBF7D0", border: "#22C55E" }
   },
   priority: {
     "Baixa":         { bg: "#07283A", text: "#A5E8FF", border: "#38BDF8" },
     "Média":         { bg: "#072920", text: "#A7F3D0", border: "#10B981" },
     "Alta":          { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" },
-    "Altíssima":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" } 
+    "Altíssima":     { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" }
   },
   duration: {
     "Rápido":        { bg: "#0A2E24", text: "#86EFAC", border: "#4ADE80" },
@@ -1234,7 +1206,7 @@ const COLOR_PALETTES = {
     "Demorado":      { bg: "#221038", text: "#E9D5FF", border: "#A855F7" }
   },
   responsible: {
-    "Daniel":        { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" }, 
+    "Daniel":        { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" },
     "Maysa":         { bg: "#2A1240", text: "#E9D5FF", border: "#A855F7" },
     "Daniel e Maysa":{ bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   },
@@ -1247,6 +1219,39 @@ const COLOR_PALETTES = {
     "Finanças":                   { bg: "#072A2A", text: "#99F6E4", border: "#14B8A6" },
     "Estudo & Desenvolvimento":   { bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" },
     "Planejamento & Estratégia":  { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" }
+  },
+  subarea: {
+    "Vendas e Prospecção":        { bg: "#0F1538", text: "#E0E7FF", border: "#6366F1" },
+    "Criação e Produção":         { bg: "#1B1C46", text: "#E0E7FF", border: "#818CF8" },
+    "Gestão e Organização":       { bg: "#111234", text: "#E0E7FF", border: "#312E81" },
+    "Conteúdo e Marketing":       { bg: "#14153F", text: "#E0E7FF", border: "#4338CA" },
+    "Clientes e Entregas":        { bg: "#181A4A", text: "#E0E7FF", border: "#3730A3" },
+    "Devocional e Oração":        { bg: "#3F2A0B", text: "#FDE68A", border: "#FBBF24" },
+    "EBD / Ensino":               { bg: "#4A2F0A", text: "#FEF3C7", border: "#92400E" },
+    "Louvor":                     { bg: "#472C09", text: "#FEF3C7", border: "#78350F" },
+    "UJADIS":                     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Ações e Ministério":         { bg: "#3B2105", text: "#FDE68A", border: "#B45309" },
+    "Tempo a dois (Ysa)":         { bg: "#3B1121", text: "#FECDD3", border: "#F472B6" },
+    "Família estendida":          { bg: "#4A0F25", text: "#FECDD3", border: "#BE185D" },
+    "Comunicação e conexão":      { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" },
+    "Treino físico":              { bg: "#0A2E24", text: "#BBF7D0", border: "#34D399" },
+    "Alimentação":                { bg: "#0B3A2D", text: "#BBF7D0", border: "#10B981" },
+    "Sono e descanso":            { bg: "#094533", text: "#BBF7D0", border: "#059669" },
+    "Saúde mental":               { bg: "#063D2E", text: "#BBF7D0", border: "#064E3B" },
+    "Limpeza e ordem":            { bg: "#2E323A", text: "#E5E7EB", border: "#64748B" },
+    "Compras e suprimentos":      { bg: "#282C33", text: "#E5E7EB", border: "#475569" },
+    "Organização pessoal":        { bg: "#1E232B", text: "#E5E7EB", border: "#1E293B" },
+    "Financeiro pessoal":         { bg: "#073533", text: "#99F6E4", border: "#2DD4BF" },
+    "Financeiro Plixel":          { bg: "#0C3B39", text: "#99F6E4", border: "#0F766E" },
+    "Gestão e orçamento":         { bg: "#09403D", text: "#99F6E4", border: "#115E59" },
+    "Design e marketing":         { bg: "#171A42", text: "#E0E7FF", border: "#818CF8" },
+    "Vendas e gestão":            { bg: "#0F1538", text: "#E0E7FF", border: "#6366F1" },
+    "Idiomas / Inglês":           { bg: "#14153F", text: "#E0E7FF", border: "#4338CA" },
+    "Desenvolvimento pessoal":    { bg: "#101232", text: "#E0E7FF", border: "#1E3A8A" },
+    "Planejamento semanal / diário": { bg: "#082C45", text: "#BAE6FD", border: "#38BDF8" },
+    "Revisão e análise":             { bg: "#06334D", text: "#BAE6FD", border: "#0369A1" },
+    "Metas e visão":                 { bg: "#052C3D", text: "#BAE6FD", border: "#075985" },
+    "Sistema de produtividade":      { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" }
   }
 };
 let columnWidths = loadColumnWidths();
@@ -1494,6 +1499,52 @@ function subareasForAreas(areaValues){
     (direct || fallback || []).forEach(sub=> result.add(sub));
   });
   return Array.from(result);
+}
+function buildSubareaList(areaValue){
+  const allowed = areaValue ? subareasForAreas([areaValue]) : [];
+  return allowed.length ? allowed : SUBAREAS;
+}
+function populateSubareaSelect(selectEl, areaValue, currentValue, placeholderLabel="Subárea"){
+  if(!selectEl) return;
+  const options = buildSubareaList(areaValue);
+  const normalizedCurrent = normalizeText(currentValue || "");
+  const placeholder = placeholderLabel !== null
+    ? `<option value="">${escHtml(placeholderLabel || "")}</option>`
+    : "";
+  const optionMarkup = optionsMarkup(options, currentValue, false);
+  selectEl.innerHTML = placeholder + optionMarkup;
+  const matched = options.find(opt=> normalizeText(opt)===normalizedCurrent);
+  if(matched){
+    selectEl.value = matched;
+  }else if(placeholder){
+    selectEl.value = "";
+  }
+  applySelectColor(selectEl);
+}
+function setupAreaSubareaBinding(areaSelect, subareaSelect){
+  if(!areaSelect || !subareaSelect) return;
+  if(!subareaSelect.dataset.placeholder || !subareaSelect.dataset.placeholder.trim()){
+    subareaSelect.dataset.placeholder = "Subárea";
+  }
+  const sync = ()=>{
+    const areaValue = areaSelect.value || "";
+    const current = subareaSelect.value;
+    populateSubareaSelect(subareaSelect, areaValue, current, subareaSelect.dataset.placeholder || "Subárea");
+    const allowed = new Set(subareasForAreas(areaValue ? [areaValue] : []).map(item=> normalizeText(item)));
+    if(areaValue && allowed.size && !allowed.has(normalizeText(subareaSelect.value || ""))){
+      subareaSelect.value = "";
+      applySelectColor(subareaSelect);
+    }
+    if(!areaValue){
+      subareaSelect.value = "";
+      applySelectColor(subareaSelect);
+    }
+  };
+  if(!subareaSelect.dataset.placeholder){
+    subareaSelect.dataset.placeholder = subareaSelect.querySelector("option") ? subareaSelect.querySelector("option").textContent || "Subárea" : "Subárea";
+  }
+  areaSelect.addEventListener("change", sync);
+  sync();
 }
 function setupFilterMultiSelects(container){
   if(!container) return;
@@ -1934,6 +1985,14 @@ function matchOption(raw, options){
   if(!clean) return null;
   const norm = normalizeText(clean);
   const found = options.find(opt=> normalizeText(opt)===norm);
+  if(found) return found;
+  if(options === SUBAREAS){
+    const alias = SUBAREA_ALIAS_MAP[norm];
+    if(alias){
+      const aliasMatch = options.find(opt=> normalizeText(opt)===normalizeText(alias));
+      return aliasMatch || alias;
+    }
+  }
   return found || clean;
 }
 function sanitizeNotes(value){
@@ -2360,6 +2419,7 @@ function renderAll(){
     const dueDateVal = escAttr(dueParts.date || "");
     const dueTimeVal = escAttr(dueParts.time || "");
     const endTimeVal = escAttr(toTimeInputValue(t.endTime));
+    const allowedSubareas = buildSubareaList(t.area);
     return `
       <tr data-id="${t.id}">
         <td data-col="emoji"><select class="table-input emoji-select" data-field="emoji">${emojiOptions(t.emoji)}</select></td>
@@ -2376,7 +2436,7 @@ function renderAll(){
         <td data-col="priority"><select class="table-input colorful" data-color="priority" data-field="priority">${optionsMarkup(PRIORITIES, t.priority, true)}</select></td>
         <td data-col="duration"><select class="table-input colorful" data-color="duration" data-field="durationTag">${optionsMarkup(DURATIONS, t.durationTag, true)}</select></td>
         <td data-col="area"><select class="table-input colorful" data-color="area" data-field="area">${optionsMarkup(AREAS, t.area, true)}</select></td>
-        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(SUBAREAS, t.subarea, true)}</select></td>
+        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(allowedSubareas, t.subarea, true)}</select></td>
         <td data-col="notes"><textarea class="table-input" data-field="notes" rows="2">${escHtml(t.notes||"")}</textarea></td>
         <td data-col="week">${t.weekNumber||""}</td>
         <td data-col="actions">
@@ -2392,11 +2452,11 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
-    const selectedAreas = toSelectionArray(filterState.area);
-  const availableFilterSubareas = subareasForAreas(selectedAreas);
+  const selectedAreas = toSelectionArray(filterState.area);
   const hasAreaSelection = selectedAreas.length > 0;
-  const subareaPlaceholder = hasAreaSelection ? "Selecionar subáreas..." : "Selecione uma área";
-  const subareaEmptyMessage = hasAreaSelection ? "Nenhuma subárea disponível" : "Escolha uma área para liberar as subáreas";
+  const availableFilterSubareas = hasAreaSelection ? subareasForAreas(selectedAreas) : SUBAREAS;
+  const subareaPlaceholder = "Selecionar subáreas...";
+  const subareaEmptyMessage = hasAreaSelection ? "Nenhuma subárea disponível" : "Nenhuma subárea cadastrada";
   const filterMarkup = `
     <div class="filter-grid">
       <div class="filter-field">
@@ -2685,7 +2745,34 @@ function handleTableChange(e){
   }else{
     value = value || null;
   }
-  patch[field] = value;
+  let assignDefault = true;
+  if(field==="area"){
+    value = sanitizeOptionField(value, AREAS);
+    patch[field] = value;
+    assignDefault = false;
+    const subSelect = tr.querySelector('[data-field="subarea"]');
+    const allowed = subareasForAreas(value ? [value] : []);
+    if(subSelect){
+      populateSubareaSelect(subSelect, value, subSelect.value, "--");
+      const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+      if(!value || (allowedNorm.size && !allowedNorm.has(normalizeText(subSelect.value || "")))){
+        subSelect.value = "";
+        applySelectColor(subSelect);
+        patch.subarea = null;
+      }
+    }else if(!value){
+      patch.subarea = null;
+    }
+  }else if(field==="subarea"){
+    const areaVal = tr.querySelector('[data-field="area"]') ? tr.querySelector('[data-field="area"]').value : "";
+    const allowedList = buildSubareaList(areaVal);
+    value = sanitizeOptionField(value, allowedList);
+    patch[field] = value;
+    assignDefault = false;
+  }
+  if(assignDefault){
+    patch[field] = value;
+  }
   if(e.target.dataset && e.target.dataset.color){
     applySelectColor(e.target);
   }
@@ -3010,9 +3097,19 @@ function updateTask(id, patch){
   }
   if(patch.area!==undefined){
     t.area = sanitizeOptionField(patch.area, AREAS);
+    if(t.area){
+      const allowed = subareasForAreas([t.area]);
+      const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+      if(allowedNorm.size && !allowedNorm.has(normalizeText(t.subarea||""))){
+        t.subarea = null;
+      }
+    }else{
+      t.subarea = null;
+    }
   }
   if(patch.subarea!==undefined){
-    t.subarea = sanitizeOptionField(patch.subarea, SUBAREAS);
+    const allowed = t.area ? subareasForAreas([t.area]) : SUBAREAS;
+    t.subarea = sanitizeOptionField(patch.subarea, allowed.length ? allowed : SUBAREAS);
   }
   if(patch.emoji!==undefined){
     t.emoji = patch.emoji || null;
@@ -3158,7 +3255,10 @@ function initApp(){
       if(prioEl) prioEl.value = PRIORITIES[1];
       if(durEl) durEl.value = DURATIONS[1];
       if(areaEl) areaEl.value = "";
-      if(subareaEl) subareaEl.value = "";
+      if(subareaEl){
+        subareaEl.value = "";
+        populateSubareaSelect(subareaEl, areaEl ? areaEl.value : "", "", subareaEl.dataset.placeholder || "Subárea");
+      }
       render(currentTab);
     });
   }
@@ -3264,6 +3364,7 @@ function initApp(){
   });
   filterCollapse = setupCollapsible("filterCard", {defaultOpen:false});
   setupColorizedSelects(document.getElementById("controlCard"));
+  setupAreaSubareaBinding(document.getElementById("area"), document.getElementById("subarea"));
   setupQuickFlagShortcuts();
   const emojiSelect = document.getElementById("emoji");
   if(emojiSelect){ emojiSelect.innerHTML = emojiOptions(emojiSelect.value || ""); }
