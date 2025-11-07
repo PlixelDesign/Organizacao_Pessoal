@@ -110,7 +110,14 @@
     color:var(--muted);
     background:rgba(10,12,20,0.7);
   }
-  .table-wrapper{flex:1;display:flex;flex-direction:column;}
+  .table-wrapper{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:18px 24px 20px;
+    box-sizing:border-box;
+  }
   .table-scroll{
     flex:1;
     overflow:auto;
@@ -745,7 +752,13 @@
   }
   .emoji-select{width:56px;text-align:center;font-size:16px}
   .emoji-select option{font-size:16px}
-  .table-wrapper{display:flex;flex-direction:column;gap:6px}
+  .table-wrapper{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:18px 24px 20px;
+    box-sizing:border-box;
+  }
   .row-hover-tools{
     position:absolute;
     left:-58px;
@@ -1184,6 +1197,7 @@
 </main>
 <div id="tableScrollProxy" class="h-scroll-proxy"><div></div></div>
 <script>
+const BRAZIL_TZ = "America/Sao_Paulo";
 const LS_KEY = "tarefas_local_v1";
 const LS_REC_KEY = "tarefas_rec_v1";
 const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
@@ -1943,6 +1957,46 @@ function parseDateFilterInput(raw){
   const test = new Date(iso);
   if(Number.isNaN(test.getTime())) return { valid: false };
   return { valid: true, iso, display };
+}
+function formatterForTimeZone(timeZone){
+  formatterForTimeZone.cache = formatterForTimeZone.cache || {};
+  if(!formatterForTimeZone.cache[timeZone]){
+    try{
+      formatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit"
+      });
+    }catch(_){
+      formatterForTimeZone.cache[timeZone] = null;
+    }
+  }
+  return formatterForTimeZone.cache[timeZone];
+}
+function isoDateInTimeZone(iso, timeZone=BRAZIL_TZ){
+  if(!iso) return "";
+  const date = new Date(iso);
+  if(Number.isNaN(date.getTime())) return "";
+  const formatter = formatterForTimeZone(timeZone);
+  if(formatter){
+    return formatter.format(date);
+  }
+  const targetOffsetMinutes = -180; // fallback for Brasília (UTC-3)
+  const localOffsetMinutes = date.getTimezoneOffset();
+  const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
+  const adjusted = new Date(date.getTime() + diffMs);
+  return `${adjusted.getFullYear()}-${pad2(adjusted.getMonth()+1)}-${pad2(adjusted.getDate())}`;
+}
+function toBrazilDateKey(value){
+  if(!value) return "";
+  if(value instanceof Date){
+    return isoDateInTimeZone(value.toISOString());
+  }
+  if(typeof value === "string"){
+    return isoDateInTimeZone(value);
+  }
+  return "";
 }
 function selectionSummary(values, placeholder, limit=2){
   const items = toSelectionArray(values);
@@ -3088,6 +3142,7 @@ function renderAll(){
     </div>
     <div class="filter-actions">
       <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para marcar múltiplos itens</span>
+      <button class="filter-chip" type="button" data-range="yesterday">Ontem</button>
       <button class="filter-chip" type="button" data-range="today">Hoje</button>
       <button class="filter-chip" type="button" data-range="tomorrow">Amanhã</button>
       <button class="filter-chip" type="button" data-range="next7">Próximos 7 dias</button>
@@ -3481,7 +3536,7 @@ function applyFilters(tasks){
   const hasWeekFilter = Number.isFinite(weekNumber) && weekNumber > 0;
   return tasks.filter(task=>{
     applyDerived(task);
-    const dueIso = task.dueAt ? task.dueAt.slice(0,10) : null;
+  const dueIso = task.dueAt ? isoDateInTimeZone(task.dueAt) : null;
     if(query){
       const haystack = normalizeText([
         task.title,
@@ -3525,7 +3580,7 @@ function applyFilters(tasks){
 }
 function applyQuickRange(range){
   const today = new Date();
-  const todayIso = today.toISOString().slice(0,10);
+  const todayIso = toBrazilDateKey(today);
   if(range==="clear"){
     filterState.dateFrom = "";
     filterState.dateTo = "";
@@ -3535,6 +3590,13 @@ function applyQuickRange(range){
   }
   filterState.onlyNoDate = false;
   switch(range){
+    case "yesterday": {
+      const yesterday = toBrazilDateKey(plusDays(today, -1));
+      filterState.dateFrom = yesterday;
+      filterState.dateTo = yesterday;
+      filterState.includeNoDate = false;
+      break;
+    }
     case "today": {
       filterState.dateFrom = todayIso;
       filterState.dateTo = todayIso;
@@ -3542,14 +3604,14 @@ function applyQuickRange(range){
       break;
     }
     case "tomorrow": {
-      const tomorrow = plusDays(today, 1).toISOString().slice(0,10);
+      const tomorrow = toBrazilDateKey(plusDays(today, 1));
       filterState.dateFrom = tomorrow;
       filterState.dateTo = tomorrow;
       filterState.includeNoDate = false;
       break;
     }
     case "next7": {
-      const end7 = plusDays(today, 6).toISOString().slice(0,10);
+      const end7 = toBrazilDateKey(plusDays(today, 6));
       filterState.dateFrom = todayIso;
       filterState.dateTo = end7;
       filterState.includeNoDate = false;
@@ -3558,16 +3620,16 @@ function applyQuickRange(range){
     case "week": {
       const start = mondayOf(today);
       const end = plusDays(start, 6);
-      filterState.dateFrom = start.toISOString().slice(0,10);
-      filterState.dateTo = end.toISOString().slice(0,10);
+      filterState.dateFrom = toBrazilDateKey(start);
+      filterState.dateTo = toBrazilDateKey(end);
       filterState.includeNoDate = false;
       break;
     }
     case "month": {
       const first = new Date(today.getFullYear(), today.getMonth(), 1);
       const last = new Date(today.getFullYear(), today.getMonth()+1, 0);
-      filterState.dateFrom = first.toISOString().slice(0,10);
-      filterState.dateTo = last.toISOString().slice(0,10);
+      filterState.dateFrom = toBrazilDateKey(first);
+      filterState.dateTo = toBrazilDateKey(last);
       filterState.includeNoDate = false;
       break;
     }
@@ -3629,7 +3691,7 @@ function renderKanban(){
 function renderDay(){
   const view = document.getElementById("view");
   if(!view) return;
-  const todayIso = new Date().toISOString().slice(0,10);
+  const todayIso = toBrazilDateKey(new Date());
   const tasks = byDate(todayIso);
   view.innerHTML = `
     <div class="row">
@@ -3640,13 +3702,13 @@ function renderDay(){
   const listDiv = document.getElementById("daylist");
   const renderList = iso=>{
     listDiv.innerHTML = state.tasks
-      .filter(t=> t.dueAt && t.dueAt.slice(0,10)===iso)
+      .filter(t=> t.dueAt && isoDateInTimeZone(t.dueAt)===iso)
       .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""))
       .map(card).join("") || empty();
   };
   document.getElementById("daypick").oninput = (e)=> renderList(e.target.value);
   renderList(todayIso);
-  function byDate(isoDay){ return state.tasks.filter(t=> t.dueAt && t.dueAt.slice(0,10)===isoDay); }
+  function byDate(isoDay){ return state.tasks.filter(t=> t.dueAt && isoDateInTimeZone(t.dueAt)===isoDay); }
 }
 /* Recorrentes */
 function renderRec(){
@@ -3927,7 +3989,8 @@ function generateWeek(baseMonday){
     }else{
       day.setHours(0,0,0,0);
     }
-    const exists = state.tasks.some(t=> t.title===r.title && t.dueAt && t.dueAt.slice(0,10)===day.toISOString().slice(0,10));
+    const targetKey = toBrazilDateKey(day);
+    const exists = state.tasks.some(t=> t.title===r.title && t.dueAt && isoDateInTimeZone(t.dueAt)===targetKey);
     if(!exists){
       addTask({
         title: r.title,
