@@ -2004,7 +2004,7 @@ function selectionSummary(values, placeholder, limit=2){
   if(items.length <= limit) return items.join(", ");
   return `${items.slice(0, limit).join(", ")} +${items.length - limit}`;
 }
-function renderFilterMultiField(field, label, options, selectedValues, placeholder, emptyMessage){
+function renderFilterMultiField(field,   label, options, selectedValues, placeholder, emptyMessage){
   const values = toSelectionArray(selectedValues);
   const summary = selectionSummary(values, placeholder);
   const normalizedSelected = new Set(values.map(v=> normalizeText(v)));
