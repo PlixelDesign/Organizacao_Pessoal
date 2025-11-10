@@ -1198,6 +1198,9 @@
 <div id="tableScrollProxy" class="h-scroll-proxy"><div></div></div>
 <script>
 const BRAZIL_TZ = "America/Sao_Paulo";
+const BRAZIL_UTC_OFFSET_MINUTES = -180; // UTC-3
+const BRAZIL_OFFSET_MS = Math.abs(BRAZIL_UTC_OFFSET_MINUTES) * 60 * 1000;
+const ISO_TZ_OFFSET_RE = /([+-]\d{2}):?(\d{2})$/;
 const LS_KEY = "tarefas_local_v1";
 const LS_REC_KEY = "tarefas_rec_v1";
 const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
@@ -2018,7 +2021,7 @@ function isoDateInTimeZone(iso, timeZone=BRAZIL_TZ){
   if(formatter){
     return formatter.format(date);
   }
-  const targetOffsetMinutes = -180; // fallback for Brasília (UTC-3)
+  const targetOffsetMinutes = BRAZIL_UTC_OFFSET_MINUTES; // fallback para Brasília (UTC-3)
   const localOffsetMinutes = date.getTimezoneOffset();
   const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
   const adjusted = new Date(date.getTime() + diffMs);
@@ -2856,13 +2859,25 @@ async function syncImportDirectory(options={}){
   return { processed };
 }
 /* --------- UI base --------- */
+function shouldAssumeBrazilLocalTimes(payload){
+  if(!payload || typeof payload !== "object") return false;
+  if(payload.meta){
+    if(payload.meta.timeZone === "utc") return false;
+    if(payload.meta.timeZone === "br-local") return true;
+  }
+  if(typeof payload.version === "number" && payload.savedAt){
+    return true;
+  }
+  return false;
+}
 function applyImportedData(data){
   if(data==null) return false;
   const nowIso = new Date().toISOString();
+  const assumeBrazilLocal = shouldAssumeBrazilLocalTimes(data);
   if(Array.isArray(data)){
     const tasks = parseNotionTasks(data, nowIso);
     if(!tasks.length) return false;
-    const normalized = tasks.map((task, idx)=> normalizeTask(task, idx+1, nowIso));
+    const normalized = tasks.map((task, idx)=> normalizeTask(task, idx+1, nowIso, { assumeBrazilLocal }));
     state = {
       tasks: normalized,
       lastId: normalized.reduce((max, t)=> Math.max(max, typeof t.id==="number" ? t.id : 0), 0)
@@ -2873,11 +2888,11 @@ function applyImportedData(data){
   if(typeof data!=="object") return false;
   let applied = false;
   if(data.state){
-    const normalized = normalizeStateData(data.state, nowIso);
+    const normalized = normalizeStateData(data.state, nowIso, { assumeBrazilLocal });
     mergeNormalizedState(normalized, nowIso);
     applied = true;
   }else if(data.tasks){
-    const normalized = normalizeStateData(data, nowIso);
+    const normalized = normalizeStateData(data, nowIso, { assumeBrazilLocal });
     mergeNormalizedState(normalized, nowIso);
     applied = true;
   }
@@ -2896,7 +2911,7 @@ function timeInTimeZone(iso, timeZone=BRAZIL_TZ){
   if(formatter){
     return formatter.format(date);
   }
-  const targetOffsetMinutes = -180;
+  const targetOffsetMinutes = BRAZIL_UTC_OFFSET_MINUTES;
   const localOffsetMinutes = date.getTimezoneOffset();
   const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
   const adjusted = new Date(date.getTime() + diffMs);
@@ -2976,7 +2991,8 @@ function mergeNormalizedRecState(normalizedRec){
     lastId: mergedLastId
   };
 }
-function normalizeStateData(rawState, nowIso){
+function normalizeStateData(rawState, nowIso, options){
+  const opts = options || {};
   const source = Array.isArray(rawState)
     ? rawState
     : (rawState && Array.isArray(rawState.tasks) ? rawState.tasks : []);
@@ -2985,13 +3001,14 @@ function normalizeStateData(rawState, nowIso){
     : 0;
   let maxId = 0;
   const tasks = source.map((task, idx)=>{
-    const normalized = normalizeTask(task, idx+1, nowIso);
+    const normalized = normalizeTask(task, idx+1, nowIso, opts);
     maxId = Math.max(maxId, normalized.id);
     return normalized;
   });
   return { tasks, lastId: Math.max(maxId, initialLastId) };
 }
-function normalizeTask(task, fallbackId, nowIso){
+function normalizeTask(task, fallbackId, nowIso, options){
+  const opts = options || {};
   const copy = {...task};
   let id = Number(copy.id);
   if(!Number.isFinite(id)) id = fallbackId;
@@ -2999,8 +3016,7 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.title = cleanString(copy.title) || `Tarefa ${id}`;
   copy.createdAt = copy.createdAt || nowIso;
   copy.updatedAt = copy.updatedAt || copy.createdAt;
-  copy.dueAt = copy.dueAt ? new Date(copy.dueAt).toISOString() : null;
-  if(copy.dueAt && Number.isNaN(new Date(copy.dueAt).getTime())) copy.dueAt = null;
+  copy.dueAt = normalizeDueAtValue(copy.dueAt, opts);
   const rawEnd = copy.endTime ?? copy.end_time ?? copy.end ?? copy.horaFim ?? copy.finalTime;
   copy.endTime = sanitizeEndTime(rawEnd);
   copy.status = mapStatus(copy.status);
@@ -3013,6 +3029,36 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.emoji = cleanString(copy.emoji||"") || null;
   applyDerived(copy);
   return copy;
+}
+function normalizeDueAtValue(value, options){
+  if(!value && value !== 0) return null;
+  const raw = String(value).trim();
+  if(!raw) return null;
+  let date = parseDateLoose(raw);
+  if(!date) return null;
+  const assumeLocal = options && options.assumeBrazilLocal && isLegacyBrazilZulu(raw);
+  if(assumeLocal){
+    date = new Date(date.getTime() + BRAZIL_OFFSET_MS);
+  }
+  return date.toISOString();
+}
+function parseDateLoose(str){
+  if(!str) return null;
+  let parsed = new Date(str);
+  if(!Number.isNaN(parsed.getTime())) return parsed;
+  if(str.includes(" ")){
+    parsed = new Date(str.replace(" ","T"));
+    if(!Number.isNaN(parsed.getTime())) return parsed;
+  }
+  return null;
+}
+function isLegacyBrazilZulu(str){
+  if(!str) return false;
+  return /z$/i.test(str) && !hasExplicitTimezone(str);
+}
+function hasExplicitTimezone(str){
+  if(!str) return false;
+  return ISO_TZ_OFFSET_RE.test(str.trim());
 }
 function normalizeRecState(rawRec){
   const recsIn = rawRec && Array.isArray(rawRec.recs) ? rawRec.recs : [];
