@@ -1336,7 +1336,12 @@ const AUTO_EXPAND_COLUMNS = ["title","notes","area","subarea","date","responsibl
 const IMPORT_DIR_DB = "tarefas_import_fs";
 const IMPORT_DIR_STORE = "handles";
 const IMPORT_DIR_KEY = "importDir";
+const IMPORT_DIR_META_KEY = "import_dir_meta";
+const IMPORT_DIR_SCAN_INTERVAL = 60000;
 let importDirHandle = null;
+let importDirScanTimer = null;
+let importDirMeta = loadImportDirMeta();
+let importDirSyncInFlight = false;
 
 const REMOTE_CONFIG = {
   owner: "plixeldesign",
@@ -2740,6 +2745,8 @@ async function restoreImportDirectory(){
       if(permission === "granted"){
         importDirHandle = stored;
         updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
+        startImportDirectoryWatcher();
+        syncImportDirectory({ initial:true }).catch(err=> console.warn("Sync dir error", err));
       }else{
         updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
       }
@@ -2749,6 +2756,83 @@ async function restoreImportDirectory(){
   }catch(err){
     console.warn("Falha ao restaurar pasta de importação", err);
   }
+}
+function startImportDirectoryWatcher(){
+  if(importDirScanTimer){
+    clearInterval(importDirScanTimer);
+    importDirScanTimer = null;
+  }
+  if(!importDirHandle) return;
+  importDirScanTimer = setInterval(()=>{
+    syncImportDirectory().catch(err=> console.warn("Auto sync erro", err));
+  }, IMPORT_DIR_SCAN_INTERVAL);
+}
+function stopImportDirectoryWatcher(){
+  if(importDirScanTimer){
+    clearInterval(importDirScanTimer);
+    importDirScanTimer = null;
+  }
+}
+async function syncImportDirectory(options={}){
+  if(!supportsFileSystemAccess() || !importDirHandle) return { processed:0 };
+  if(importDirSyncInFlight){
+    return { skipped:true };
+  }
+  importDirSyncInFlight = true;
+  const { initial=false, forceFull=false } = options;
+  let processed = 0;
+  let changed = false;
+  try{
+    const permission = await ensureDirPermission(importDirHandle);
+    if(permission !== "granted"){
+      updateImportDirInfo("Permissão negada para ler a pasta selecionada.", "error");
+      return { processed:0, error:"permission" };
+    }
+    const entries = [];
+    for await (const entry of importDirHandle.values()){
+      if(entry.kind === "file" && entry.name.toLowerCase().endsWith(".json")){
+        entries.push(entry);
+      }
+    }
+    // garantir ordem determinística
+    entries.sort((a,b)=> a.name.localeCompare(b.name));
+    for(const entry of entries){
+      try{
+        const file = await entry.getFile();
+        const lastModified = file.lastModified || Date.now();
+        const metaKey = entry.name;
+        const prevStamp = forceFull ? 0 : (importDirMeta[metaKey] || 0);
+        if(lastModified > prevStamp){
+          const text = await file.text();
+          const payload = JSON.parse(text);
+          const applied = applyImportedData(payload);
+          importDirMeta[metaKey] = lastModified;
+          saveImportDirMeta();
+          processed++;
+          if(applied){
+            changed = true;
+          }
+        }
+      }catch(err){
+        console.error("Falha ao importar arquivo da pasta", entry.name, err);
+      }
+    }
+    if(changed){
+      save();
+      saveRec();
+      render(currentTab || "all");
+    }
+    if(processed){
+      updateImportDirInfo(`Importados ${processed} arquivo(s) da pasta ${importDirHandle.name}`, "success");
+    }else if(initial){
+      updateImportDirInfo(`Pasta selecionada: ${importDirHandle.name}`, "success");
+    }
+  }catch(err){
+    console.error("Erro ao sincronizar pasta de importação", err);
+  }finally{
+    importDirSyncInFlight = false;
+  }
+  return { processed };
 }
 /* --------- UI base --------- */
 function applyImportedData(data){
@@ -4266,8 +4350,12 @@ function initApp(){
         const permission = await ensureDirPermission(handle);
         if(permission === "granted"){
           importDirHandle = handle;
+          importDirMeta = {};
+          saveImportDirMeta();
           await persistDirectoryHandle(handle);
           updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
+          startImportDirectoryWatcher();
+          await syncImportDirectory({ initial:true, forceFull:true });
         }else{
           updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
         }
@@ -4336,3 +4424,16 @@ window.addEventListener("load", initApp, { once: true });
 
 
 
+function loadImportDirMeta(){
+  try{
+    const raw = localStorage.getItem(IMPORT_DIR_META_KEY);
+    return raw ? JSON.parse(raw) : {};
+  }catch(_){
+    return {};
+  }
+}
+function saveImportDirMeta(){
+  try{
+    localStorage.setItem(IMPORT_DIR_META_KEY, JSON.stringify(importDirMeta || {}));
+  }catch(_){ }
+}
