@@ -1859,21 +1859,15 @@ function normalizeDateOnly(value){
   return "";
 }
 function toDateOnlyInputValue(iso){
-  if(!iso) return "";
-  const d = new Date(iso);
-  if(Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  return isoDateInTimeZone(iso) || "";
 }
 function extractTimeFromISO(iso){
-  if(!iso) return "";
-  const d = new Date(iso);
-  if(Number.isNaN(d.getTime())) return "";
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  return timeInTimeZone(iso) || "";
 }
 function splitDueAt(iso){
   return {
-    date: toDateOnlyInputValue(iso),
-    time: extractTimeFromISO(iso)
+    date: isoDateInTimeZone(iso),
+    time: timeInTimeZone(iso)
   };
 }
 function combineDateAndTime(dateValue, timeValue){
@@ -1958,27 +1952,43 @@ function parseDateFilterInput(raw){
   if(Number.isNaN(test.getTime())) return { valid: false };
   return { valid: true, iso, display };
 }
-function formatterForTimeZone(timeZone){
-  formatterForTimeZone.cache = formatterForTimeZone.cache || {};
-  if(!formatterForTimeZone.cache[timeZone]){
+function dateFormatterForTimeZone(timeZone){
+  dateFormatterForTimeZone.cache = dateFormatterForTimeZone.cache || {};
+  if(!dateFormatterForTimeZone.cache[timeZone]){
     try{
-      formatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("en-CA", {
+      dateFormatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("en-CA", {
         timeZone,
         year:"numeric",
         month:"2-digit",
         day:"2-digit"
       });
     }catch(_){
-      formatterForTimeZone.cache[timeZone] = null;
+      dateFormatterForTimeZone.cache[timeZone] = null;
     }
   }
-  return formatterForTimeZone.cache[timeZone];
+  return dateFormatterForTimeZone.cache[timeZone];
+}
+function timeFormatterForTimeZone(timeZone){
+  timeFormatterForTimeZone.cache = timeFormatterForTimeZone.cache || {};
+  if(!timeFormatterForTimeZone.cache[timeZone]){
+    try{
+      timeFormatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("pt-BR", {
+        timeZone,
+        hour12:false,
+        hour:"2-digit",
+        minute:"2-digit"
+      });
+    }catch(_){
+      timeFormatterForTimeZone.cache[timeZone] = null;
+    }
+  }
+  return timeFormatterForTimeZone.cache[timeZone];
 }
 function isoDateInTimeZone(iso, timeZone=BRAZIL_TZ){
   if(!iso) return "";
   const date = new Date(iso);
   if(Number.isNaN(date.getTime())) return "";
-  const formatter = formatterForTimeZone(timeZone);
+  const formatter = dateFormatterForTimeZone(timeZone);
   if(formatter){
     return formatter.format(date);
   }
@@ -2772,6 +2782,20 @@ function applyImportedData(data){
   }
   if(applied) clearSelection();
   return applied;
+}
+function timeInTimeZone(iso, timeZone=BRAZIL_TZ){
+  if(!iso) return "";
+  const date = new Date(iso);
+  if(Number.isNaN(date.getTime())) return "";
+  const formatter = timeFormatterForTimeZone(timeZone);
+  if(formatter){
+    return formatter.format(date);
+  }
+  const targetOffsetMinutes = -180;
+  const localOffsetMinutes = date.getTimezoneOffset();
+  const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
+  const adjusted = new Date(date.getTime() + diffMs);
+  return `${pad2(adjusted.getHours())}:${pad2(adjusted.getMinutes())}`;
 }
 function toIdKey(value){
   const num = Number(value);
