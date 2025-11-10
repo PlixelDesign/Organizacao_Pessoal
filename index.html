@@ -1340,8 +1340,29 @@ const IMPORT_DIR_META_KEY = "import_dir_meta";
 const IMPORT_DIR_SCAN_INTERVAL = 60000;
 let importDirHandle = null;
 let importDirScanTimer = null;
-let importDirMeta = loadImportDirMeta();
+let importDirMeta = {};
 let importDirSyncInFlight = false;
+
+function loadImportDirMeta(){
+  try{
+    const serialized = localStorage.getItem(IMPORT_DIR_META_KEY);
+    if(!serialized) return {};
+    const parsed = JSON.parse(serialized);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  }catch(err){
+    console.warn("Não foi possível carregar o histórico de importação.", err);
+    return {};
+  }
+}
+function saveImportDirMeta(){
+  try{
+    localStorage.setItem(IMPORT_DIR_META_KEY, JSON.stringify(importDirMeta || {}));
+  }catch(err){
+    console.warn("Não foi possível salvar o histórico de importação.", err);
+  }
+}
+importDirMeta = loadImportDirMeta();
+
 
 const REMOTE_CONFIG = {
   owner: "plixeldesign",
@@ -4424,16 +4445,3 @@ window.addEventListener("load", initApp, { once: true });
 
 
 
-function loadImportDirMeta(){
-  try{
-    const raw = localStorage.getItem(IMPORT_DIR_META_KEY);
-    return raw ? JSON.parse(raw) : {};
-  }catch(_){
-    return {};
-  }
-}
-function saveImportDirMeta(){
-  try{
-    localStorage.setItem(IMPORT_DIR_META_KEY, JSON.stringify(importDirMeta || {}));
-  }catch(_){ }
-}
