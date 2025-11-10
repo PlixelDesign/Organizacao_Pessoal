@@ -2758,18 +2758,94 @@ function applyImportedData(data){
   if(typeof data!=="object") return false;
   let applied = false;
   if(data.state){
-    state = normalizeStateData(data.state, nowIso);
+    const normalized = normalizeStateData(data.state, nowIso);
+    mergeNormalizedState(normalized, nowIso);
     applied = true;
   }else if(data.tasks){
-    state = normalizeStateData(data, nowIso);
+    const normalized = normalizeStateData(data, nowIso);
+    mergeNormalizedState(normalized, nowIso);
     applied = true;
   }
   if(data.recState){
-    recState = normalizeRecState(data.recState);
+    mergeNormalizedRecState(normalizeRecState(data.recState));
     applied = true;
   }
   if(applied) clearSelection();
   return applied;
+}
+function toIdKey(value){
+  const num = Number(value);
+  return Number.isFinite(num) ? `n:${num}` : `s:${String(value)}`;
+}
+function maxNumericId(list){
+  return (list||[]).reduce((max,item)=>{
+    const num = Number(item && item.id);
+    return Number.isFinite(num) ? Math.max(max, num) : max;
+  },0);
+}
+function mergeTaskLists(existing=[], incoming=[], nowIso){
+  if(!existing.length) return incoming.slice();
+  const incomingMap = new Map();
+  incoming.forEach(task=> incomingMap.set(toIdKey(task.id), task));
+  const merged = existing.map(task=>{
+    const key = toIdKey(task.id);
+    if(incomingMap.has(key)){
+      const update = incomingMap.get(key);
+      incomingMap.delete(key);
+      return {
+        ...task,
+        ...update,
+        createdAt: update.createdAt || task.createdAt || nowIso
+      };
+    }
+    return task;
+  });
+  incomingMap.forEach(task=> merged.push(task));
+  return merged;
+}
+function mergeRecLists(existing=[], incoming=[]){
+  if(!existing.length) return incoming.slice();
+  const incomingMap = new Map();
+  incoming.forEach(rec=> incomingMap.set(toIdKey(rec.id), rec));
+  const merged = existing.map(rec=>{
+    const key = toIdKey(rec.id);
+    if(incomingMap.has(key)){
+      const update = incomingMap.get(key);
+      incomingMap.delete(key);
+      return { ...rec, ...update };
+    }
+    return rec;
+  });
+  incomingMap.forEach(rec=> merged.push(rec));
+  return merged;
+}
+function mergeNormalizedState(normalizedState, nowIso){
+  const current = state || { tasks: [], lastId: 0 };
+  const incomingTasks = normalizedState.tasks || [];
+  const mergedTasks = mergeTaskLists(current.tasks || [], incomingTasks, nowIso);
+  const mergedLastId = Math.max(
+    current.lastId || 0,
+    normalizedState.lastId || 0,
+    maxNumericId(mergedTasks)
+  );
+  state = {
+    tasks: mergedTasks,
+    lastId: mergedLastId
+  };
+}
+function mergeNormalizedRecState(normalizedRec){
+  const currentRec = recState || { recs: [], lastId: 0 };
+  const incomingRecs = normalizedRec.recs || [];
+  const mergedRecs = mergeRecLists(currentRec.recs || [], incomingRecs);
+  const mergedLastId = Math.max(
+    currentRec.lastId || 0,
+    normalizedRec.lastId || 0,
+    maxNumericId(mergedRecs)
+  );
+  recState = {
+    recs: mergedRecs,
+    lastId: mergedLastId
+  };
 }
 function normalizeStateData(rawState, nowIso){
   const source = Array.isArray(rawState)
