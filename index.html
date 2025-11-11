@@ -1215,7 +1215,8 @@ const AREAS = [
   "Casa & Rotina",
   "Finanças",
   "Estudo & Desenvolvimento",
-  "Planejamento & Estratégia"
+  "Planejamento & Estratégia",
+  "Trabalho Extra"
 ];
 const SUBAREAS = [
   "Vendas e Prospecção",
@@ -1238,6 +1239,7 @@ const SUBAREAS = [
   "Limpeza e ordem",
   "Compras e suprimentos",
   "Organização pessoal",
+  "Higiene",
   "Financeiro pessoal",
   "Financeiro Plixel",
   "Gestão e orçamento",
@@ -1248,7 +1250,9 @@ const SUBAREAS = [
   "Planejamento semanal / diário",
   "Revisão e análise",
   "Metas e visão",
-  "Sistema de produtividade"
+  "Sistema de produtividade",
+  "Aula de violino",
+  "Outros"
 ];
 const AREA_SUBAREA_MAP = {
   "Plixel": [
@@ -1279,7 +1283,8 @@ const AREA_SUBAREA_MAP = {
   "Casa & Rotina": [
     "Limpeza e ordem",
     "Compras e suprimentos",
-    "Organização pessoal"
+    "Organização pessoal",
+    "Higiene"
   ],
   "Finanças": [
     "Financeiro pessoal",
@@ -1297,6 +1302,10 @@ const AREA_SUBAREA_MAP = {
     "Revisão e análise",
     "Metas e visão",
     "Sistema de produtividade"
+  ],
+  "Trabalho Extra": [
+    "Aula de violino",
+    "Outros"
   ]
 };
 const SUBAREA_ALIAS_MAP = {
@@ -1582,12 +1591,13 @@ async function saveRemoteState(){
   }
 }
 function applyRemoteStatePayload(payload){
+  const assumeBrazilLocal = shouldAssumeBrazilLocalTimes(payload);
   const normalized = normalizeRemotePayload(payload);
   if(!normalized || !normalized.state){
     return false;
   }
   const nowIso = new Date().toISOString();
-  state = normalizeStateData(normalized.state, nowIso);
+  state = normalizeStateData(normalized.state, nowIso, { assumeBrazilLocal });
   recState = normalizeRecState(normalized.recState || { recs: [], lastId: 0 });
   save({ skipRemote:true });
   saveRec({ skipRemote:true });
@@ -1773,7 +1783,9 @@ const COLOR_PALETTES = {
     "Revisão e análise":             { bg: "#06334D", text: "#BAE6FD", border: "#0369A1" },
     "Metas e visão":                 { bg: "#052C3D", text: "#BAE6FD", border: "#075985" },
     "Sistema de produtividade":      { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" },
-    "Aulas de violino":              { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" }
+    "Aula de violino":               { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" },
+    "Outros":                        { bg: "#232831", text: "#E5E7EB", border: "#94A3B8" },
+    "Higiene":                       { bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   }
 };
 let columnWidths = loadColumnWidths();
