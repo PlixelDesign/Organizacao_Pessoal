@@ -1690,7 +1690,7 @@ function setupSyncControls(){
   const showError = message=>{
     const status = document.getElementById("importStatus");
     if(!status) return;
-    status.textContent = message;
+    status.textContent = message
     status.classList.remove("muted");
     status.classList.add("error");
   };
