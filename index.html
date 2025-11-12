@@ -1349,6 +1349,7 @@ const IMPORT_DIR_DB = "tarefas_import_fs";
 const IMPORT_DIR_STORE = "handles";
 const IMPORT_DIR_KEY = "importDir";
 const IMPORT_DIR_META_KEY = "import_dir_meta";
+const IMPORT_DIR_MIGRATION_KEY = "import_dir_migrated_tz_v1";
 const IMPORT_DIR_SCAN_INTERVAL = 60000;
 let importDirHandle = null;
 let importDirScanTimer = null;
@@ -1375,6 +1376,18 @@ function saveImportDirMeta(){
 }
 importDirMeta = loadImportDirMeta();
 
+function hasRunImportDirMigration(){
+  try{
+    return localStorage.getItem(IMPORT_DIR_MIGRATION_KEY) === "1";
+  }catch(_){
+    return true;
+  }
+}
+function markImportDirMigration(){
+  try{
+    localStorage.setItem(IMPORT_DIR_MIGRATION_KEY, "1");
+  }catch(_){ }
+}
 
 const REMOTE_CONFIG = {
   owner: "plixeldesign",
@@ -2782,7 +2795,12 @@ async function restoreImportDirectory(){
         importDirHandle = stored;
         updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
         startImportDirectoryWatcher();
-        syncImportDirectory({ initial:true }).catch(err=> console.warn("Sync dir error", err));
+        const forceFull = !hasRunImportDirMigration();
+        syncImportDirectory({ initial:true, forceFull }).then(()=>{
+          if(forceFull){
+            markImportDirMigration();
+          }
+        }).catch(err=> console.warn("Sync dir error", err));
       }else{
         updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
       }
@@ -4435,6 +4453,7 @@ function initApp(){
           updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
           startImportDirectoryWatcher();
           await syncImportDirectory({ initial:true, forceFull:true });
+          markImportDirMigration();
         }else{
           updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
         }
