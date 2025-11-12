@@ -3230,6 +3230,34 @@ function parseNotionDate(raw){
 }
 /* --------- Renderizações --------- */
 let currentTab = "all";
+let kanbanReferenceDate = null;
+let dayReferenceDate = null;
+function currentTasks(){
+  return Array.isArray(state?.tasks) ? state.tasks : [];
+}
+function datedTasksSorted(){
+  return currentTasks()
+    .filter(task=> !!task && !!task.dueAt)
+    .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""));
+}
+function firstDatedTask(){
+  const dated = datedTasksSorted();
+  return dated.length ? new Date(dated[0].dueAt) : null;
+}
+function resolveKanbanReference(){
+  if(kanbanReferenceDate){
+    const ref = new Date(kanbanReferenceDate);
+    if(!Number.isNaN(ref.getTime())) return ref;
+  }
+  return firstDatedTask() || new Date();
+}
+function resolveDayReference(){
+  if(dayReferenceDate){
+    const ref = new Date(dayReferenceDate);
+    if(!Number.isNaN(ref.getTime())) return ref;
+  }
+  return firstDatedTask() || new Date();
+}
 function render(tab){
   currentTab = tab;
   const view = document.getElementById("view");
@@ -3272,7 +3300,7 @@ function renderAll(){
       };
     }
   }
-  const filteredTasks = applyFilters(state.tasks);
+  const filteredTasks = applyFilters(currentTasks());
   const sorted = filteredTasks.slice().sort((a,b)=>{
     const da = a.dueAt || "9999-12-31T00:00:00";
     const db = b.dueAt || "9999-12-31T00:00:00";
@@ -3933,14 +3961,17 @@ function applyQuickRange(range){
 function renderKanban(){
   const view = document.getElementById("view");
   if(!view) return;
-  const today = new Date();
-  const monday = mondayOf(today);
+  const reference = resolveKanbanReference();
+  const monday = mondayOf(reference);
   const sunday = plusDays(monday,6);
-  const weekTasks = state.tasks.filter(t=>{
+  const tasks = currentTasks();
+  const weekTasks = tasks.filter(t=>{
     if(!t.dueAt) return false;
     const d = new Date(t.dueAt);
     return d >= monday && d <= sunday;
   });
+  const readableWeek = `${monday.toLocaleDateString("pt-BR")} - ${sunday.toLocaleDateString("pt-BR")}`;
+  const pickerValue = toBrazilDateKey(monday);
   const columns = [
     { title: "A fazer", status: STATUS[0] },
     { title: "Em progresso", status: STATUS[1] },
@@ -3950,11 +3981,16 @@ function renderKanban(){
     { title: "Conclu\u00eddo", status: STATUS[5] }
   ];
   view.innerHTML = `
-    <div class="footer">
-      <div class="status-msg">Semana ${monday.toLocaleDateString()} - ${sunday.toLocaleDateString()}</div>
+    <div class="kanban-toolbar footer">
+      <div class="status-msg">Semana ${readableWeek}</div>
       <div class="row">
-        ${actionBtn("&larr; Semana anterior", ()=>shiftWeek(-7))}
-        ${actionBtn("Pr&oacute;xima semana &rarr;", ()=>shiftWeek(7))}
+        ${actionBtn("&larr; Semana anterior", ()=>shiftWeekView(-1))}
+        <div class="week-picker">
+          <label for="kanbanWeekInput">Escolher semana</label>
+          <input type="date" id="kanbanWeekInput" value="${pickerValue}" />
+        </div>
+        ${actionBtn("Semana seguinte &rarr;", ()=>shiftWeekView(1))}
+        ${actionBtn("Hoje", ()=>resetWeekView(), "ghost")}
       </div>
     </div>
     <div class="kanban">
@@ -3967,48 +4003,88 @@ function renderKanban(){
       }).join("")}
     </div>
   `;
-  function shiftWeek(days){
-    weekTasks.forEach(t=>{
-      if(t.dueAt){
-        const base = new Date(t.dueAt);
-        t.dueAt = plusDays(base, days).toISOString();
-        applyDerived(t);
-        t.updatedAt = new Date().toISOString();
-      }
+  const weekInput = document.getElementById("kanbanWeekInput");
+  if(weekInput){
+    weekInput.addEventListener("change", e=>{
+      const val = e.target.value;
+      if(!val) return;
+      const picked = new Date(val);
+      if(Number.isNaN(picked.getTime())) return;
+      kanbanReferenceDate = picked.toISOString();
+      render("kanban");
     });
-    save(); render("kanban");
+  }
+  function shiftWeekView(delta){
+    const ref = resolveKanbanReference();
+    kanbanReferenceDate = plusDays(ref, delta * 7).toISOString();
+    render("kanban");
+  }
+  function resetWeekView(){
+    kanbanReferenceDate = null;
+    render("kanban");
   }
 }
 /* Por dia */
 function renderDay(){
   const view = document.getElementById("view");
   if(!view) return;
-  const todayIso = toBrazilDateKey(new Date());
-  const tasks = byDate(todayIso);
+  const reference = resolveDayReference();
+  const selectedIso = toBrazilDateKey(reference);
   view.innerHTML = `
-    <div class="row">
-      <input type="date" id="daypick" value="${todayIso}" />
+    <div class="row day-toolbar">
+      ${actionBtn("&larr; Dia anterior", ()=>shiftDay(-1))}
+      <div class="day-picker">
+        <label for="daypick">Data</label>
+        <input type="date" id="daypick" value="${selectedIso}" />
+      </div>
+      ${actionBtn("Dia seguinte &rarr;", ()=>shiftDay(1))}
+      ${actionBtn("Hoje", ()=>resetDay(), "ghost")}
     </div>
     <div id="daylist" style="margin-top:10px"></div>
   `;
   const listDiv = document.getElementById("daylist");
+  const tasks = currentTasks();
   const renderList = iso=>{
-    listDiv.innerHTML = state.tasks
+    if(!iso){
+      listDiv.innerHTML = empty();
+      return;
+    }
+    listDiv.innerHTML = tasks
       .filter(t=> t.dueAt && isoDateInTimeZone(t.dueAt)===iso)
       .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""))
       .map(card).join("") || empty();
   };
-  document.getElementById("daypick").oninput = (e)=> renderList(e.target.value);
-  renderList(todayIso);
-  function byDate(isoDay){ return state.tasks.filter(t=> t.dueAt && isoDateInTimeZone(t.dueAt)===isoDay); }
+  const picker = document.getElementById("daypick");
+  if(picker){
+    picker.addEventListener("change", e=>{
+      const val = e.target.value;
+      if(!val) return;
+      const chosen = new Date(val);
+      if(Number.isNaN(chosen.getTime())) return;
+      dayReferenceDate = chosen.toISOString();
+      renderList(val);
+    });
+  }
+  renderList(selectedIso);
+  function shiftDay(delta){
+    const ref = resolveDayReference();
+    dayReferenceDate = plusDays(ref, delta).toISOString();
+    render("day");
+  }
+  function resetDay(){
+    dayReferenceDate = null;
+    render("day");
+  }
 }
 /* Recorrentes */
 function renderRec(){
   const view = document.getElementById("view");
   if(!view) return;
-  const recRows = recState.recs
-    .slice().sort((a,b)=> a.weekday-b.weekday || (a.atTime||"").localeCompare(b.atTime||""))
-    .map(r=>`
+  const recs = Array.isArray(recState?.recs) ? recState.recs : [];
+  const recRows = recs.length
+    ? recs
+      .slice().sort((a,b)=> a.weekday-b.weekday || (a.atTime||"").localeCompare(b.atTime||""))
+      .map(r=>`
       <tr>
         <td>${r.title}</td>
         <td>${["Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado","Domingo"][r.weekday]}</td>
@@ -4022,7 +4098,8 @@ function renderRec(){
           </div>
         </td>
       </tr>
-    `).join("");
+    `).join("")
+    : `<tr><td colspan="7" class="muted">Nenhuma tarefa recorrente cadastrada.</td></tr>`;
   const nextMon = mondayOf(plusDays(new Date(), 7));
   view.innerHTML = `
     <div class="stack">
