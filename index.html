@@ -1351,6 +1351,7 @@ const IMPORT_DIR_KEY = "importDir";
 const IMPORT_DIR_META_KEY = "import_dir_meta";
 const IMPORT_DIR_MIGRATION_KEY = "import_dir_migrated_tz_v1";
 const IMPORT_DIR_SCAN_INTERVAL = 60000;
+const REMOTE_AUTO_SYNC_INTERVAL = 30 * 60 * 1000;
 let importDirHandle = null;
 let importDirScanTimer = null;
 let importDirMeta = {};
@@ -1390,7 +1391,7 @@ function markImportDirMigration(){
 }
 
 const REMOTE_CONFIG = {
-  owner: "plixeldesign",
+  owner: "PlixelDesign",
   repo: "Tarefas",
   filePath: "tarefas.json",
   branch: "main",
@@ -1408,6 +1409,7 @@ const remoteStateMeta = {
   enabled: false,
   loading: false,
   timer: null,
+  autoSyncTimer: null,
   saveInFlight: false,
   pending: false
 };
@@ -1534,6 +1536,32 @@ async function flushPersistQueue(){
     }
   }
 }
+function startRemoteAutoSync(){
+  if(remoteStateMeta.autoSyncTimer){
+    clearInterval(remoteStateMeta.autoSyncTimer);
+    remoteStateMeta.autoSyncTimer = null;
+  }
+  if(!REMOTE_AUTO_SYNC_INTERVAL || REMOTE_AUTO_SYNC_INTERVAL <= 0) return;
+  remoteStateMeta.autoSyncTimer = setInterval(()=>{
+    if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }, REMOTE_AUTO_SYNC_INTERVAL);
+}
+function stopRemoteAutoSync(){
+  if(remoteStateMeta.autoSyncTimer){
+    clearInterval(remoteStateMeta.autoSyncTimer);
+    remoteStateMeta.autoSyncTimer = null;
+  }
+}
+function ensureRemoteAutoSync(){
+  if(remoteStateMeta.enabled && remoteStateMeta.token){
+    startRemoteAutoSync();
+  }else{
+    stopRemoteAutoSync();
+  }
+}
 async function loadRemotePayload(){
   const path = buildContentUrl();
   try{
@@ -1578,6 +1606,7 @@ function serializeAppState(){
   return {
     version: 2,
     savedAt: new Date().toISOString(),
+    meta: { timeZone: "utc" },
     state,
     recState
   };
@@ -1622,6 +1651,7 @@ async function bootstrapRemote(force=false){
   const storedToken = remoteStateMeta.token || getStoredRemoteToken();
   if(!storedToken){
     remoteStateMeta.enabled = false;
+    ensureRemoteAutoSync();
     if(force){
       updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
     }
@@ -1629,6 +1659,7 @@ async function bootstrapRemote(force=false){
   }
   remoteStateMeta.token = storedToken;
   remoteStateMeta.enabled = true;
+  ensureRemoteAutoSync();
   updateSyncStatus(REMOTE_STATUS_MESSAGES.loading, "info");
   remoteStateMeta.loading = true;
   try{
@@ -1654,6 +1685,7 @@ async function bootstrapRemote(force=false){
     const msg = err && err.message ? err.message : String(err);
     updateSyncStatus(`Erro ao acessar GitHub: ${msg}`, "error");
     remoteStateMeta.enabled = false;
+    ensureRemoteAutoSync();
   }finally{
     remoteStateMeta.loading = false;
     if(remoteStateMeta.pending){
@@ -1674,6 +1706,7 @@ function setupSyncControls(){
         storeRemoteToken(trimmed);
         remoteStateMeta.token = trimmed;
         remoteStateMeta.enabled = true;
+        ensureRemoteAutoSync();
         updateSyncStatus("Token salvo. Carregando dados do GitHub...", "info");
         bootstrapRemote(true);
       }else{
@@ -1681,6 +1714,7 @@ function setupSyncControls(){
         remoteStateMeta.token = null;
         remoteStateMeta.enabled = false;
         remoteStateMeta.sha = null;
+        ensureRemoteAutoSync();
         updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
       }
     });
@@ -1694,6 +1728,7 @@ function setupSyncControls(){
       }
       remoteStateMeta.token = token;
       remoteStateMeta.enabled = true;
+      ensureRemoteAutoSync();
       save({ reason:"manual-sync" });
       saveRec({ skipRemote:true });
       flushPersistQueue();
@@ -2895,7 +2930,11 @@ function shouldAssumeBrazilLocalTimes(payload){
     if(payload.meta.timeZone === "utc") return false;
     if(payload.meta.timeZone === "br-local") return true;
   }
-  if(typeof payload.version === "number" && payload.savedAt){
+  if(typeof payload.version === "number"){
+    if(payload.version >= 2) return false;
+    if(payload.version <= 1) return true;
+  }
+  if(payload.savedAt){
     return true;
   }
   return false;
