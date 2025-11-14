@@ -1948,25 +1948,25 @@ function normalizeDateOnly(value){
   return "";
 }
 function toDateOnlyInputValue(iso){
-  return isoDateInTimeZone(iso) || "";
+  if(!iso) return "";
+  return String(iso).slice(0,10);
 }
 function extractTimeFromISO(iso){
-  return timeInTimeZone(iso) || "";
+  if(!iso) return "";
+  const match = String(iso).match(/T(\d{2}:\d{2})/);
+  return match ? match[1] : "";
 }
 function splitDueAt(iso){
   return {
-    date: isoDateInTimeZone(iso),
-    time: timeInTimeZone(iso)
+    date: toDateOnlyInputValue(iso),
+    time: extractTimeFromISO(iso)
   };
 }
 function combineDateAndTime(dateValue, timeValue){
   const normalizedDate = normalizeDateOnly(dateValue);
   if(!normalizedDate) return null;
   const time = padTime(timeValue) || "00:00";
-  const composed = `${normalizedDate}T${time}`;
-  const dt = new Date(composed);
-  if(Number.isNaN(dt.getTime())) return null;
-  return dt.toISOString();
+  return `${normalizedDate}T${time}:00`;
 }
 function computeWeekNumber(iso){
   if(!iso) return null;
@@ -2075,6 +2075,8 @@ function timeFormatterForTimeZone(timeZone){
 }
 function isoDateInTimeZone(iso, timeZone=BRAZIL_TZ){
   if(!iso) return "";
+  const match = String(iso).match(/^(\d{4}-\d{2}-\d{2})/);
+  if(match) return match[1];
   const date = new Date(iso);
   if(Number.isNaN(date.getTime())) return "";
   const formatter = dateFormatterForTimeZone(timeZone);
@@ -2974,6 +2976,8 @@ function applyImportedData(data){
 }
 function timeInTimeZone(iso, timeZone=BRAZIL_TZ){
   if(!iso) return "";
+  const match = String(iso).match(/T(\d{2}:\d{2})/);
+  if(match) return match[1];
   const date = new Date(iso);
   if(Number.isNaN(date.getTime())) return "";
   const formatter = timeFormatterForTimeZone(timeZone);
@@ -3103,31 +3107,16 @@ function normalizeDueAtValue(value, options){
   if(!value && value !== 0) return null;
   const raw = String(value).trim();
   if(!raw) return null;
-  let date = parseDateLoose(raw);
-  if(!date) return null;
-  const assumeLocal = options && options.assumeBrazilLocal && isLegacyBrazilZulu(raw);
-  if(assumeLocal){
-    date = new Date(date.getTime() + BRAZIL_OFFSET_MS);
+  const assumeLocal = options && options.assumeBrazilLocal && /z$/i.test(raw);
+  const cleaned = assumeLocal ? raw.replace(/z$/i,"") : raw;
+  const match = cleaned.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if(match){
+    const seconds = match[4] || "00";
+    return `${match[1]}T${match[2]}:${match[3]}:${seconds}`;
   }
-  return date.toISOString();
-}
-function parseDateLoose(str){
-  if(!str) return null;
-  let parsed = new Date(str);
-  if(!Number.isNaN(parsed.getTime())) return parsed;
-  if(str.includes(" ")){
-    parsed = new Date(str.replace(" ","T"));
-    if(!Number.isNaN(parsed.getTime())) return parsed;
-  }
-  return null;
-}
-function isLegacyBrazilZulu(str){
-  if(!str) return false;
-  return /z$/i.test(str) && !hasExplicitTimezone(str);
-}
-function hasExplicitTimezone(str){
-  if(!str) return false;
-  return ISO_TZ_OFFSET_RE.test(str.trim());
+  const parsed = new Date(raw);
+  if(Number.isNaN(parsed.getTime())) return null;
+  return `${parsed.getFullYear()}-${pad2(parsed.getMonth()+1)}-${pad2(parsed.getDate())}T${pad2(parsed.getHours())}:${pad2(parsed.getMinutes())}:${pad2(parsed.getSeconds())}`;
 }
 function normalizeRecState(rawRec){
   const recsIn = rawRec && Array.isArray(rawRec.recs) ? rawRec.recs : [];
