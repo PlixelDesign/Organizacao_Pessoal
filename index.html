@@ -4473,10 +4473,18 @@ function initApp(){
       render(currentTab);
     });
   }
-  const exportBtn = document.getElementById("exportBtn");
-  if(exportBtn){
-    exportBtn.addEventListener("click", ()=>{
-      const blob = new Blob([JSON.stringify({state,recState}, null, 2)], {type:"application/json"});
+const exportBtn = document.getElementById("exportBtn");
+if(exportBtn){
+  exportBtn.addEventListener("click", ()=>{
+      const filteredTasks = applyFilters(state.tasks).map(task=> ({...task}));
+      const payload = {
+        state: {
+          ...state,
+          tasks: filteredTasks
+        },
+        recState
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "tarefas_export.json";
