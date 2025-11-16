@@ -3807,15 +3807,16 @@ function handleTableChange(e){
     const timeInput = tr.querySelector('[data-field="dueTime"]');
     const dateVal = dateInput ? dateInput.value : "";
     const rawTimeVal = timeInput ? timeInput.value : "";
+    const normalizedDate = normalizeDateOnly(dateVal);
     const normalizedTime = padTime(rawTimeVal);
-    if(timeInput){
+    if(timeInput && normalizedTime){
       timeInput.value = normalizedTime;
     }
-    const iso = combineDateAndTime(dateVal, normalizedTime);
-    patch.dueAt = iso;
-    if(!normalizeDateOnly(dateVal)){
-      patch.dueAt = null;
+    if(!normalizedDate || !normalizedTime){
+      return; // aguarda preenchimento completo antes de salvar
     }
+    const iso = combineDateAndTime(normalizedDate, normalizedTime);
+    patch.dueAt = iso;
     updateTask(id, patch);
     return;
   }else if(field==="endTime"){
