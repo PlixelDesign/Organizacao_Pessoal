@@ -3811,10 +3811,7 @@ function handleTableChange(e){
     const rawTimeVal = timeInput ? timeInput.value : "";
     const normalizedDate = normalizeDateOnly(dateVal);
     const normalizedTime = padTime(rawTimeVal);
-    if(timeInput && normalizedTime){
-      timeInput.value = normalizedTime;
-    }
-    if(!normalizedDate || !normalizedTime){
+    if(!normalizedDate || normalizedTime.length < 5){
       return; // aguarda preenchimento completo antes de salvar
     }
     const iso = combineDateAndTime(normalizedDate, normalizedTime);
