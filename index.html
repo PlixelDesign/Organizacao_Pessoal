@@ -1356,6 +1356,8 @@ let importDirHandle = null;
 let importDirScanTimer = null;
 let importDirMeta = {};
 let importDirSyncInFlight = false;
+let dueEditLockId = null;
+let dueEditNeedsRender = false;
 
 function loadImportDirMeta(){
   try{
@@ -3817,7 +3819,14 @@ function handleTableChange(e){
     }
     const iso = combineDateAndTime(normalizedDate, normalizedTime);
     patch.dueAt = iso;
-    updateTask(id, patch);
+    const skipRender = dueEditLockId === id;
+    if(skipRender){
+      dueEditNeedsRender = true;
+    }
+    updateTask(id, patch, {skipRender});
+    if(!skipRender){
+      dueEditNeedsRender = false;
+    }
     return;
   }else if(field==="endTime"){
     value = padTime(value);
@@ -4606,6 +4615,35 @@ if(document.readyState === "loading"){
   initApp();
 }
 window.addEventListener("load", initApp, { once: true });
+
+document.addEventListener("focusin", e=>{
+  const target = e.target;
+  const field = target && target.dataset ? target.dataset.field : null;
+  if(field==="dueDate" || field==="dueTime"){
+    const tr = target.closest("tr");
+    const id = tr ? Number(tr.dataset.id) : null;
+    dueEditLockId = Number.isFinite(id) ? id : null;
+  }
+});
+document.addEventListener("focusout", e=>{
+  const target = e.target;
+  const field = target && target.dataset ? target.dataset.field : null;
+  if(field==="dueDate" || field==="dueTime"){
+    const tr = target.closest("tr");
+    const related = e.relatedTarget;
+    if(related && related.dataset){
+      const relatedField = related.dataset.field;
+      if((relatedField==="dueDate" || relatedField==="dueTime") && related.closest("tr") === tr){
+        return;
+      }
+    }
+    dueEditLockId = null;
+    if(dueEditNeedsRender){
+      dueEditNeedsRender = false;
+      render(currentTab);
+    }
+  }
+});
 
 </script>
 </body>
