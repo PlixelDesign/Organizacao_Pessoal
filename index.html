@@ -3826,10 +3826,17 @@ function handleTableChange(e){
     }
     return;
   }else if(field==="endTime"){
-    value = padTime(value);
-    value = value ? value : null;
-    if(e.target.value !== value){
-      e.target.value = value || "";
+    if(value && value.trim()){
+      const normalizedEnd = padTime(value);
+      if(!normalizedEnd || normalizedEnd.length < 5){
+        return;
+      }
+      value = normalizedEnd;
+      if(e.target.value !== value){
+        e.target.value = value;
+      }
+    }else{
+      value = null;
     }
   }else if(field==="notes"){
     value = sanitizeNotes(value);
