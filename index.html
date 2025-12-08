@@ -1356,8 +1356,8 @@ let importDirHandle = null;
 let importDirScanTimer = null;
 let importDirMeta = {};
 let importDirSyncInFlight = false;
-let dueEditLockId = null;
-let dueEditNeedsRender = false;
+let rowEditLockId = null;
+let rowEditNeedsRender = false;
 
 function loadImportDirMeta(){
   try{
@@ -3816,13 +3816,13 @@ function handleTableChange(e){
     }
     const iso = combineDateAndTime(normalizedDate, normalizedTime);
     patch.dueAt = iso;
-    const skipRender = dueEditLockId === id;
+    const skipRender = rowEditLockId === id;
     if(skipRender){
-      dueEditNeedsRender = true;
+      rowEditNeedsRender = true;
     }
     updateTask(id, patch, {skipRender});
     if(!skipRender){
-      dueEditNeedsRender = false;
+      rowEditNeedsRender = false;
     }
     return;
   }else if(field==="endTime"){
@@ -3835,14 +3835,28 @@ function handleTableChange(e){
       if(e.target.value !== value){
         e.target.value = value;
       }
+      const skipRender = rowEditLockId === id;
+      if(skipRender){
+        rowEditNeedsRender = true;
+      }
+      updateTask(id, { endTime: value }, { skipRender });
+      if(!skipRender){
+        rowEditNeedsRender = false;
+      }
+      return;
     }else{
       value = null;
+      const skipRender = rowEditLockId === id;
+      if(skipRender){
+        rowEditNeedsRender = true;
+      }
+      updateTask(id, { endTime: null }, { skipRender });
+      if(!skipRender){
+        rowEditNeedsRender = false;
+      }
+      return;
     }
   }else if(field==="notes"){
-    value = sanitizeNotes(value);
-  }else{
-    value = value || null;
-  }
   let assignDefault = true;
   if(field==="area"){
     value = sanitizeOptionField(value, AREAS);
@@ -4623,27 +4637,27 @@ window.addEventListener("load", initApp, { once: true });
 document.addEventListener("focusin", e=>{
   const target = e.target;
   const field = target && target.dataset ? target.dataset.field : null;
-  if(field==="dueDate" || field==="dueTime"){
+  if(field==="dueDate" || field==="dueTime" || field==="endTime"){
     const tr = target.closest("tr");
     const id = tr ? Number(tr.dataset.id) : null;
-    dueEditLockId = Number.isFinite(id) ? id : null;
+    rowEditLockId = Number.isFinite(id) ? id : null;
   }
 });
 document.addEventListener("focusout", e=>{
   const target = e.target;
   const field = target && target.dataset ? target.dataset.field : null;
-  if(field==="dueDate" || field==="dueTime"){
+  if(field==="dueDate" || field==="dueTime" || field==="endTime"){
     const tr = target.closest("tr");
     const related = e.relatedTarget;
     if(related && related.dataset){
       const relatedField = related.dataset.field;
-      if((relatedField==="dueDate" || relatedField==="dueTime") && related.closest("tr") === tr){
+      if((relatedField==="dueDate" || relatedField==="dueTime" || relatedField==="endTime") && related.closest("tr") === tr){
         return;
       }
     }
-    dueEditLockId = null;
-    if(dueEditNeedsRender){
-      dueEditNeedsRender = false;
+    rowEditLockId = null;
+    if(rowEditNeedsRender){
+      rowEditNeedsRender = false;
       render(currentTab);
     }
   }
