@@ -3857,6 +3857,10 @@ function handleTableChange(e){
       return;
     }
   }else if(field==="notes"){
+    value = sanitizeNotes(value);
+  }else{
+    value = value || null;
+  }
   let assignDefault = true;
   if(field==="area"){
     value = sanitizeOptionField(value, AREAS);
@@ -4662,7 +4666,6 @@ document.addEventListener("focusout", e=>{
     }
   }
 });
-}
 </script>
 </body>
 </html>
