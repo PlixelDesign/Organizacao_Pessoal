@@ -13,8 +13,9 @@
     --panel:#181827;
     --panel-hover:#1f1f30;
     --panel-border:#25253a;
-    --accent-soft:rgba(102,217,239,0.14);
-    --accent:#66d9ef;
+  --accent-soft:rgba(102,217,239,0.14);
+  --accent:#66d9ef;
+  --accent-gold:#7a551b;
     --ok:#33d17a;
     --warn:#f6d32d;
     --danger:#ff5f56;
@@ -83,10 +84,10 @@
     flex-direction:column;
     min-height:60vh;
     width:100%;
-    background:linear-gradient(180deg, rgba(32,32,48,0.96) 0%, rgba(16,16,28,0.98) 100%);
-    border:1px solid var(--panel-border);
-    border-radius:16px;
-    box-shadow:0 26px 54px -32px var(--shadow);
+    background:linear-gradient(165deg, rgba(24,24,40,0.97) 0%, rgba(10,10,18,0.98) 100%);
+    border:1px solid rgba(122,85,27,0.35);
+    border-radius:18px;
+    box-shadow:0 28px 56px -32px rgba(0,0,0,0.8);
     overflow:hidden;
     backdrop-filter:blur(18px);
   }
@@ -109,12 +110,19 @@
     color:var(--muted);
     background:rgba(10,12,20,0.7);
   }
-  .table-wrapper{flex:1;display:flex;flex-direction:column;}
+  .table-wrapper{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding:0;
+    margin:0;
+  }
   .table-scroll{
     flex:1;
     overflow:auto;
-    border-top:1px solid rgba(255,255,255,0.05);
-    padding:0 16px 16px;
+    border-top:1px solid rgba(122,85,27,0.35);
+    padding:0;
+    margin:0;
     background:linear-gradient(180deg, rgba(14,14,24,0.35) 0%, rgba(12,12,22,0) 65%);
   }
   .table-scroll::-webkit-scrollbar{height:12px;width:10px}
@@ -132,20 +140,19 @@
   .h-scroll-proxy{
     position:fixed;
     bottom:16px;
-    left:50%;
-    transform:translateX(-50%);
+    left:0;
     height:14px;
-    background:rgba(12,16,28,0.92);
-    border:1px solid var(--panel-border);
-    border-radius:999px;
+    background:linear-gradient(180deg, rgba(14,14,24,0.75) 0%, rgba(10,10,18,0.9) 100%);
+    border:1px solid rgba(122,85,27,0.35);
+    border-radius:12px;
     display:none;
     z-index:9;
     overflow-x:auto;
     overflow-y:hidden;
     width:auto;
-    min-width:280px;
+    min-width:240px;
     box-shadow:0 16px 32px -26px var(--shadow);
-    transition:opacity .18s ease,box-shadow .18s ease;
+    transition:opacity .18s ease,box-shadow .18s ease,width .18s ease,left .18s ease;
   }
   .h-scroll-proxy.active{display:block;}
   .h-scroll-proxy > div{height:1px;}
@@ -184,6 +191,19 @@
     background-size:18px;
   }
   textarea{min-height:48px;resize:vertical}
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator{
+    background-color:rgba(255,230,186,0.15);
+    border-radius:50%;
+    padding:4px;
+    filter:invert(0.9) sepia(0.2) saturate(2) hue-rotate(10deg);
+    transition:background .15s ease, filter .15s ease;
+  }
+  input[type="date"]::-webkit-calendar-picker-indicator:hover,
+  input[type="time"]::-webkit-calendar-picker-indicator:hover{
+    background-color:rgba(255,230,186,0.35);
+    filter:invert(0.95) sepia(0.15) saturate(2.2) hue-rotate(5deg);
+  }
   .btn{
     background:linear-gradient(135deg,rgba(255,255,255,0.05),rgba(255,255,255,0));
     border:1px solid #34344a;
@@ -199,15 +219,30 @@
   .status-msg{font-size:11px;color:var(--muted);}
   .status-msg.error{color:#ff8a8a;}
   .status-msg.success{color:var(--accent);}
+  .status-msg.info{color:var(--accent);}
+  .sync-controls{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+    padding-top:8px;
+  }
+  .sync-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+  }
+  .sync-buttons .btn{
+    flex:1 1 180px;
+  }
   .btn.primary{
-    border-color:var(--accent);
-    color:#05202a;
-    background:linear-gradient(135deg, rgba(102,217,239,0.35), rgba(102,217,239,0.18));
-    box-shadow:0 10px 24px -18px rgba(102,217,239,0.75);
+    border-color:rgba(122,85,27,0.6);
+    color:#f9f4eb;
+    background:linear-gradient(135deg, rgba(122,85,27,0.85), rgba(122,85,27,0.6));
+    box-shadow:0 12px 28px -18px rgba(122,85,27,0.65);
   }
   .btn.primary:hover{
-    background:linear-gradient(135deg, rgba(102,217,239,0.45), rgba(102,217,239,0.24));
-    color:#02151b;
+    background:linear-gradient(135deg, rgba(122,85,27,0.95), rgba(122,85,27,0.75));
+    color:#fffaf0;
   }
   .btn.ok{border-color:var(--ok);color:var(--ok)}
   .btn.warn{border-color:var(--warn);color:var(--warn)}
@@ -215,7 +250,14 @@
   .btn.tiny{padding:4px 8px;border-radius:6px;font-size:11px}
   .btn.icon{padding:4px 6px;border-radius:6px;background:transparent;border:1px solid transparent;color:var(--muted)}
   .btn.icon:hover{border-color:#333;color:var(--fg);background:#1f1f28}
-  table{width:100%;border-collapse:separate;border-spacing:0;font-size:11px;table-layout:fixed}
+  table{
+    width:auto;
+    min-width:100%;
+    border-collapse:separate;
+    border-spacing:0;
+    font-size:11px;
+    table-layout:fixed;
+  }
   th,td{
     padding:10px 12px;
     border-bottom:1px solid rgba(255,255,255,0.05);
@@ -227,18 +269,31 @@
   }
   tbody tr.empty-row td{padding:18px;text-align:center;color:var(--muted);white-space:normal;background:rgba(0,0,0,0.12);}
   th{
-    color:#d8d8f2;
+    color:#f2f2fb;
     text-align:left;
     font-weight:600;
     text-transform:uppercase;
     letter-spacing:0.05em;
-    background:linear-gradient(180deg, rgba(36,36,56,0.96) 0%, rgba(18,18,30,0.92) 100%);
-    backdrop-filter:blur(8px);
+    background:transparent;
     border-bottom:1px solid rgba(255,255,255,0.06);
+  }
+  thead{
+    position:sticky;
+    top:0;
+    z-index:5;
+    background:linear-gradient(135deg, rgba(24,24,40,0.98), rgba(10,12,24,0.98));
+    box-shadow:inset 0 -1px 0 rgba(255,255,255,0.05);
+    border-bottom:1px solid rgba(122,85,27,0.35);
+  }
+  thead th{position:relative;}
+  thead tr th:first-child{
+    border-top-left-radius:16px;
+  }
+  thead tr th:last-child{
+    border-top-right-radius:16px;
   }
   th[data-col="notes"], td[data-col="notes"]{white-space:normal}
   td textarea{width:100%;box-sizing:border-box;min-height:36px;font-size:11px;line-height:1.35;background:#0f0f19}
-  thead{position:sticky;top:0;z-index:5}
   td:first-child{border-left:1px solid rgba(255,255,255,0.04);border-top-left-radius:12px;border-bottom-left-radius:12px;}
   td:last-child{border-right:1px solid rgba(255,255,255,0.04);border-top-right-radius:12px;border-bottom-right-radius:12px;}
   tbody tr{background:rgba(18,20,32,0.58);transition:background .18s ease,box-shadow .18s ease;}
@@ -266,43 +321,378 @@
   .date-stack{display:grid;grid-template-columns:1fr;gap:6px}
   .date-stack input{width:100%}
   .divider{height:1px;background:#202031;margin:8px 0}
-  .filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
-  .filter-grid label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
-  .filter-grid input,.filter-grid select{width:100%}
-  .filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
-  .filter-actions .muted{margin-right:4px}
-  .colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
-  .filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
-  .filter-flags input{margin-right:4px}
+.filter-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:8px}
+.filter-grid > label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.filter-grid .filter-input{width:100%}
+.filter-field{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.filter-label{font-size:12px;color:var(--muted);font-weight:500}
+.filter-input{width:100%;padding:8px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.92);color:var(--fg);transition:border-color .2s ease,box-shadow .2s ease;background-clip:padding-box}
+.filter-input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(102,217,239,0.25)}
+.filter-input.date-input{letter-spacing:0.02em}
+.multi-select{position:relative}
+.multi-select.disabled{opacity:0.45}
+.multi-trigger{width:100%;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;border-radius:10px;border:1px solid rgba(255,255,255,0.08);background:rgba(12,12,22,0.9);color:var(--fg);cursor:pointer;transition:border-color .2s ease,box-shadow .2s ease,background .2s ease;text-align:left}
+.multi-trigger:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 1px rgba(102,217,239,0.25)}
+.multi-select.open .multi-trigger{border-color:rgba(102,217,239,0.55);box-shadow:0 0 0 1px rgba(102,217,239,0.4),0 12px 24px -20px rgba(102,217,239,0.8);background:rgba(18,24,38,0.95)}
+.multi-select.disabled .multi-trigger{cursor:not-allowed}
+.multi-trigger .value{flex:1;display:inline-flex;justify-content:flex-start;align-items:center;color:var(--fg);text-align:left}
+.multi-trigger .chevron{font-size:10px;color:var(--muted)}
+.multi-select.open .multi-trigger .chevron{transform:rotate(180deg);color:var(--accent)}
+.multi-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:rgba(12,12,22,0.98);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:10px 8px;box-shadow:0 16px 32px -18px rgba(0,0,0,0.75);max-height:220px;overflow:auto;opacity:0;pointer-events:none;transform:translateY(-6px);transition:opacity .18s ease,transform .18s ease;text-align:left;z-index:40}
+.multi-select.open .multi-menu{opacity:1;pointer-events:auto;transform:translateY(0)}
+.multi-option{display:flex;flex-direction:row;align-items:center;justify-content:flex-start;gap:8px;padding:6px 10px;border-radius:8px;color:var(--fg);cursor:pointer;text-align:left;width:100%}
+.multi-option input{margin:0;flex:0 0 auto;width:auto;height:auto;display:inline-block;appearance:auto}
+.multi-option span{flex:1;text-align:left;display:inline-block}
+.multi-option:hover{background:rgba(102,217,239,0.12)}
+.multi-empty{display:block;padding:8px 10px;color:var(--muted);text-align:left}
+.filter-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:6px}
+.filter-actions .hint{font-size:11px;color:var(--muted);margin-right:4px}
+.colorful{transition:background .2s ease,color .2s ease,border-color .2s ease}
+.filter-flags{display:flex;gap:12px;align-items:center;font-size:12px;color:var(--muted);margin-top:4px}
+.filter-flags input{margin-right:4px}
   .section-title{margin:6px 0 4px;color:#bbb;font-weight:500}
+  .new-task-card{
+    background:linear-gradient(145deg, rgba(20,20,30,0.9), rgba(12,12,20,0.95));
+    border:1px solid rgba(122,85,27,0.25);
+    border-radius:18px;
+    padding:18px;
+    box-shadow:0 20px 40px -30px rgba(0,0,0,0.85);
+    display:flex;
+    flex-direction:column;
+    gap:18px;
+  }
+  .new-task-card .section-title{
+    margin:0;
+    font-size:16px;
+    color:#f5f0e8;
+  }
+  .task-card-subtitle{
+    font-size:12px;
+    color:#9a98b1;
+    margin-top:4px;
+  }
+  .task-card-header{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:space-between;
+    gap:16px;
+  }
+  .quick-flags{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px 14px;
+    align-items:center;
+  }
+  .quick-flags__title{
+    font-size:12px;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    color:#c6c3d9;
+  }
+  .quick-flags-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .quick-flag{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:12px;
+    color:#b8b6cc;
+    background:rgba(122,85,27,0.1);
+    border:1px solid rgba(122,85,27,0.2);
+    padding:6px 10px;
+    border-radius:14px;
+    transition:background .2s ease,border-color .2s ease,color .2s ease;
+  }
+  .quick-flag input{
+    appearance:none;
+    width:16px;
+    height:16px;
+    border-radius:5px;
+    border:1px solid rgba(122,85,27,0.45);
+    background:rgba(12,12,20,0.9);
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    transition:background .2s ease,border-color .2s ease;
+    position:relative;
+  }
+  .quick-flag input:checked{
+    background:var(--accent-gold);
+    border-color:rgba(255,217,158,0.85);
+  }
+  .quick-flag input:checked::after{
+    content:"";
+    width:9px;
+    height:6px;
+    border-left:2px solid #0b0b0f;
+    border-bottom:2px solid #0b0b0f;
+    transform:rotate(-45deg) translateY(-1px);
+  }
+  .quick-flag:hover{
+    background:rgba(122,85,27,0.16);
+    border-color:rgba(255,217,158,0.35);
+    color:#f3d9a7;
+  }
+  .task-form-grid{
+    display:grid;
+    gap:14px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  }
+  .form-field{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+  }
+  .form-field label{
+    font-size:12px;
+    font-weight:500;
+    color:#cfcde0;
+    display:flex;
+    gap:8px;
+    align-items:center;
+  }
+  .form-field .label-icon{
+    width:14px;
+    height:14px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .input-shell{
+    position:relative;
+    display:flex;
+    align-items:center;
+    gap:10px;
+    padding:0 12px;
+    min-height:44px;
+    border-radius:12px;
+    border:1px solid rgba(122,85,27,0.25);
+    background:linear-gradient(135deg, rgba(18,18,28,0.96), rgba(12,12,22,0.98));
+    box-shadow:inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  .input-shell.with-icon{
+    padding-left:40px;
+  }
+  .input-shell .field-icon{
+    position:absolute;
+    left:14px;
+    width:18px;
+    height:18px;
+    color:#ffe6ba;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    text-shadow:0 0 6px rgba(5,5,10,0.75);
+  }
+  .input-shell input,
+  .input-shell select,
+  .input-shell textarea{
+    width:100%;
+    border:0;
+    background:transparent;
+    color:#f3f4ff;
+    font-size:13px;
+    font-family:inherit;
+    padding:12px 0;
+    outline:none;
+  }
+  .input-shell input:focus,
+  .input-shell select:focus,
+  .input-shell textarea:focus{
+    outline:none;
+    box-shadow:none;
+  }
+  .input-shell select{
+    appearance:none;
+    padding-right:28px;
+    cursor:pointer;
+  }
+  .input-shell select::-ms-expand{display:none}
+  .input-shell textarea{
+    resize:vertical;
+    min-height:80px;
+  }
+  .input-shell input::placeholder,
+  .input-shell textarea::placeholder{
+    color:#8080a0;
+  }
+  .input-shell.no-fill .field-icon{
+    transition:color .2s ease;
+  }
+  .input-shell:focus-within{
+    border-color:rgba(255,217,158,0.65);
+    box-shadow:0 0 0 2px rgba(255,217,158,0.28);
+  }
+  .input-shell.no-fill{
+    --shell-accent-color: rgba(122,85,27,0.24);
+    --shell-accent-shadow: rgba(122,85,27,0.12);
+    border-color:rgba(122,85,27,0.22);
+    background:linear-gradient(135deg, rgba(18,18,28,0.94), rgba(10,10,18,0.98));
+  }
+  .input-shell.no-fill.has-accent{
+    border-color:var(--shell-accent-color);
+    box-shadow:0 0 0 2px var(--shell-accent-shadow);
+  }
+  .input-shell.no-fill.has-accent .field-icon{
+    color:var(--shell-icon-accent, var(--accent-gold));
+  }
+  .input-shell.no-fill:focus-within{
+    border-color:rgba(255,217,158,0.55);
+    box-shadow:0 0 0 2px rgba(255,217,158,0.16);
+  }
+  .input-shell.no-fill.has-accent:focus-within{
+    border-color:var(--shell-accent-color);
+    box-shadow:0 0 0 2px var(--shell-accent-shadow);
+  }
+  .input-shell.dropdown::after{
+    content:"";
+    position:absolute;
+    right:16px;
+    width:10px;
+    height:6px;
+    background:linear-gradient(180deg, rgba(255,217,158,0.8), rgba(122,85,27,0.8));
+    clip-path:polygon(0 0,100% 0,50% 100%);
+    pointer-events:none;
+  }
+  .input-shell.no-fill.has-accent.dropdown::after{
+    background:linear-gradient(180deg, var(--shell-icon-accent, rgba(255,217,158,0.8)), var(--shell-accent-color, rgba(122,85,27,0.75)));
+  }
+  .emoji-field .input-shell{
+    min-width:90px;
+    padding-left:14px;
+  }
+  .emoji-field select{
+    padding-left:4px;
+    text-align:center;
+    font-size:18px;
+  }
+  .form-field.span-2{
+    grid-column:span 2;
+  }
+  .form-field.full{
+    grid-column:1 / -1;
+  }
+  @media(max-width:960px){
+    .form-field.span-2{grid-column:span 1;}
+  }
+  @media(max-width:720px){
+    .task-card-header{flex-direction:column;align-items:flex-start;}
+    .quick-flags{flex-direction:column;align-items:flex-start;}
+    .quick-flags__title{letter-spacing:0.06em;}
+  }
+  .new-task-card select{
+    color:#f3f4ff;
+    background:transparent;
+  }
+  .new-task-card select option{
+    background:rgba(16,16,26,0.96);
+    color:#f3f4ff;
+  }
+  .new-task-card select option:checked,
+  .new-task-card select option:hover{
+    background:rgba(122,85,27,0.5);
+    color:#fff8ea;
+  }
+  .task-form-meta{
+    display:flex;
+    gap:12px;
+  }
+  .task-form-meta .task-meta-block{
+    flex:1;
+    background:rgba(8,8,16,0.65);
+    border:1px dashed rgba(122,85,27,0.25);
+    border-radius:12px;
+    padding:12px;
+    font-size:11px;
+    color:#a8a6bf;
+  }
+  .task-form-meta strong{
+    color:#f4d49b;
+    font-weight:600;
+  }
+  .task-form-actions{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:12px;
+  }
+  .task-form-actions .helper{
+    font-size:11px;
+    color:#8f8da8;
+  }
+  .import-card{
+    background:linear-gradient(140deg, rgba(18,18,30,0.9), rgba(10,10,18,0.95));
+    border:1px solid rgba(122,85,27,0.2);
+    border-radius:18px;
+    padding:18px;
+    margin-top:6px;
+    display:flex;
+    flex-direction:column;
+    gap:14px;
+    box-shadow:0 16px 36px -28px rgba(0,0,0,0.8);
+  }
+  .import-card .section-title{
+    margin:0;
+    font-size:15px;
+    color:#f6f2e8;
+  }
+  .import-actions{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:12px;
+  }
+  .import-actions .btn{
+    border-color:rgba(122,85,27,0.25);
+    background:rgba(12,12,20,0.9);
+    color:#d9d6ea;
+  }
+  .import-actions .btn:hover{
+    border-color:rgba(255,217,158,0.35);
+    color:#fff;
+    background:rgba(20,20,34,0.95);
+  }
+  .import-feedback{
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+    font-size:11px;
+  }
   .footer{display:flex;justify-content:space-between;align-items:center;margin-top:10px;font-size:11px;color:var(--muted)}
   .small{font-size:11px}
-  .card.collapsible{
+.card.collapsible{
     padding:0;
-    background:var(--panel);
-    border-radius:14px;
-    border:1px solid var(--panel-border);
-    overflow:hidden;
-    box-shadow:0 18px 36px -30px var(--shadow);
+    background:transparent;
+    border-radius:18px;
+    border:none;
+    box-shadow:none;
   }
   .collapsible-header{
     display:flex;
     align-items:center;
     justify-content:space-between;
     gap:12px;
-    padding:14px 16px;
-    background:linear-gradient(135deg, rgba(35,35,55,0.85), rgba(22,22,34,0.85));
+    padding:16px 20px;
+    margin:0;
+    background:linear-gradient(135deg, rgba(24,24,40,0.95), rgba(10,10,18,0.96));
+    border:1px solid rgba(122,85,27,0.35);
+    border-radius:16px;
     cursor:pointer;
     user-select:none;
     transition:background .2s ease,border-color .2s ease,box-shadow .2s ease;
-    border-bottom:1px solid rgba(255,255,255,0.04);
+    box-shadow:0 18px 36px -30px var(--shadow);
   }
   .collapsible-header:hover{
-    background:linear-gradient(135deg, rgba(42,42,66,0.9), rgba(26,26,40,0.9));
+    border-color:rgba(255,217,158,0.45);
+    box-shadow:0 18px 36px -24px rgba(0,0,0,0.85);
   }
   .collapsible.open .collapsible-header{
-    border-bottom-color:rgba(102,217,239,0.28);
-    box-shadow:inset 0 -1px 0 rgba(102,217,239,0.22);
+    border-color:rgba(255,217,158,0.55);
+    box-shadow:0 22px 44px -28px rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.05);
   }
   .collapsible-header h3{
     margin:0;
@@ -334,18 +724,19 @@
   .collapsible-header .chevron{
     width:22px;
     height:22px;
-    border-radius:8px;
+    border-radius:50%;
     display:flex;
     align-items:center;
     justify-content:center;
-    background:rgba(255,255,255,0.04);
+    background:rgba(255,255,255,0.05);
     color:var(--muted);
     font-size:12px;
     transition:background .2s ease,color .2s ease,box-shadow .2s ease;
   }
   .collapsible.open .collapsible-header .chevron{
-    background:var(--accent-soft);
+    background:rgba(102,217,239,0.18);
     color:var(--accent);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.25);
   }
   .collapsible-header:hover .chevron{
     color:var(--fg);
@@ -353,18 +744,21 @@
   .collapsible-body{
     max-height:0;
     overflow:hidden;
-    padding:0 16px;
-    background:linear-gradient(180deg, rgba(20,20,32,0.92) 0%, rgba(12,12,22,0.92) 100%);
-    border-top:1px solid rgba(255,255,255,0.04);
+    padding:0 20px;
+    margin-top:6px;
+    background:linear-gradient(180deg, rgba(20,20,32,0.94) 0%, rgba(12,12,22,0.95) 100%);
+    border:1px solid rgba(122,85,27,0.28);
+    border-radius:16px;
     transition:max-height .25s ease,padding .25s ease,opacity .2s ease;
     opacity:0;
   }
   .collapsible.open .collapsible-body{
     opacity:1;
+    box-shadow:0 22px 48px -32px var(--shadow);
   }
   .emoji-select{width:56px;text-align:center;font-size:16px}
   .emoji-select option{font-size:16px}
-  .table-wrapper{display:flex;flex-direction:column;gap:6px}
+  .table-wrapper{display:block;padding:0;margin:0}
   .row-hover-tools{
     position:absolute;
     left:-58px;
@@ -397,13 +791,114 @@
     background:rgba(18,22,36,0.95);
   }
   th[data-col="actions"] .resizer{display:none}
-  .row-select-checkbox{
-    width:18px;height:18px;border-radius:5px;border:1px solid #3a3a46;background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;
+  td[data-col="select"]{
+    text-align:center;
+    width:64px;
   }
-  .row-select-checkbox.checked{background:var(--accent);color:#0b1720;border-color:var(--accent)}
-  .row-select-checkbox span{display:none}
-  .row-select-checkbox.checked span{display:inline}
-  .selection-active tbody tr.selected{background:rgba(102,217,239,0.15)}
+  thead th[data-col="select"]{text-align:center;}
+  .row-select-checkbox{
+    position:relative;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    width:22px;
+    height:22px;
+    cursor:pointer;
+  }
+  .row-select-checkbox input{
+    position:absolute;
+    inset:0;
+    opacity:0;
+    cursor:pointer;
+  }
+  .row-select-checkbox span{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    width:18px;
+    height:18px;
+    border-radius:6px;
+    border:1px solid rgba(102,217,239,0.25);
+    background:rgba(16,20,32,0.92);
+    color:transparent;
+    transition:border-color .15s ease,background .15s ease,color .15s ease;
+    font-size:12px;
+    font-weight:600;
+  }
+  .row-select-checkbox input:hover + span{
+    border-color:rgba(102,217,239,0.45);
+  }
+  .row-select-checkbox input:checked + span{
+    background:var(--accent);
+    border-color:var(--accent);
+    color:#05101a;
+  }
+  .row-select-checkbox span::after{
+    content:"";
+  }
+  .row-select-checkbox input:checked + span::after{
+    content:"✔";
+    font-size:11px;
+    line-height:1;
+  }
+  .selection-active tbody tr.selected{
+    background:rgba(102,217,239,0.18);
+    box-shadow:inset 0 0 0 1px rgba(102,217,239,0.22);
+  }
+  .table-surface.selection-mode .table-footer{
+    border-top-color:rgba(102,217,239,0.25);
+    color:#cfd5ff;
+  }
+  .selection-bar{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px 16px;
+    align-items:center;
+    justify-content:space-between;
+    padding:12px 16px;
+    border-radius:14px;
+    border:1px solid rgba(102,217,239,0.22);
+    background:linear-gradient(140deg, rgba(15,18,30,0.95), rgba(11,14,24,0.9));
+    box-shadow:0 18px 36px -30px var(--shadow);
+  }
+  .selection-bar .selection-summary{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    font-size:12px;
+    color:#d6d4e6;
+  }
+  .selection-bar .selection-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    align-items:center;
+  }
+  .selection-bar select{
+    min-width:170px;
+    background:rgba(18,20,32,0.92);
+    border:1px solid rgba(102,217,239,0.2);
+    border-radius:10px;
+    padding:7px 10px;
+    color:var(--fg);
+    font:inherit;
+    transition:border-color .15s ease,box-shadow .15s ease;
+  }
+  .selection-bar select:focus{
+    outline:none;
+    border-color:var(--accent);
+    box-shadow:0 0 0 1px rgba(102,217,239,0.25);
+  }
+  .selection-bar .btn.tiny{
+    border-color:rgba(102,217,239,0.28);
+    background:rgba(102,217,239,0.12);
+    color:var(--accent);
+  }
+  .selection-bar .btn.tiny:hover{
+    border-color:var(--accent);
+    background:rgba(102,217,239,0.2);
+    color:#fff;
+  }
   th .resizer{
     position:absolute;
     right:0;
@@ -449,109 +944,237 @@
       </div>
       <div class="collapsible-body" id="controlCard-body" aria-hidden="true">
         <div class="stack">
-          <div>
-            <h3 class="section-title">Nova tarefa</h3>
-            <div class="stack">
-              <div class="row">
-                <select id="emoji" class="emoji-select"></select>
-                <input id="title" placeholder="Tarefa" style="flex:1"/>
+          <div class="new-task-card">
+            <div class="task-card-header">
+              <div>
+                <h3 class="section-title">Nova tarefa</h3>
+                <p class="task-card-subtitle">Organize os detalhes principais antes de enviar para a lista.</p>
               </div>
-              <div class="row date-row">
-                <input id="dueDate" type="date" aria-label="Data da tarefa" />
-                <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
-                <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
-              </div>
-              <select id="status" class="colorful" data-color="status">
-                <option value="A fazer" selected>A fazer</option>
-                <option value="Em progresso">Em progresso</option>
-                <option value="Bloqueada">Bloqueada</option>
-                <option value="Reagendar">Reagendar</option>
-                <option value="Cancelado">Cancelado</option>
-                <option value="Concluído">Concluído</option>
-              </select>
-              <select id="resp" class="colorful" data-color="responsible">
-                <option value="" selected>Responsável</option>
-                <option value="Daniel">Daniel</option>
-                <option value="Maysa">Maysa</option>
-                <option value="Daniel e Maysa">Daniel e Maysa</option>
-              </select>
-              <select id="prio" class="colorful" data-color="priority">
-                <option value="">Prioridade</option>
-                <option value="Baixa">Baixa</option>
-                <option value="Média" selected>Média</option>
-                <option value="Alta">Alta</option>
-                <option value="Altíssima">Altíssima</option>
-              </select>
-              <select id="dur" class="colorful" data-color="duration">
-                <option value="">Tempo para conclusão</option>
-                <option value="Rápido">Rápido</option>
-                <option value="Médio" selected>Médio</option>
-                <option value="Demorado">Demorado</option>
-              </select>
-              <select id="area" class="colorful" data-color="area">
-                <option value="">Área</option>
-                <option value="Plixel">Plixel</option>
-                <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
-                <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
-                <option value="Saúde">Saúde</option>
-                <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
-                <option value="Finanças">Finanças</option>
-                <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
-                <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
-              </select>
-              <select id="subarea" class="colorful" data-color="subarea">
-                <option value="">Subárea</option>
-                <option value="Vendas e Prospecção">Vendas e Prospecção</option>
-                <option value="Criação e Produção">Criação e Produção</option>
-                <option value="Gestão e Organização">Gestão e Organização</option>
-                <option value="Conteúdo e Marketing">Conteúdo e Marketing</option>
-                <option value="Clientes e Entregas">Clientes e Entregas</option>
-                <option value="Devocional e Oração">Devocional e Oração</option>
-                <option value="EBD / Ensino">EBD / Ensino</option>
-                <option value="Louvor">Louvor</option>
-                <option value="Obras">Obras</option>
-                <option value="Eventos">Eventos</option>
-                <option value="Tempo a dois">Tempo a dois</option>
-                <option value="Família estendida">Família estendida</option>
-                <option value="Comunicação e conexão">Comunicação e conexão</option>
-                <option value="Amigos">Amigos</option>
-                <option value="Treino físico">Treino físico</option>
-                <option value="Alimentação">Alimentação</option>
-                <option value="Sono e descanso">Sono e descanso</option>
-                <option value="Saúde mental">Saúde mental</option>
-                <option value="Limpeza e ordem">Limpeza e ordem</option>
-                <option value="Compras e suprimentos">Compras e suprimentos</option>
-                <option value="Organização pessoal">Organização pessoal</option>
-                <option value="Financeiro pessoal">Financeiro pessoal</option>
-                <option value="Financeiro Plixel">Financeiro Plixel</option>
-                <option value="Gestão e orçamento">Gestão e orçamento</option>
-                <option value="Design e marketing">Design e marketing</option>
-                <option value="Vendas e gestão">Vendas e gestão</option>
-                <option value="Idiomas / Inglês">Idiomas / Inglês</option>
-                <option value="Desenvolvimento pessoal">Desenvolvimento pessoal</option>
-                <option value="Planejamento semanal / diário">Planejamento semanal / diário</option>
-                <option value="Revisão e análise">Revisão e análise</option>
-                <option value="Metas e visão">Metas e visão</option>
-                <option value="Sistema de produtividade">Sistema de produtividade</option>
-              </select>
-              <textarea id="notes" rows="2" placeholder="Notas"></textarea>
-              <div class="row">
-                <button class="btn primary" id="addTask">Adicionar</button>
+              <div class="quick-flags" id="quickFlags">
+                <span class="quick-flags__title">Atalhos rápidos</span>
+                <div class="quick-flags-row">
+                  <label class="quick-flag">
+                    <input type="checkbox" data-quick-target="status" data-quick-value="Concluído" data-quick-reset="A fazer">
+                    <span>Concluir</span>
+                  </label>
+                  <label class="quick-flag">
+                    <input type="checkbox" data-quick-target="prio" data-quick-value="Altíssima" data-quick-reset="">
+                    <span>Prioridade máx.</span>
+                  </label>
+                  <label class="quick-flag">
+                    <input type="checkbox" data-quick-target="resp" data-quick-value="Daniel e Maysa" data-quick-reset="">
+                    <span>Equipe completa</span>
+                  </label>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="divider"></div>
-          <div>
-            <h3 class="section-title">Importar/Exportar</h3>
-            <div class="stack">
-              <button class="btn" id="importBtn">Importar JSON</button>
-              <input type="file" id="importFile" accept=".json" style="display:none" />
-              <button class="btn" id="exportBtn">Exportar JSON</button>
-              <button class="btn tiny" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
-              <div id="importDirInfo" class="status-msg"></div>
-              <div id="importStatus" class="status-msg"></div>
+            <div class="task-form-grid">
+              <div class="form-field emoji-field">
+                <label for="emoji">Emoji</label>
+                <div class="input-shell dropdown">
+                  <select id="emoji" class="emoji-select"></select>
+                </div>
+              </div>
+              <div class="form-field span-2">
+                <label for="title">Tarefa</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="7"></circle>
+                      <line x1="16.65" y1="16.65" x2="21" y2="21"></line>
+                    </svg>
+                  </span>
+                  <input id="title" placeholder="Digite o nome da tarefa..." />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dueDate">Data</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="3"></rect>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                  </span>
+                  <input id="dueDate" type="date" aria-label="Data da tarefa" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dueTime">Hora início</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9"></circle>
+                      <polyline points="12 7 12 12 15 14"></polyline>
+                    </svg>
+                  </span>
+                  <input id="dueTime" type="time" placeholder="Hora início" aria-label="Hora início" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="endTime">Hora fim</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="12" r="9"></circle>
+                      <polyline points="12 7 12 12 16 12"></polyline>
+                    </svg>
+                  </span>
+                  <input id="endTime" type="time" placeholder="Hora fim" aria-label="Hora fim" />
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="status">Status</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  </span>
+                  <select id="status" class="colorful" data-color="status">
+                    <option value="A fazer" selected>A fazer</option>
+                    <option value="Em progresso">Em progresso</option>
+                    <option value="Bloqueada">Bloqueada</option>
+                    <option value="Reagendar">Reagendar</option>
+                    <option value="Cancelado">Cancelado</option>
+                    <option value="Concluído">Concluído</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="resp">Responsável</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="12" cy="7" r="4"></circle>
+                      <path d="M5.5 21a6.5 6.5 0 0 1 13 0"></path>
+                    </svg>
+                  </span>
+                  <select id="resp" class="colorful" data-color="responsible">
+                    <option value="" selected>Responsável</option>
+                    <option value="Daniel">Daniel</option>
+                    <option value="Maysa">Maysa</option>
+                    <option value="Daniel e Maysa">Daniel e Maysa</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="prio">Prioridade</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 2l3 7 7 .5-5.5 4.8L18 22l-6-3.6L6 22l1.5-7.7L2 9.5 9 9z"></path>
+                    </svg>
+                  </span>
+                  <select id="prio" class="colorful" data-color="priority">
+                    <option value="">Prioridade</option>
+                    <option value="Baixa">Baixa</option>
+                    <option value="Média" selected>Média</option>
+                    <option value="Alta">Alta</option>
+                    <option value="Altíssima">Altíssima</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="dur">Tempo para conclusão</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 2 3 10l7 2 2 7 8-18z"></path>
+                    </svg>
+                  </span>
+                  <select id="dur" class="colorful" data-color="duration">
+                    <option value="">Tempo para conclusão</option>
+                    <option value="Rápido">Rápido</option>
+                    <option value="Médio" selected>Médio</option>
+                    <option value="Demorado">Demorado</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="area">Área</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+                      <rect x="14" y="14" width="7" height="7" rx="1.5"></rect>
+                      <rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+                    </svg>
+                  </span>
+                  <select id="area" class="colorful" data-color="area">
+                    <option value="">Área</option>
+                    <option value="Plixel">Plixel</option>
+                    <option value="Igreja / Espiritualidade">Igreja / Espiritualidade</option>
+                    <option value="Família &amp; Relacionamento">Família &amp; Relacionamento</option>
+                    <option value="Saúde">Saúde</option>
+                    <option value="Casa &amp; Rotina">Casa &amp; Rotina</option>
+                    <option value="Finanças">Finanças</option>
+                    <option value="Estudo &amp; Desenvolvimento">Estudo &amp; Desenvolvimento</option>
+                    <option value="Planejamento &amp; Estratégia">Planejamento &amp; Estratégia</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field">
+                <label for="subarea">Subárea</label>
+                <div class="input-shell with-icon dropdown no-fill">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M4 6h16"></path>
+                      <path d="M4 12h16"></path>
+                      <path d="M4 18h16"></path>
+                    </svg>
+                  </span>
+                  <select id="subarea" class="colorful" data-color="subarea">
+                    <option value="">Subárea</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-field full">
+                <label for="notes">Notas</label>
+                <div class="input-shell with-icon">
+                  <span class="field-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9l5 5v11a2 2 0 0 1-2 2z"></path>
+                      <polyline points="13 3 13 9 19 9"></polyline>
+                      <line x1="9" y1="13" x2="15" y2="13"></line>
+                      <line x1="9" y1="17" x2="15" y2="17"></line>
+                    </svg>
+                  </span>
+                  <textarea id="notes" rows="2" placeholder="Observações, links ou lembretes adicionais"></textarea>
+                </div>
+              </div>
+            </div>
+            <div class="task-form-actions">
+              <p class="helper">Dica: use os atalhos rápidos para preencher campos recorrentes e ganhar tempo.</p>
+              <button class="btn primary" id="addTask">Adicionar</button>
             </div>
           </div>
+          <div class="import-card">
+            <div>
+              <h3 class="section-title">Importar/Exportar</h3>
+              <p class="task-card-subtitle">Sincronize os arquivos de tarefas ou copie para outra máquina.</p>
+            </div>
+            <div class="import-actions">
+          <button class="btn" id="importBtn">Importar JSON</button>
+          <input type="file" id="importFile" accept=".json" style="display:none" />
+          <button class="btn" id="exportBtn">Exportar JSON</button>
+          <button class="btn" id="chooseImportDir" type="button">Selecionar pasta de importação</button>
+        </div>
+        <div class="sync-controls">
+          <div class="sync-buttons">
+            <button class="btn" id="syncConfigure" type="button">Configurar sincronização</button>
+            <button class="btn" id="syncNow" type="button">Sincronizar agora</button>
+          </div>
+          <div id="syncStatus" class="status-msg muted">Sincronização desativada.</div>
+        </div>
+        <div class="import-feedback">
+          <div id="importStatus" class="status-msg muted"></div>
+          <div id="importDirInfo" class="status-msg"></div>
+        </div>
+      </div>
         </div>
       </div>
     </section>
@@ -574,6 +1197,10 @@
 </main>
 <div id="tableScrollProxy" class="h-scroll-proxy"><div></div></div>
 <script>
+const BRAZIL_TZ = "America/Sao_Paulo";
+const BRAZIL_UTC_OFFSET_MINUTES = -180; // UTC-3
+const BRAZIL_OFFSET_MS = Math.abs(BRAZIL_UTC_OFFSET_MINUTES) * 60 * 1000;
+const ISO_TZ_OFFSET_RE = /([+-]\d{2}):?(\d{2})$/;
 const LS_KEY = "tarefas_local_v1";
 const LS_REC_KEY = "tarefas_rec_v1";
 const STATUS = ["A fazer","Em progresso","Bloqueada","Reagendar","Cancelado","Concluído"];
@@ -588,7 +1215,8 @@ const AREAS = [
   "Casa & Rotina",
   "Finanças",
   "Estudo & Desenvolvimento",
-  "Planejamento & Estratégia"
+  "Planejamento & Estratégia",
+  "Trabalho Extra"
 ];
 const SUBAREAS = [
   "Vendas e Prospecção",
@@ -599,12 +1227,11 @@ const SUBAREAS = [
   "Devocional e Oração",
   "EBD / Ensino",
   "Louvor",
-  "Obras",
-  "Eventos",
-  "Tempo a dois",
+  "UJADIS",
+  "Ações e Ministério",
+  "Tempo a dois (Ysa)",
   "Família estendida",
   "Comunicação e conexão",
-  "Amigos",
   "Treino físico",
   "Alimentação",
   "Sono e descanso",
@@ -612,6 +1239,7 @@ const SUBAREAS = [
   "Limpeza e ordem",
   "Compras e suprimentos",
   "Organização pessoal",
+  "Higiene",
   "Financeiro pessoal",
   "Financeiro Plixel",
   "Gestão e orçamento",
@@ -622,13 +1250,73 @@ const SUBAREAS = [
   "Planejamento semanal / diário",
   "Revisão e análise",
   "Metas e visão",
-  "Sistema de produtividade"
+  "Sistema de produtividade",
+  "Aula de violino",
+  "Outros"
 ];
+const AREA_SUBAREA_MAP = {
+  "Plixel": [
+    "Vendas e Prospecção",
+    "Criação e Produção",
+    "Gestão e Organização",
+    "Conteúdo e Marketing",
+    "Clientes e Entregas"
+  ],
+  "Igreja / Espiritualidade": [
+    "Devocional e Oração",
+    "EBD / Ensino",
+    "Louvor",
+    "UJADIS",
+    "Ações e Ministério"
+  ],
+  "Família & Relacionamento": [
+    "Tempo a dois (Ysa)",
+    "Família estendida",
+    "Comunicação e conexão"
+  ],
+  "Saúde": [
+    "Treino físico",
+    "Alimentação",
+    "Sono e descanso",
+    "Saúde mental"
+  ],
+  "Casa & Rotina": [
+    "Limpeza e ordem",
+    "Compras e suprimentos",
+    "Organização pessoal",
+    "Higiene"
+  ],
+  "Finanças": [
+    "Financeiro pessoal",
+    "Financeiro Plixel",
+    "Gestão e orçamento"
+  ],
+  "Estudo & Desenvolvimento": [
+    "Design e marketing",
+    "Vendas e gestão",
+    "Idiomas / Inglês",
+    "Desenvolvimento pessoal"
+  ],
+  "Planejamento & Estratégia": [
+    "Planejamento semanal / diário",
+    "Revisão e análise",
+    "Metas e visão",
+    "Sistema de produtividade"
+  ],
+  "Trabalho Extra": [
+    "Aula de violino",
+    "Outros"
+  ]
+};
+const SUBAREA_ALIAS_MAP = {
+  "tempo a dois isa": "Tempo a dois (Ysa)",
+  "tempo a dois": "Tempo a dois (Ysa)"
+};
 
 const EMOJIS = ['','\u2705','\uD83D\uDD25','\uD83E\uDDE0','\uD83D\uDCA1','\uD83D\uDCC6','\uD83D\uDEE0','\uD83C\uDFE0','\uD83D\uDCB0','\uD83D\uDCDA','\u2699','\u2764','\u2728','\uD83D\uDD01','\uD83E\uDD1D','\uD83C\uDFC1'];
-const TABLE_COLUMNS = ['emoji','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
+const TABLE_COLUMNS = ['select','title','date','status','responsible','priority','duration','area','subarea','notes','week','actions'];
 const COLUMN_LABELS = {
-  emoji:'Emoji',
+  select:'',
   title:'Tarefa',
   date:'Data / horários',
   status:'Status',
@@ -642,7 +1330,7 @@ const COLUMN_LABELS = {
   actions:'Ações'
 };
 const COLUMN_DEFAULT_WIDTHS = {
-  emoji:68,
+  select:60,
   title:230,
   date:260,
   status:150,
@@ -660,7 +1348,404 @@ const AUTO_EXPAND_COLUMNS = ["title","notes","area","subarea","date","responsibl
 const IMPORT_DIR_DB = "tarefas_import_fs";
 const IMPORT_DIR_STORE = "handles";
 const IMPORT_DIR_KEY = "importDir";
+const IMPORT_DIR_META_KEY = "import_dir_meta";
+const IMPORT_DIR_MIGRATION_KEY = "import_dir_migrated_tz_v1";
+const IMPORT_DIR_SCAN_INTERVAL = 60000;
+const REMOTE_AUTO_SYNC_INTERVAL = 30 * 60 * 1000;
 let importDirHandle = null;
+let importDirScanTimer = null;
+let importDirMeta = {};
+let importDirSyncInFlight = false;
+let rowEditLockId = null;
+let rowEditNeedsRender = false;
+
+function loadImportDirMeta(){
+  try{
+    const serialized = localStorage.getItem(IMPORT_DIR_META_KEY);
+    if(!serialized) return {};
+    const parsed = JSON.parse(serialized);
+    return parsed && typeof parsed === "object" ? parsed : {};
+  }catch(err){
+    console.warn("Não foi possível carregar o histórico de importação.", err);
+    return {};
+  }
+}
+function saveImportDirMeta(){
+  try{
+    localStorage.setItem(IMPORT_DIR_META_KEY, JSON.stringify(importDirMeta || {}));
+  }catch(err){
+    console.warn("Não foi possível salvar o histórico de importação.", err);
+  }
+}
+importDirMeta = loadImportDirMeta();
+
+function hasRunImportDirMigration(){
+  try{
+    return localStorage.getItem(IMPORT_DIR_MIGRATION_KEY) === "1";
+  }catch(_){
+    return true;
+  }
+}
+function markImportDirMigration(){
+  try{
+    localStorage.setItem(IMPORT_DIR_MIGRATION_KEY, "1");
+  }catch(_){ }
+}
+
+const REMOTE_CONFIG = {
+  owner: "PlixelDesign",
+  repo: "Tarefas",
+  filePath: "tarefas.json",
+  branch: "main",
+  tokenKey: "tarefas_github_pat"
+};
+const REMOTE_STATUS_MESSAGES = {
+  disabled: "Sincronização desativada.",
+  loading: "Carregando dados do GitHub...",
+  ready: "Sincronização com GitHub ativa.",
+  created: "Arquivo remoto será criado no próximo salvamento."
+};
+const remoteStateMeta = {
+  token: null,
+  sha: null,
+  enabled: false,
+  loading: false,
+  timer: null,
+  autoSyncTimer: null,
+  saveInFlight: false,
+  pending: false
+};
+
+function getStoredRemoteToken(){
+  try{
+    return localStorage.getItem(REMOTE_CONFIG.tokenKey) || "";
+  }catch(_){
+    return "";
+  }
+}
+function storeRemoteToken(token){
+  try{
+    if(token){
+      localStorage.setItem(REMOTE_CONFIG.tokenKey, token);
+    }else{
+      localStorage.removeItem(REMOTE_CONFIG.tokenKey);
+    }
+  }catch(_){ }
+}
+function updateSyncStatus(message="", tone="muted"){
+  const el = document.getElementById("syncStatus");
+  if(!el) return;
+  el.textContent = message;
+  el.classList.remove("error","success","muted","info");
+  if(tone){
+    el.classList.add(tone);
+  }
+}
+function encodeBase64(str){
+  if(typeof window !== "undefined" && window.btoa){
+    return window.btoa(unescape(encodeURIComponent(str)));
+  }
+  return Buffer.from(str, "utf8").toString("base64");
+}
+function decodeBase64(str){
+  if(typeof window !== "undefined" && window.atob){
+    return decodeURIComponent(escape(window.atob(str)));
+  }
+  return Buffer.from(str, "base64").toString("utf8");
+}
+function buildContentUrl(){
+  const pathPart = REMOTE_CONFIG.filePath.split("/").map(encodeURIComponent).join("/");
+  return `/repos/${REMOTE_CONFIG.owner}/${REMOTE_CONFIG.repo}/contents/${pathPart}`;
+}
+async function githubRequest(path, options={}){
+  const token = options.token || remoteStateMeta.token;
+  if(!token){
+    const error = new Error("Token não configurado.");
+    error.status = 401;
+    throw error;
+  }
+  const method = options.method || "GET";
+  let body = options.body || null;
+  const headers = {
+    "Accept": "application/vnd.github+json",
+    "Authorization": `Bearer ${token}`,
+    "X-GitHub-Api-Version": "2022-11-28"
+  };
+  if(body && typeof body === "object"){
+    body = JSON.stringify(body);
+  }
+  if(body){
+    headers["Content-Type"] = "application/json";
+  }
+  const response = await fetch(`https://api.github.com${path}`, { method, headers, body });
+  if(response.status === 204){
+    return {};
+  }
+  const text = await response.text();
+  if(response.status === 404){
+    const error = new Error("Arquivo remoto não encontrado");
+    error.status = 404;
+    throw error;
+  }
+  if(!response.ok){
+    const error = new Error(`GitHub API error (${response.status}): ${text || response.statusText}`);
+    error.status = response.status;
+    throw error;
+  }
+  return text ? JSON.parse(text) : {};
+}
+function queuePersistAll(reason="update"){
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+  remoteStateMeta.pending = true;
+  remoteStateMeta.lastReason = reason;
+  if(remoteStateMeta.loading){
+    return;
+  }
+  if(remoteStateMeta.timer){
+    clearTimeout(remoteStateMeta.timer);
+  }
+  remoteStateMeta.timer = setTimeout(()=>{
+    flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+  }, 750);
+}
+async function flushPersistQueue(){
+  if(remoteStateMeta.timer){
+    clearTimeout(remoteStateMeta.timer);
+    remoteStateMeta.timer = null;
+  }
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token){
+    remoteStateMeta.pending = false;
+    return;
+  }
+  if(remoteStateMeta.saveInFlight){
+    remoteStateMeta.pending = true;
+    return;
+  }
+  remoteStateMeta.saveInFlight = true;
+  remoteStateMeta.pending = false;
+  updateSyncStatus("Sincronizando com GitHub...", "info");
+  try{
+    await saveRemoteState();
+    updateSyncStatus("Dados sincronizados com GitHub.", "success");
+  }catch(err){
+    console.error("Erro ao salvar no GitHub", err);
+    const msg = err && err.message ? err.message : String(err);
+    updateSyncStatus(`Falha ao salvar no GitHub: ${msg}`, "error");
+  }finally{
+    remoteStateMeta.saveInFlight = false;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }
+}
+function startRemoteAutoSync(){
+  if(remoteStateMeta.autoSyncTimer){
+    clearInterval(remoteStateMeta.autoSyncTimer);
+    remoteStateMeta.autoSyncTimer = null;
+  }
+  if(!REMOTE_AUTO_SYNC_INTERVAL || REMOTE_AUTO_SYNC_INTERVAL <= 0) return;
+  remoteStateMeta.autoSyncTimer = setInterval(()=>{
+    if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }, REMOTE_AUTO_SYNC_INTERVAL);
+}
+function stopRemoteAutoSync(){
+  if(remoteStateMeta.autoSyncTimer){
+    clearInterval(remoteStateMeta.autoSyncTimer);
+    remoteStateMeta.autoSyncTimer = null;
+  }
+}
+function ensureRemoteAutoSync(){
+  if(remoteStateMeta.enabled && remoteStateMeta.token){
+    startRemoteAutoSync();
+  }else{
+    stopRemoteAutoSync();
+  }
+}
+async function loadRemotePayload(){
+  const path = buildContentUrl();
+  try{
+    const data = await githubRequest(`${path}?ref=${encodeURIComponent(REMOTE_CONFIG.branch)}`);
+    remoteStateMeta.sha = data.sha || null;
+    if(!data || !data.content){
+      return null;
+    }
+    const decoded = decodeBase64(data.content.replace(/\n/g,""));
+    const parsed = JSON.parse(decoded);
+    return { data: parsed, sha: data.sha || null };
+  }catch(err){
+    if(err && err.status === 404){
+      remoteStateMeta.sha = null;
+      return null;
+    }
+    throw err;
+  }
+}
+function normalizeRemotePayload(raw){
+  if(!raw || typeof raw !== "object") return null;
+  const payload = raw.data ? raw.data : raw;
+  let statePart = payload.state;
+  let recPart = payload.recState;
+  if(!statePart){
+    if(Array.isArray(payload.tasks)){
+      statePart = { tasks: payload.tasks, lastId: payload.lastId || 0 };
+    }
+  }
+  if(!recPart){
+    if(Array.isArray(payload.recorrentes)){
+      recPart = { recs: payload.recorrentes, lastId: payload.recLastId || 0 };
+    }else if(payload.recState){
+      recPart = payload.recState;
+    }else{
+      recPart = { recs: [], lastId: 0 };
+    }
+  }
+  return { state: statePart, recState: recPart };
+}
+function serializeAppState(){
+  return {
+    version: 2,
+    savedAt: new Date().toISOString(),
+    meta: { timeZone: "utc" },
+    state,
+    recState
+  };
+}
+async function saveRemoteState(){
+  if(!remoteStateMeta.enabled || !remoteStateMeta.token) return;
+  const payload = serializeAppState();
+  const content = encodeBase64(JSON.stringify(payload, null, 2));
+  const body = {
+    message: `chore: update tarefas (${new Date().toLocaleString("pt-BR")})`,
+    content,
+    branch: REMOTE_CONFIG.branch
+  };
+  if(remoteStateMeta.sha){
+    body.sha = remoteStateMeta.sha;
+  }
+  const response = await githubRequest(buildContentUrl(), {
+    method:"PUT",
+    body,
+    token: remoteStateMeta.token
+  });
+  if(response && response.content && response.content.sha){
+    remoteStateMeta.sha = response.content.sha;
+  }
+}
+function applyRemoteStatePayload(payload){
+  const assumeBrazilLocal = shouldAssumeBrazilLocalTimes(payload);
+  const normalized = normalizeRemotePayload(payload);
+  if(!normalized || !normalized.state){
+    return false;
+  }
+  const nowIso = new Date().toISOString();
+  state = normalizeStateData(normalized.state, nowIso, { assumeBrazilLocal });
+  recState = normalizeRecState(normalized.recState || { recs: [], lastId: 0 });
+  save({ skipRemote:true });
+  saveRec({ skipRemote:true });
+  render(currentTab || "all");
+  setupAreaSubareaBinding(document.getElementById("area"), document.getElementById("subarea"));
+  return true;
+}
+async function bootstrapRemote(force=false){
+  const storedToken = remoteStateMeta.token || getStoredRemoteToken();
+  if(!storedToken){
+    remoteStateMeta.enabled = false;
+    ensureRemoteAutoSync();
+    if(force){
+      updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+    }
+    return;
+  }
+  remoteStateMeta.token = storedToken;
+  remoteStateMeta.enabled = true;
+  ensureRemoteAutoSync();
+  updateSyncStatus(REMOTE_STATUS_MESSAGES.loading, "info");
+  remoteStateMeta.loading = true;
+  try{
+    const payload = await loadRemotePayload();
+    if(payload && payload.data){
+      remoteStateMeta.sha = payload.sha || remoteStateMeta.sha;
+      const applied = applyRemoteStatePayload(payload.data);
+      if(applied){
+        updateSyncStatus("Dados do GitHub carregados.", "success");
+      }else{
+        updateSyncStatus("Arquivo remoto vazio. Usando dados locais.", "muted");
+      }
+    }else{
+      updateSyncStatus(REMOTE_STATUS_MESSAGES.created, "muted");
+      const hasTasks = state && Array.isArray(state.tasks) && state.tasks.length > 0;
+      const hasRecs = recState && Array.isArray(recState.recs) && recState.recs.length > 0;
+      if(hasTasks || hasRecs){
+        queuePersistAll("bootstrap-create");
+      }
+    }
+  }catch(err){
+    console.error("Erro ao carregar dados do GitHub", err);
+    const msg = err && err.message ? err.message : String(err);
+    updateSyncStatus(`Erro ao acessar GitHub: ${msg}`, "error");
+    remoteStateMeta.enabled = false;
+    ensureRemoteAutoSync();
+  }finally{
+    remoteStateMeta.loading = false;
+    if(remoteStateMeta.pending){
+      flushPersistQueue().catch(err=> console.error("Falha ao sincronizar com GitHub:", err));
+    }
+  }
+}
+function setupSyncControls(){
+  const configureBtn = document.getElementById("syncConfigure");
+  const syncBtn = document.getElementById("syncNow");
+  if(configureBtn){
+    configureBtn.addEventListener("click", ()=>{
+      const current = remoteStateMeta.token || getStoredRemoteToken();
+      const input = prompt("Informe o token (PAT) do GitHub para sincronizar ou deixe em branco para remover:", current || "");
+      if(input === null) return;
+      const trimmed = input.trim();
+      if(trimmed){
+        storeRemoteToken(trimmed);
+        remoteStateMeta.token = trimmed;
+        remoteStateMeta.enabled = true;
+        ensureRemoteAutoSync();
+        updateSyncStatus("Token salvo. Carregando dados do GitHub...", "info");
+        bootstrapRemote(true);
+      }else{
+        storeRemoteToken("");
+        remoteStateMeta.token = null;
+        remoteStateMeta.enabled = false;
+        remoteStateMeta.sha = null;
+        ensureRemoteAutoSync();
+        updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+      }
+    });
+  }
+  if(syncBtn){
+    syncBtn.addEventListener("click", ()=>{
+      const token = remoteStateMeta.token || getStoredRemoteToken();
+      if(!token){
+        updateSyncStatus("Configure um token para sincronizar.", "error");
+        return;
+      }
+      remoteStateMeta.token = token;
+      remoteStateMeta.enabled = true;
+      ensureRemoteAutoSync();
+      save({ reason:"manual-sync" });
+      saveRec({ skipRemote:true });
+      flushPersistQueue();
+    });
+  }
+  const stored = getStoredRemoteToken();
+  if(stored){
+    remoteStateMeta.token = stored;
+    remoteStateMeta.enabled = true;
+    updateSyncStatus("Token carregado. Clique em \"Sincronizar agora\" para enviar alterações.", "muted");
+  }else{
+    updateSyncStatus(REMOTE_STATUS_MESSAGES.disabled, "muted");
+  }
+}
+
 (function setupGlobalErrorHandlers(){
   const showError = message=>{
     const status = document.getElementById("importStatus");
@@ -682,38 +1767,75 @@ let importDirHandle = null;
 
 const COLOR_PALETTES = {
   status: {
-    "A fazer": ["#4b5563", "#f9fafb"],
-    "Em progresso": ["#2563eb", "#f8fafc"],
-    "Bloqueada": ["#dc2626", "#ffffff"],
-    "Reagendar": ["#f59e0b", "#111827"],
-    "Cancelado": ["#6b7280", "#f9fafb"],
-    "Conclu\u00eddo": ["#22c55e", "#052e16"]
+    "A fazer":       { bg: "#2A2F38", text: "#E5E7EB", border: "#3A404B" },
+    "Em progresso":  { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" },
+    "Bloqueada":     { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" }, 
+    "Reagendar":     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Cancelado":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" }, 
+    "Concluído":     { bg: "#0C2A1A", text: "#BBF7D0", border: "#22C55E" }
   },
   priority: {
-    "Baixa": ["#38bdf8", "#0f172a"],
-    "M\u00e9dia": ["#10b981", "#022c22"],
-    "Alta": ["#f97316", "#111111"],
-    "Alt\u00edssima": ["#ec4899", "#ffffff"]
+    "Baixa":         { bg: "#072920", text: "#A7F3D0", border: "#10B981" }, 
+    "Média":         { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" }, 
+    "Alta":          { bg: "#331A0B", text: "#FFDEB8", border: "#F97316" },
+    "Altíssima":     { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" } 
   },
   duration: {
-    "R\u00e1pido": ["#4ade80", "#064e3b"],
-    "M\u00e9dio": ["#818cf8", "#1e1b4b"],
-    "Demorado": ["#c084fc", "#33124d"]
+    "Rápido":        { bg: "#0A2E24", text: "#86EFAC", border: "#4ADE80" },
+    "Médio":         { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" }, 
+    "Demorado":      { bg: "#3A0E10", text: "#FECACA", border: "#EF4444" } 
   },
   responsible: {
-    "Daniel": ["#f97316", "#111111"],
-    "Maysa": ["#a855f7", "#ffffff"],
-    "Daniel e Maysa": ["#6366f1", "#f8fafc"]
+    "Daniel":        { bg: "#0B2948", text: "#C2E1FF", border: "#2563EB" }, 
+    "Maysa":         { bg: "#2A1240", text: "#E9D5FF", border: "#A855F7" },
+    "Daniel e Maysa":{ bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   },
   area: {
-    "Plixel": ["#4f46e5", "#f9fafb"],
-    "Igreja / Espiritualidade": ["#f59e0b", "#111827"],
-    "Fam\u00edlia & Relacionamento": ["#ec4899", "#ffffff"],
-    "Sa\u00fade": ["#10b981", "#022c22"],
-    "Casa & Rotina": ["#94a3b8", "#111827"],
-    "Finan\u00e7as": ["#14b8a6", "#022c22"],
-    "Estudo & Desenvolvimento": ["#6366f1", "#f9fafb"],
-    "Planejamento & Estrat\u00e9gia": ["#0ea5e9", "#082f49"]
+    "Plixel":                     { bg: "#0F1538", text: "#C7D2FE", border: "#4F46E5" },
+    "Igreja / Espiritualidade":   { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Família & Relacionamento":   { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" },
+    "Saúde":                      { bg: "#072920", text: "#A7F3D0", border: "#10B981" },
+    "Casa & Rotina":              { bg: "#232831", text: "#E5E7EB", border: "#94A3B8" },
+    "Finanças":                   { bg: "#072A2A", text: "#99F6E4", border: "#14B8A6" },
+    "Estudo & Desenvolvimento":   { bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" },
+    "Planejamento & Estratégia":  { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" },
+    "Trabalho Extra":             { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" }
+  },
+  subarea: {
+    "Vendas e Prospecção":        { bg: "#0F1538", text: "#E0E7FF", border: "#6366F1" },
+    "Criação e Produção":         { bg: "#1B1C46", text: "#E0E7FF", border: "#818CF8" },
+    "Gestão e Organização":       { bg: "#111234", text: "#E0E7FF", border: "#312E81" },
+    "Conteúdo e Marketing":       { bg: "#14153F", text: "#E0E7FF", border: "#4338CA" },
+    "Clientes e Entregas":        { bg: "#181A4A", text: "#E0E7FF", border: "#3730A3" },
+    "Devocional e Oração":        { bg: "#3F2A0B", text: "#FDE68A", border: "#FBBF24" },
+    "EBD / Ensino":               { bg: "#4A2F0A", text: "#FEF3C7", border: "#92400E" },
+    "Louvor":                     { bg: "#472C09", text: "#FEF3C7", border: "#78350F" },
+    "UJADIS":                     { bg: "#38250A", text: "#FDE68A", border: "#F59E0B" },
+    "Ações e Ministério":         { bg: "#3B2105", text: "#FDE68A", border: "#B45309" },
+    "Tempo a dois (Ysa)":         { bg: "#3B1121", text: "#FECDD3", border: "#F472B6" },
+    "Família estendida":          { bg: "#4A0F25", text: "#FECDD3", border: "#BE185D" },
+    "Comunicação e conexão":      { bg: "#3A0F23", text: "#FECDD3", border: "#EC4899" },
+    "Treino físico":              { bg: "#0A2E24", text: "#BBF7D0", border: "#34D399" },
+    "Alimentação":                { bg: "#0B3A2D", text: "#BBF7D0", border: "#10B981" },
+    "Sono e descanso":            { bg: "#094533", text: "#BBF7D0", border: "#059669" },
+    "Saúde mental":               { bg: "#063D2E", text: "#BBF7D0", border: "#064E3B" },
+    "Limpeza e ordem":            { bg: "#2E323A", text: "#E5E7EB", border: "#64748B" },
+    "Compras e suprimentos":      { bg: "#282C33", text: "#E5E7EB", border: "#475569" },
+    "Organização pessoal":        { bg: "#1E232B", text: "#E5E7EB", border: "#1E293B" },
+    "Financeiro pessoal":         { bg: "#073533", text: "#99F6E4", border: "#2DD4BF" },
+    "Financeiro Plixel":          { bg: "#0C3B39", text: "#99F6E4", border: "#0F766E" },
+    "Gestão e orçamento":         { bg: "#09403D", text: "#99F6E4", border: "#115E59" },
+    "Design e marketing":         { bg: "#171A42", text: "#E0E7FF", border: "#818CF8" },
+    "Vendas e gestão":            { bg: "#0F1538", text: "#E0E7FF", border: "#6366F1" },
+    "Idiomas / Inglês":           { bg: "#14153F", text: "#E0E7FF", border: "#4338CA" },
+    "Desenvolvimento pessoal":    { bg: "#101232", text: "#E0E7FF", border: "#1E3A8A" },
+    "Planejamento semanal / diário": { bg: "#082C45", text: "#BAE6FD", border: "#38BDF8" },
+    "Revisão e análise":             { bg: "#06334D", text: "#BAE6FD", border: "#0369A1" },
+    "Metas e visão":                 { bg: "#052C3D", text: "#BAE6FD", border: "#075985" },
+    "Sistema de produtividade":      { bg: "#072437", text: "#BAE6FD", border: "#0EA5E9" },
+    "Aula de violino":               { bg: "#2F2208", text: "#FFE8B3", border: "#F59E0B" },
+    "Outros":                        { bg: "#232831", text: "#E5E7EB", border: "#94A3B8" },
+    "Higiene":                       { bg: "#0F1538", text: "#C7D2FE", border: "#6366F1" }
   }
 };
 let columnWidths = loadColumnWidths();
@@ -737,28 +1859,49 @@ function saveColumnWidths(){
   try{ localStorage.setItem(COLUMN_WIDTH_KEY, JSON.stringify(columnWidths)); }catch(_){ }
 }
 
+const FILTER_MULTI_KEYS = ["status","responsible","priority","duration","area","subarea"];
 const FILTER_DEFAULTS = {
   text: "",
-  status: "",
-  responsible: "",
-  priority: "",
-  duration: "",
-  area: "",
-  subarea: "",
+  status: [],
+  responsible: [],
+  priority: [],
+  duration: [],
+  area: [],
+  subarea: [],
   dateFrom: "",
   dateTo: "",
   week: "",
   includeNoDate: true,
   onlyNoDate: false
 };
-const filterState = { ...FILTER_DEFAULTS };
+function cloneFilterDefaults(){
+  const clone = { ...FILTER_DEFAULTS };
+  FILTER_MULTI_KEYS.forEach(key=>{
+    clone[key] = [...FILTER_DEFAULTS[key]];
+  });
+  return clone;
+}
+const filterState = cloneFilterDefaults();
 const initialNow = new Date().toISOString();
 const stateStored = load(LS_KEY);
 let state = stateStored ? normalizeStateData(stateStored, initialNow) : { tasks: [], lastId: 0 };
 const recStored = load(LS_REC_KEY);
 let recState = recStored ? normalizeRecState(recStored) : { recs: [], lastId: 0 };
-function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function saveRec(){ localStorage.setItem(LS_REC_KEY, JSON.stringify(recState)); }
+const selectedTaskIds = new Set();
+function save(opts={}){
+  try{
+    localStorage.setItem(LS_KEY, JSON.stringify(state));
+  }catch(_){ }
+  if(opts.skipRemote) return;
+  queuePersistAll(opts.reason || "state");
+}
+function saveRec(opts={}){
+  try{
+    localStorage.setItem(LS_REC_KEY, JSON.stringify(recState));
+  }catch(_){ }
+  if(opts.skipRemote) return;
+  queuePersistAll(opts.reason || "recurring");
+}
 function load(key){ try{ return JSON.parse(localStorage.getItem(key)); }catch(_){ return null; } }
 /* --------- Util --------- */
 const fmt = d => d ? new Date(d).toLocaleString('pt-BR',{hour12:false}) : "";
@@ -808,15 +1951,12 @@ function normalizeDateOnly(value){
 }
 function toDateOnlyInputValue(iso){
   if(!iso) return "";
-  const d = new Date(iso);
-  if(Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`;
+  return String(iso).slice(0,10);
 }
 function extractTimeFromISO(iso){
   if(!iso) return "";
-  const d = new Date(iso);
-  if(Number.isNaN(d.getTime())) return "";
-  return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+  const match = String(iso).match(/T(\d{2}:\d{2})/);
+  return match ? match[1] : "";
 }
 function splitDueAt(iso){
   return {
@@ -828,10 +1968,7 @@ function combineDateAndTime(dateValue, timeValue){
   const normalizedDate = normalizeDateOnly(dateValue);
   if(!normalizedDate) return null;
   const time = padTime(timeValue) || "00:00";
-  const composed = `${normalizedDate}T${time}`;
-  const dt = new Date(composed);
-  if(Number.isNaN(dt.getTime())) return null;
-  return dt.toISOString();
+  return `${normalizedDate}T${time}:00`;
 }
 function computeWeekNumber(iso){
   if(!iso) return null;
@@ -862,18 +1999,373 @@ function escHtml(value){
 function escAttr(value){
   return escHtml(value).replace(/"/g,"&quot;");
 }
+function toSelectionArray(value){
+  if(Array.isArray(value)) return value.filter(v=> v!=null && v!=="");
+  if(value==null || value==="") return [];
+  return [value];
+}
+function toNormalizedSet(values){
+  return new Set(toSelectionArray(values).map(val=> normalizeText(val)).filter(Boolean));
+}
+function formatIsoDateForDisplay(iso){
+  if(!iso) return "";
+  const parts = iso.split("-");
+  if(parts.length !== 3) return iso;
+  const [y,m,d] = parts;
+  return `${d}/${m}/${y}`;
+}
+function parseDateFilterInput(raw){
+  if(!raw) return { valid: true, iso: "", display: "" };
+  const clean = raw.trim();
+  if(!clean) return { valid: true, iso: "", display: "" };
+  const digitsOnly = clean.replace(/[^0-9]/g,"");
+  let iso = "";
+  let display = "";
+  const isoPattern = /^\d{4}-\d{2}-\d{2}$/;
+  const brPattern = /^\d{2}\/\d{2}\/\d{4}$/;
+  if(isoPattern.test(clean)){
+    iso = clean;
+    display = formatIsoDateForDisplay(iso);
+  }else if(brPattern.test(clean)){
+    const [day,month,year] = clean.split("/");
+    iso = `${year}-${month}-${day}`;
+    display = clean;
+  }else if(/^\d{8}$/.test(digitsOnly)){
+    const day = digitsOnly.slice(0,2);
+    const month = digitsOnly.slice(2,4);
+    const year = digitsOnly.slice(4);
+    iso = `${year}-${month}-${day}`;
+    display = `${day}/${month}/${year}`;
+  }else{
+    return { valid: false };
+  }
+  const test = new Date(iso);
+  if(Number.isNaN(test.getTime())) return { valid: false };
+  return { valid: true, iso, display };
+}
+function dateFormatterForTimeZone(timeZone){
+  dateFormatterForTimeZone.cache = dateFormatterForTimeZone.cache || {};
+  if(!dateFormatterForTimeZone.cache[timeZone]){
+    try{
+      dateFormatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        year:"numeric",
+        month:"2-digit",
+        day:"2-digit"
+      });
+    }catch(_){
+      dateFormatterForTimeZone.cache[timeZone] = null;
+    }
+  }
+  return dateFormatterForTimeZone.cache[timeZone];
+}
+function timeFormatterForTimeZone(timeZone){
+  timeFormatterForTimeZone.cache = timeFormatterForTimeZone.cache || {};
+  if(!timeFormatterForTimeZone.cache[timeZone]){
+    try{
+      timeFormatterForTimeZone.cache[timeZone] = new Intl.DateTimeFormat("pt-BR", {
+        timeZone,
+        hour12:false,
+        hour:"2-digit",
+        minute:"2-digit"
+      });
+    }catch(_){
+      timeFormatterForTimeZone.cache[timeZone] = null;
+    }
+  }
+  return timeFormatterForTimeZone.cache[timeZone];
+}
+function isoDateInTimeZone(iso, timeZone=BRAZIL_TZ){
+  if(!iso) return "";
+  const match = String(iso).match(/^(\d{4}-\d{2}-\d{2})/);
+  if(match) return match[1];
+  const date = new Date(iso);
+  if(Number.isNaN(date.getTime())) return "";
+  const formatter = dateFormatterForTimeZone(timeZone);
+  if(formatter){
+    return formatter.format(date);
+  }
+  const targetOffsetMinutes = BRAZIL_UTC_OFFSET_MINUTES; // fallback para Brasília (UTC-3)
+  const localOffsetMinutes = date.getTimezoneOffset();
+  const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
+  const adjusted = new Date(date.getTime() + diffMs);
+  return `${adjusted.getFullYear()}-${pad2(adjusted.getMonth()+1)}-${pad2(adjusted.getDate())}`;
+}
+function toBrazilDateKey(value){
+  if(!value) return "";
+  if(value instanceof Date){
+    return isoDateInTimeZone(value.toISOString());
+  }
+  if(typeof value === "string"){
+    return isoDateInTimeZone(value);
+  }
+  return "";
+}
+function selectionSummary(values, placeholder, limit=2){
+  const items = toSelectionArray(values);
+  if(!items.length) return placeholder;
+  if(items.length <= limit) return items.join(", ");
+  return `${items.slice(0, limit).join(", ")} +${items.length - limit}`;
+}
+function renderFilterMultiField(field,   label, options, selectedValues, placeholder, emptyMessage){
+  const values = toSelectionArray(selectedValues);
+  const summary = selectionSummary(values, placeholder);
+  const normalizedSelected = new Set(values.map(v=> normalizeText(v)));
+  const hasOptions = Array.isArray(options) && options.length > 0;
+  const menuContent = hasOptions
+    ? options.map(opt=>{
+        const checked = normalizedSelected.has(normalizeText(opt)) ? " checked" : "";
+        return `<label class="multi-option"><input type="checkbox" value="${escAttr(opt)}"${checked} /><span>${escHtml(opt)}</span></label>`;
+      }).join("")
+    : `<span class="multi-empty">${escHtml(emptyMessage || "Nenhuma opção disponível")}</span>`;
+  const disabledAttr = hasOptions ? "" : " disabled";
+  const disabledClass = hasOptions ? "" : " disabled";
+  return `
+      <div class="filter-field" data-field="${field}">
+        <span class="filter-label">${escHtml(label)}</span>
+        <div class="multi-select${disabledClass}" data-field="${field}">
+          <button type="button" class="multi-trigger" data-field="${field}" aria-haspopup="listbox" aria-expanded="false"${disabledAttr}>
+            <span class="value">${escHtml(summary)}</span>
+            <span class="chevron">&#9662;</span>
+          </button>
+          <div class="multi-menu" role="listbox" tabindex="-1">
+            ${menuContent}
+          </div>
+        </div>
+      </div>`;
+}
+function subareasForAreas(areaValues){
+  const selected = toSelectionArray(areaValues);
+  if(!selected.length) return [];
+  const byKey = Object.create(null);
+  Object.keys(AREA_SUBAREA_MAP).forEach(area=>{
+    byKey[normalizeText(area)] = AREA_SUBAREA_MAP[area];
+  });
+  const result = new Set();
+  selected.forEach(area=>{
+    const direct = AREA_SUBAREA_MAP[area];
+    const fallback = byKey[normalizeText(area)];
+    (direct || fallback || []).forEach(sub=> result.add(sub));
+  });
+  return Array.from(result);
+}
+function buildSubareaList(areaValue){
+  const allowed = areaValue ? subareasForAreas([areaValue]) : [];
+  return allowed.length ? allowed : SUBAREAS;
+}
+function populateSubareaSelect(selectEl, areaValue, currentValue, placeholderLabel="Subárea"){
+  if(!selectEl) return;
+  const options = buildSubareaList(areaValue);
+  const normalizedCurrent = normalizeText(currentValue || "");
+  const placeholder = placeholderLabel !== null
+    ? `<option value="">${escHtml(placeholderLabel || "")}</option>`
+    : "";
+  const optionMarkup = optionsMarkup(options, currentValue, false);
+  selectEl.innerHTML = placeholder + optionMarkup;
+  const matched = options.find(opt=> normalizeText(opt)===normalizedCurrent);
+  if(matched){
+    selectEl.value = matched;
+  }else if(placeholder){
+    selectEl.value = "";
+  }
+  applySelectColor(selectEl);
+}
+function setupAreaSubareaBinding(areaSelect, subareaSelect){
+  if(!areaSelect || !subareaSelect) return;
+  if(!subareaSelect.dataset.placeholder || !subareaSelect.dataset.placeholder.trim()){
+    subareaSelect.dataset.placeholder = "Subárea";
+  }
+  const sync = ()=>{
+    const areaValue = areaSelect.value || "";
+    const current = subareaSelect.value;
+    populateSubareaSelect(subareaSelect, areaValue, current, subareaSelect.dataset.placeholder || "Subárea");
+    const allowed = new Set(subareasForAreas(areaValue ? [areaValue] : []).map(item=> normalizeText(item)));
+    if(areaValue && allowed.size && !allowed.has(normalizeText(subareaSelect.value || ""))){
+      subareaSelect.value = "";
+      applySelectColor(subareaSelect);
+    }
+    if(!areaValue){
+      subareaSelect.value = "";
+      applySelectColor(subareaSelect);
+    }
+  };
+  if(!subareaSelect.dataset.placeholder){
+    subareaSelect.dataset.placeholder = subareaSelect.querySelector("option") ? subareaSelect.querySelector("option").textContent || "Subárea" : "Subárea";
+  }
+  areaSelect.addEventListener("change", sync);
+  sync();
+}
+function setupFilterMultiSelects(container){
+  if(!container) return;
+  const selects = Array.from(container.querySelectorAll(".multi-select"));
+  if(!selects.length) return;
+  const closeAll = ()=>{
+    selects.forEach(select=>{
+      select.classList.remove("open");
+      const trigger = select.querySelector(".multi-trigger");
+      if(trigger) trigger.setAttribute("aria-expanded","false");
+    });
+  };
+  if(document._filterMultiDocHandler){
+    document.removeEventListener("click", document._filterMultiDocHandler);
+  }
+  const docHandler = evt=>{
+    if(!evt.target.closest(".multi-select")){
+      closeAll();
+    }
+  };
+  document.addEventListener("click", docHandler);
+  document._filterMultiDocHandler = docHandler;
+  selects.forEach(select=>{
+    if(select.classList.contains("disabled")) return;
+    const trigger = select.querySelector(".multi-trigger");
+    const menu = select.querySelector(".multi-menu");
+    const field = select.dataset.field;
+    if(trigger){
+      trigger.addEventListener("click", ev=>{
+        ev.preventDefault();
+        ev.stopPropagation();
+        const open = select.classList.contains("open");
+        closeAll();
+        if(!open){
+          select.classList.add("open");
+          trigger.setAttribute("aria-expanded","true");
+        }
+      });
+      trigger.addEventListener("keydown", ev=>{
+        if(ev.key === " " || ev.key === "Enter"){
+          ev.preventDefault();
+          trigger.click();
+        }else if(ev.key === "Escape"){
+          closeAll();
+        }
+      });
+    }
+    if(menu){
+      menu.addEventListener("keydown", ev=>{
+        if(ev.key === "Escape"){
+          ev.preventDefault();
+          closeAll();
+          if(trigger) trigger.focus({preventScroll:true});
+        }
+      });
+      menu.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        cb.addEventListener("change", ()=>{
+          const values = Array.from(menu.querySelectorAll('input[type="checkbox"]:checked')).map(input=> input.value);
+          filterState[field] = values;
+          if(field === "area"){
+            const allowed = subareasForAreas(values);
+            const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+            const filtered = toSelectionArray(filterState.subarea).filter(item=> allowedNorm.has(normalizeText(item)));
+            filterState.subarea = filtered;
+          }
+          renderAll();
+        });
+      });
+    }
+  });
+}
+function setupQuickFlagShortcuts(){
+  const flagInputs = Array.from(document.querySelectorAll('#quickFlags input[data-quick-target]'));
+  if(!flagInputs.length) return;
+  const mapByTarget = new Map();
+  flagInputs.forEach(flag=>{
+    const targetId = flag.dataset.quickTarget;
+    if(!targetId) return;
+    const targetEl = document.getElementById(targetId);
+    if(!targetEl) return;
+    if(!mapByTarget.has(targetEl)) mapByTarget.set(targetEl, []);
+    mapByTarget.get(targetEl).push(flag);
+  });
+  const syncFlag = (flag, targetEl)=>{
+    const desired = normalizeText(flag.dataset.quickValue || "");
+    const current = normalizeText(targetEl.value || "");
+    flag.checked = desired && current === desired;
+  };
+  mapByTarget.forEach((flags,targetEl)=>{
+    const applyFromFlag = flag=>{
+      const desired = flag.dataset.quickValue || "";
+      const reset = flag.dataset.quickReset || "";
+      const next = flag.checked ? desired : reset;
+      if(targetEl.value !== next){
+        targetEl.value = next;
+        if(targetEl.dataset && targetEl.dataset.color){
+          applySelectColor(targetEl);
+        }
+        const evt = new Event("change", { bubbles:true });
+        targetEl.dispatchEvent(evt);
+      }
+      flags.forEach(f=> syncFlag(f,targetEl));
+    };
+    flags.forEach(flag=>{
+      if(!flag.dataset.quickInit){
+        flag.addEventListener("change", ()=> applyFromFlag(flag));
+        flag.dataset.quickInit = "1";
+      }
+      syncFlag(flag,targetEl);
+    });
+    if(!targetEl._quickFlagWatcher){
+      targetEl.addEventListener("change", ()=>{
+        flags.forEach(flag=> syncFlag(flag,targetEl));
+      });
+      targetEl._quickFlagWatcher = true;
+    }
+  });
+}
+function clearSelection(){
+  if(!selectedTaskIds.size) return;
+  selectedTaskIds.clear();
+}
+function toggleRowSelection(id, selected){
+  if(!Number.isFinite(id)) return;
+  if(selected){
+    selectedTaskIds.add(id);
+  }else{
+    selectedTaskIds.delete(id);
+  }
+}
+function populateBulkSubareaOptions(areaValue, selectEl){
+  if(!selectEl) return;
+  const normalized = areaValue === "__clear__" ? "" : (areaValue || "");
+  const list = normalized ? subareasForAreas([normalized]) : SUBAREAS;
+  const options = [
+    `<option value="">Manter subárea</option>`,
+    `<option value="__clear__">(Remover subárea)</option>`
+  ];
+  list.forEach(opt=>{
+    options.push(`<option value="${escAttr(opt)}">${escHtml(opt)}</option>`);
+  });
+  selectEl.innerHTML = options.join("");
+}
+function bulkUpdateSelected(patch){
+  const ids = Array.from(selectedTaskIds);
+  if(!ids.length) return;
+  let changed = false;
+  ids.forEach(id=>{
+    const updated = updateTask(id, patch, { skipSave:true, skipRender:true });
+    if(updated) changed = true;
+  });
+  if(changed){
+    save({ reason:"bulk-update" });
+  }
+  render(currentTab);
+}
 function optionsMarkup(list, current, includeEmpty=false){
-  const currentNorm = normalizeText(current);
+  const selectedSet = toNormalizedSet(current);
+  const known = new Map();
+  list.forEach(opt=> known.set(normalizeText(opt), opt));
   const parts = [];
   if(includeEmpty){
     parts.push(`<option value="">--</option>`);
   }
-  const hasCurrent = currentNorm && list.some(opt=> normalizeText(opt)===currentNorm);
-  if(current && !hasCurrent){
-    parts.push(`<option value="${escAttr(current)}" selected>${escHtml(current)}</option>`);
-  }
+  toSelectionArray(current).forEach(val=>{
+    const norm = normalizeText(val);
+    if(norm && !known.has(norm)){
+      parts.push(`<option value="${escAttr(val)}" selected>${escHtml(val)}</option>`);
+    }
+  });
   list.forEach(opt=>{
-    const selected = normalizeText(opt)===currentNorm ? " selected" : "";
+    const selected = selectedSet.has(normalizeText(opt)) ? " selected" : "";
     parts.push(`<option value="${escAttr(opt)}"${selected}>${escHtml(opt)}</option>`);
   });
   return parts.join("");
@@ -891,30 +2383,65 @@ function stringToColorPair(str){
   const hue = hash % 360;
   const light = 38 + (hash % 24);
   const bg = `hsl(${hue}, 65%, ${light}%)`;
-  const fg = light > 55 ? "#111111" : "#f9fafb";
-  return { bg, fg };
+  const text = light > 55 ? "#111111" : "#f9fafb";
+  return { bg, text, border: bg };
 }
 function colorFor(field, value){
   if(!value) return null;
   const palette = COLOR_PALETTES[field];
-  if(palette && palette[value]){
-    const [bg, fg] = palette[value];
-    return { bg, fg };
+  const entry = palette ? palette[value] : null;
+  if(entry){
+    if(Array.isArray(entry)){
+      const [bg, text] = entry;
+      return { bg, text, border: bg };
+    }
+    if(typeof entry === "object"){
+      const bg = entry.bg || (entry.backgroundColor || entry.background) || "#2A2F38";
+      const text = entry.text || entry.color || "#f3f4ff";
+      const border = entry.border || bg;
+      return { bg, text, border };
+    }
   }
-  if(field==="subarea" || !palette || !palette[value]){
-    return stringToColorPair(value);
+  return stringToColorPair(value);
+}
+function hslWithAlpha(hslString, alpha){
+  if(!hslString || typeof hslString !== "string") return `rgba(122,85,27,${alpha})`;
+  const match = hslString.match(/hsl\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%\s*\)/i);
+  if(match){
+    const [,h,s,l] = match;
+    return `hsla(${h}, ${s}%, ${l}%, ${alpha})`;
   }
-  return null;
+  return hslString;
 }
 function applySelectColor(select){
   if(!select || !select.dataset) return;
   const field = select.dataset.color;
   if(!field) return;
   const color = colorFor(field, select.value);
+  const shell = select.closest('.input-shell');
+  if(shell && shell.classList.contains('no-fill')){
+    select.style.backgroundColor = "transparent";
+    select.style.borderColor = "transparent";
+    select.style.color = color ? (color.text || "#f3f4ff") : "#f3f4ff";
+    if(color){
+      shell.classList.add('has-accent');
+      const accentBorder = hslWithAlpha(color.bg, 0.55);
+      const accentShadow = hslWithAlpha(color.bg, 0.22);
+      shell.style.setProperty('--shell-accent-color', accentBorder);
+      shell.style.setProperty('--shell-accent-shadow', accentShadow);
+      shell.style.setProperty('--shell-icon-accent', color.bg);
+    }else{
+      shell.classList.remove('has-accent');
+      shell.style.removeProperty('--shell-accent-color');
+      shell.style.removeProperty('--shell-accent-shadow');
+      shell.style.removeProperty('--shell-icon-accent');
+    }
+    return;
+  }
   if(color){
     select.style.backgroundColor = color.bg;
-    select.style.borderColor = color.bg;
-    select.style.color = color.fg;
+    select.style.borderColor = color.border || color.bg;
+    select.style.color = color.text || "#f3f4ff";
   }else{
     select.style.backgroundColor = "";
     select.style.borderColor = "";
@@ -1109,7 +2636,7 @@ function setupColumnResizing(tableEl){
     }
     resizer.dataset.ready = "1";
     const key = th.dataset.col;
-    if(key === "actions" || key === "emoji"){
+    if(key === "actions" || key === "select"){
       resizer.style.display = "none";
       return;
     }
@@ -1145,7 +2672,16 @@ function matchOption(raw, options){
   if(!clean) return null;
   const norm = normalizeText(clean);
   const found = options.find(opt=> normalizeText(opt)===norm);
-  return found || clean;
+  if(found) return found;
+  if(Array.isArray(options)){
+    const alias = SUBAREA_ALIAS_MAP[norm];
+    if(alias){
+      const aliasNorm = normalizeText(alias);
+      const aliasMatch = options.find(opt=> normalizeText(opt)===aliasNorm);
+      return aliasMatch || alias;
+    }
+  }
+  return clean;
 }
 function sanitizeNotes(value){
   if(value==null) return "";
@@ -1297,6 +2833,13 @@ async function restoreImportDirectory(){
       if(permission === "granted"){
         importDirHandle = stored;
         updateImportDirInfo(`Pasta selecionada: ${stored.name}`, "success");
+        startImportDirectoryWatcher();
+        const forceFull = !hasRunImportDirMigration();
+        syncImportDirectory({ initial:true, forceFull }).then(()=>{
+          if(forceFull){
+            markImportDirMigration();
+          }
+        }).catch(err=> console.warn("Sync dir error", err));
       }else{
         updateImportDirInfo("Selecione a pasta para salvar as importações.", "error");
       }
@@ -1307,36 +2850,224 @@ async function restoreImportDirectory(){
     console.warn("Falha ao restaurar pasta de importação", err);
   }
 }
+function startImportDirectoryWatcher(){
+  if(importDirScanTimer){
+    clearInterval(importDirScanTimer);
+    importDirScanTimer = null;
+  }
+  if(!importDirHandle) return;
+  importDirScanTimer = setInterval(()=>{
+    syncImportDirectory().catch(err=> console.warn("Auto sync erro", err));
+  }, IMPORT_DIR_SCAN_INTERVAL);
+}
+function stopImportDirectoryWatcher(){
+  if(importDirScanTimer){
+    clearInterval(importDirScanTimer);
+    importDirScanTimer = null;
+  }
+}
+async function syncImportDirectory(options={}){
+  if(!supportsFileSystemAccess() || !importDirHandle) return { processed:0 };
+  if(importDirSyncInFlight){
+    return { skipped:true };
+  }
+  importDirSyncInFlight = true;
+  const { initial=false, forceFull=false } = options;
+  let processed = 0;
+  let changed = false;
+  try{
+    const permission = await ensureDirPermission(importDirHandle);
+    if(permission !== "granted"){
+      updateImportDirInfo("Permissão negada para ler a pasta selecionada.", "error");
+      return { processed:0, error:"permission" };
+    }
+    const entries = [];
+    for await (const entry of importDirHandle.values()){
+      if(entry.kind === "file" && entry.name.toLowerCase().endsWith(".json")){
+        entries.push(entry);
+      }
+    }
+    // garantir ordem determinística
+    entries.sort((a,b)=> a.name.localeCompare(b.name));
+    for(const entry of entries){
+      try{
+        const file = await entry.getFile();
+        const lastModified = file.lastModified || Date.now();
+        const metaKey = entry.name;
+        const prevStamp = forceFull ? 0 : (importDirMeta[metaKey] || 0);
+        if(lastModified > prevStamp){
+          const text = await file.text();
+          const payload = JSON.parse(text);
+          const applied = applyImportedData(payload);
+          importDirMeta[metaKey] = lastModified;
+          saveImportDirMeta();
+          processed++;
+          if(applied){
+            changed = true;
+          }
+        }
+      }catch(err){
+        console.error("Falha ao importar arquivo da pasta", entry.name, err);
+      }
+    }
+    if(changed){
+      save();
+      saveRec();
+      render(currentTab || "all");
+    }
+    if(processed){
+      updateImportDirInfo(`Importados ${processed} arquivo(s) da pasta ${importDirHandle.name}`, "success");
+    }else if(initial){
+      updateImportDirInfo(`Pasta selecionada: ${importDirHandle.name}`, "success");
+    }
+  }catch(err){
+    console.error("Erro ao sincronizar pasta de importação", err);
+  }finally{
+    importDirSyncInFlight = false;
+  }
+  return { processed };
+}
 /* --------- UI base --------- */
+function shouldAssumeBrazilLocalTimes(payload){
+  if(!payload || typeof payload !== "object") return false;
+  if(payload.meta){
+    if(payload.meta.timeZone === "utc") return false;
+    if(payload.meta.timeZone === "br-local") return true;
+  }
+  if(typeof payload.version === "number"){
+    if(payload.version >= 2) return false;
+    if(payload.version <= 1) return true;
+  }
+  if(payload.savedAt){
+    return true;
+  }
+  return false;
+}
 function applyImportedData(data){
   if(data==null) return false;
   const nowIso = new Date().toISOString();
+  const assumeBrazilLocal = shouldAssumeBrazilLocalTimes(data);
   if(Array.isArray(data)){
     const tasks = parseNotionTasks(data, nowIso);
     if(!tasks.length) return false;
-    const normalized = tasks.map((task, idx)=> normalizeTask(task, idx+1, nowIso));
+    const normalized = tasks.map((task, idx)=> normalizeTask(task, idx+1, nowIso, { assumeBrazilLocal }));
     state = {
       tasks: normalized,
       lastId: normalized.reduce((max, t)=> Math.max(max, typeof t.id==="number" ? t.id : 0), 0)
     };
+    clearSelection();
     return true;
   }
   if(typeof data!=="object") return false;
   let applied = false;
   if(data.state){
-    state = normalizeStateData(data.state, nowIso);
+    const normalized = normalizeStateData(data.state, nowIso, { assumeBrazilLocal });
+    mergeNormalizedState(normalized, nowIso);
     applied = true;
   }else if(data.tasks){
-    state = normalizeStateData(data, nowIso);
+    const normalized = normalizeStateData(data, nowIso, { assumeBrazilLocal });
+    mergeNormalizedState(normalized, nowIso);
     applied = true;
   }
   if(data.recState){
-    recState = normalizeRecState(data.recState);
+    mergeNormalizedRecState(normalizeRecState(data.recState));
     applied = true;
   }
+  if(applied) clearSelection();
   return applied;
 }
-function normalizeStateData(rawState, nowIso){
+function timeInTimeZone(iso, timeZone=BRAZIL_TZ){
+  if(!iso) return "";
+  const match = String(iso).match(/T(\d{2}:\d{2})/);
+  if(match) return match[1];
+  const date = new Date(iso);
+  if(Number.isNaN(date.getTime())) return "";
+  const formatter = timeFormatterForTimeZone(timeZone);
+  if(formatter){
+    return formatter.format(date);
+  }
+  const targetOffsetMinutes = BRAZIL_UTC_OFFSET_MINUTES;
+  const localOffsetMinutes = date.getTimezoneOffset();
+  const diffMs = (targetOffsetMinutes - localOffsetMinutes) * 60 * 1000;
+  const adjusted = new Date(date.getTime() + diffMs);
+  return `${pad2(adjusted.getHours())}:${pad2(adjusted.getMinutes())}`;
+}
+function toIdKey(value){
+  const num = Number(value);
+  return Number.isFinite(num) ? `n:${num}` : `s:${String(value)}`;
+}
+function maxNumericId(list){
+  return (list||[]).reduce((max,item)=>{
+    const num = Number(item && item.id);
+    return Number.isFinite(num) ? Math.max(max, num) : max;
+  },0);
+}
+function mergeTaskLists(existing=[], incoming=[], nowIso){
+  if(!existing.length) return incoming.slice();
+  const incomingMap = new Map();
+  incoming.forEach(task=> incomingMap.set(toIdKey(task.id), task));
+  const merged = existing.map(task=>{
+    const key = toIdKey(task.id);
+    if(incomingMap.has(key)){
+      const update = incomingMap.get(key);
+      incomingMap.delete(key);
+      return {
+        ...task,
+        ...update,
+        createdAt: update.createdAt || task.createdAt || nowIso
+      };
+    }
+    return task;
+  });
+  incomingMap.forEach(task=> merged.push(task));
+  return merged;
+}
+function mergeRecLists(existing=[], incoming=[]){
+  if(!existing.length) return incoming.slice();
+  const incomingMap = new Map();
+  incoming.forEach(rec=> incomingMap.set(toIdKey(rec.id), rec));
+  const merged = existing.map(rec=>{
+    const key = toIdKey(rec.id);
+    if(incomingMap.has(key)){
+      const update = incomingMap.get(key);
+      incomingMap.delete(key);
+      return { ...rec, ...update };
+    }
+    return rec;
+  });
+  incomingMap.forEach(rec=> merged.push(rec));
+  return merged;
+}
+function mergeNormalizedState(normalizedState, nowIso){
+  const current = state || { tasks: [], lastId: 0 };
+  const incomingTasks = normalizedState.tasks || [];
+  const mergedTasks = mergeTaskLists(current.tasks || [], incomingTasks, nowIso);
+  const mergedLastId = Math.max(
+    current.lastId || 0,
+    normalizedState.lastId || 0,
+    maxNumericId(mergedTasks)
+  );
+  state = {
+    tasks: mergedTasks,
+    lastId: mergedLastId
+  };
+}
+function mergeNormalizedRecState(normalizedRec){
+  const currentRec = recState || { recs: [], lastId: 0 };
+  const incomingRecs = normalizedRec.recs || [];
+  const mergedRecs = mergeRecLists(currentRec.recs || [], incomingRecs);
+  const mergedLastId = Math.max(
+    currentRec.lastId || 0,
+    normalizedRec.lastId || 0,
+    maxNumericId(mergedRecs)
+  );
+  recState = {
+    recs: mergedRecs,
+    lastId: mergedLastId
+  };
+}
+function normalizeStateData(rawState, nowIso, options){
+  const opts = options || {};
   const source = Array.isArray(rawState)
     ? rawState
     : (rawState && Array.isArray(rawState.tasks) ? rawState.tasks : []);
@@ -1345,13 +3076,14 @@ function normalizeStateData(rawState, nowIso){
     : 0;
   let maxId = 0;
   const tasks = source.map((task, idx)=>{
-    const normalized = normalizeTask(task, idx+1, nowIso);
+    const normalized = normalizeTask(task, idx+1, nowIso, opts);
     maxId = Math.max(maxId, normalized.id);
     return normalized;
   });
   return { tasks, lastId: Math.max(maxId, initialLastId) };
 }
-function normalizeTask(task, fallbackId, nowIso){
+function normalizeTask(task, fallbackId, nowIso, options){
+  const opts = options || {};
   const copy = {...task};
   let id = Number(copy.id);
   if(!Number.isFinite(id)) id = fallbackId;
@@ -1359,8 +3091,7 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.title = cleanString(copy.title) || `Tarefa ${id}`;
   copy.createdAt = copy.createdAt || nowIso;
   copy.updatedAt = copy.updatedAt || copy.createdAt;
-  copy.dueAt = copy.dueAt ? new Date(copy.dueAt).toISOString() : null;
-  if(copy.dueAt && Number.isNaN(new Date(copy.dueAt).getTime())) copy.dueAt = null;
+  copy.dueAt = normalizeDueAtValue(copy.dueAt, opts);
   const rawEnd = copy.endTime ?? copy.end_time ?? copy.end ?? copy.horaFim ?? copy.finalTime;
   copy.endTime = sanitizeEndTime(rawEnd);
   copy.status = mapStatus(copy.status);
@@ -1373,6 +3104,21 @@ function normalizeTask(task, fallbackId, nowIso){
   copy.emoji = cleanString(copy.emoji||"") || null;
   applyDerived(copy);
   return copy;
+}
+function normalizeDueAtValue(value, options){
+  if(!value && value !== 0) return null;
+  const raw = String(value).trim();
+  if(!raw) return null;
+  const assumeLocal = options && options.assumeBrazilLocal && /z$/i.test(raw);
+  const cleaned = assumeLocal ? raw.replace(/z$/i,"") : raw;
+  const match = cleaned.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{2}):(\d{2})(?::(\d{2}))?/);
+  if(match){
+    const seconds = match[4] || "00";
+    return `${match[1]}T${match[2]}:${match[3]}:${seconds}`;
+  }
+  const parsed = new Date(raw);
+  if(Number.isNaN(parsed.getTime())) return null;
+  return `${parsed.getFullYear()}-${pad2(parsed.getMonth()+1)}-${pad2(parsed.getDate())}T${pad2(parsed.getHours())}:${pad2(parsed.getMinutes())}:${pad2(parsed.getSeconds())}`;
 }
 function normalizeRecState(rawRec){
   const recsIn = rawRec && Array.isArray(rawRec.recs) ? rawRec.recs : [];
@@ -1514,10 +3260,41 @@ function parseNotionDate(raw){
 }
 /* --------- Renderizações --------- */
 let currentTab = "all";
+let kanbanReferenceDate = null;
+let dayReferenceDate = null;
+function currentTasks(){
+  return Array.isArray(state?.tasks) ? state.tasks : [];
+}
+function datedTasksSorted(){
+  return currentTasks()
+    .filter(task=> !!task && !!task.dueAt)
+    .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""));
+}
+function firstDatedTask(){
+  const dated = datedTasksSorted();
+  return dated.length ? new Date(dated[0].dueAt) : null;
+}
+function resolveKanbanReference(){
+  if(kanbanReferenceDate){
+    const ref = new Date(kanbanReferenceDate);
+    if(!Number.isNaN(ref.getTime())) return ref;
+  }
+  return firstDatedTask() || new Date();
+}
+function resolveDayReference(){
+  if(dayReferenceDate){
+    const ref = new Date(dayReferenceDate);
+    if(!Number.isNaN(ref.getTime())) return ref;
+  }
+  return firstDatedTask() || new Date();
+}
 function render(tab){
   currentTab = tab;
   const view = document.getElementById("view");
   if(!view) return;
+  if(tab !== "all" && selectedTaskIds.size){
+    clearSelection();
+  }
   const proxy = document.getElementById("tableScrollProxy");
   if(tab !== "all" && proxy){
     proxy.classList.remove("active");
@@ -1553,7 +3330,7 @@ function renderAll(){
       };
     }
   }
-  const filteredTasks = applyFilters(state.tasks);
+  const filteredTasks = applyFilters(currentTasks());
   const sorted = filteredTasks.slice().sort((a,b)=>{
     const da = a.dueAt || "9999-12-31T00:00:00";
     const db = b.dueAt || "9999-12-31T00:00:00";
@@ -1561,19 +3338,41 @@ function renderAll(){
     if(diff!==0) return diff;
     return (a.title||"").localeCompare(b.title||"");
   });
+  const visibleIdSet = new Set(sorted.map(task=> task.id));
+  selectedTaskIds.forEach(id=>{
+    if(!visibleIdSet.has(id)){
+      selectedTaskIds.delete(id);
+    }
+  });
+  const selectionCount = selectedTaskIds.size;
+  const visibleSelectedCount = sorted.reduce((acc, task)=> acc + (selectedTaskIds.has(task.id) ? 1 : 0), 0);
+  const allVisibleSelected = sorted.length > 0 && visibleSelectedCount === sorted.length;
+  const someVisibleSelected = visibleSelectedCount > 0 && visibleSelectedCount < sorted.length;
   const headerHtml = TABLE_COLUMNS.map(key=>{
+    if(key === "select"){
+      const checkedAttr = allVisibleSelected ? " checked" : "";
+      return `<th data-col="select"><label class="row-select-checkbox"><input type="checkbox" id="selectAllRows"${checkedAttr} /><span></span></label></th>`;
+    }
     const label = COLUMN_LABELS[key] || key;
     const resizer = key === 'actions' ? '' : '<span class="resizer"></span>';
     return `<th data-col="${key}">${label}${resizer}</th>`;
   }).join("");
   const rows = sorted.map(t=>{
+    const isSelected = selectedTaskIds.has(t.id);
+    const rowClass = isSelected ? "selected" : "";
     const dueParts = splitDueAt(t.dueAt);
     const dueDateVal = escAttr(dueParts.date || "");
     const dueTimeVal = escAttr(dueParts.time || "");
     const endTimeVal = escAttr(toTimeInputValue(t.endTime));
+    const allowedSubareas = buildSubareaList(t.area);
     return `
-      <tr data-id="${t.id}">
-        <td data-col="emoji"><select class="table-input emoji-select" data-field="emoji">${emojiOptions(t.emoji)}</select></td>
+      <tr data-id="${t.id}" class="${rowClass}">
+        <td data-col="select">
+          <label class="row-select-checkbox">
+            <input type="checkbox" class="row-select-input" data-id="${t.id}"${isSelected ? " checked" : ""} />
+            <span></span>
+          </label>
+        </td>
         <td data-col="title"><input class="table-input" data-field="title" value="${escAttr(t.title||"")}" /></td>
         <td data-col="date">
           <div class="stack date-stack">
@@ -1587,7 +3386,7 @@ function renderAll(){
         <td data-col="priority"><select class="table-input colorful" data-color="priority" data-field="priority">${optionsMarkup(PRIORITIES, t.priority, true)}</select></td>
         <td data-col="duration"><select class="table-input colorful" data-color="duration" data-field="durationTag">${optionsMarkup(DURATIONS, t.durationTag, true)}</select></td>
         <td data-col="area"><select class="table-input colorful" data-color="area" data-field="area">${optionsMarkup(AREAS, t.area, true)}</select></td>
-        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(SUBAREAS, t.subarea, true)}</select></td>
+        <td data-col="subarea"><select class="table-input colorful" data-color="subarea" data-field="subarea">${optionsMarkup(allowedSubareas, t.subarea, true)}</select></td>
         <td data-col="notes"><textarea class="table-input" data-field="notes" rows="2">${escHtml(t.notes||"")}</textarea></td>
         <td data-col="week">${t.weekNumber||""}</td>
         <td data-col="actions">
@@ -1603,84 +3402,108 @@ function renderAll(){
     `;
   }).join("");
   const rowMarkup = rows || `<tr class="empty-row"><td colspan="${TABLE_COLUMNS.length}"><div class="muted">Sem itens.</div></td></tr>`;
+  const selectionSummaryText = selectionCount === 1
+    ? "1 tarefa selecionada"
+    : `${selectionCount} tarefas selecionadas`;
+  const selectionBar = selectionCount ? `
+    <div class="selection-bar">
+      <div class="selection-summary">
+        <span>${selectionSummaryText}</span>
+        <button class="btn tiny" type="button" id="clearSelectionBtn">Limpar seleção</button>
+      </div>
+      <div class="selection-actions">
+        <select id="bulk-status">
+          <option value="">Manter status</option>
+          ${STATUS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-responsible">
+          <option value="">Manter responsável</option>
+          <option value="__clear__">(Remover responsável)</option>
+          ${RESPONSIBLES.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-priority">
+          <option value="">Manter prioridade</option>
+          <option value="__clear__">(Remover prioridade)</option>
+          ${PRIORITIES.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-duration">
+          <option value="">Manter tempo</option>
+          <option value="__clear__">(Remover tempo)</option>
+          ${DURATIONS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-area">
+          <option value="">Manter área</option>
+          <option value="__clear__">(Remover área)</option>
+          ${AREAS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <select id="bulk-subarea">
+          <option value="">Manter subárea</option>
+          <option value="__clear__">(Remover subárea)</option>
+          ${SUBAREAS.map(opt=> `<option value="${escAttr(opt)}">${escHtml(opt)}</option>`).join("")}
+        </select>
+        <button class="btn primary" type="button" id="bulkApply">Aplicar</button>
+      </div>
+    </div>
+  ` : "";
+  const selectedAreas = toSelectionArray(filterState.area);
+  const hasAreaSelection = selectedAreas.length > 0;
+  const availableFilterSubareas = hasAreaSelection ? subareasForAreas(selectedAreas) : SUBAREAS;
+  const subareaPlaceholder = "Selecionar subáreas...";
+  const subareaEmptyMessage = hasAreaSelection ? "Nenhuma subárea disponível" : "Nenhuma subárea cadastrada";
   const filterMarkup = `
     <div class="filter-grid">
-      <label>
-        <span>Texto</span>
-        <input id="filter-text" placeholder="T&iacute;tulo, notas, pessoa..." />
-      </label>
-      <label>
-        <span>Status</span>
-        <select id="filter-status" class="colorful" data-color="status">
-          ${optionsMarkup(STATUS, filterState.status, true)}
-        </select>
-      </label>
-      <label>
-        <span>Respons&aacute;vel</span>
-        <select id="filter-responsible" class="colorful" data-color="responsible">
-          ${optionsMarkup(RESPONSIBLES, filterState.responsible, true)}
-        </select>
-      </label>
-      <label>
-        <span>Prioridade</span>
-        <select id="filter-priority" class="colorful" data-color="priority">
-          ${optionsMarkup(PRIORITIES, filterState.priority, true)}
-        </select>
-      </label>
-      <label>
-        <span>Tempo para conclus&atilde;o</span>
-        <select id="filter-duration" class="colorful" data-color="duration">
-          ${optionsMarkup(DURATIONS, filterState.duration, true)}
-        </select>
-      </label>
-      <label>
-        <span>&Aacute;rea</span>
-        <select id="filter-area" class="colorful" data-color="area">
-          ${optionsMarkup(AREAS, filterState.area, true)}
-        </select>
-      </label>
-      <label>
-        <span>Sub&aacute;rea</span>
-        <select id="filter-subarea" class="colorful" data-color="subarea">
-          ${optionsMarkup(SUBAREAS, filterState.subarea, true)}
-        </select>
-      </label>
-      <label>
-        <span>Data inicial</span>
-        <input type="date" id="filter-date-from" />
-      </label>
-      <label>
-        <span>Data final</span>
-        <input type="date" id="filter-date-to" />
-      </label>
-      <label>
-        <span>Semana</span>
-        <input type="number" id="filter-week" min="1" max="53" placeholder="Ex: 42" />
-      </label>
+      <div class="filter-field">
+        <span class="filter-label">Texto</span>
+        <input id="filter-text" class="filter-input" placeholder="Buscar título, notas ou responsável..." value="${escAttr(filterState.text)}" />
+      </div>
+      ${renderFilterMultiField("status","Status", STATUS, filterState.status, "Selecionar status...", "Nenhum status cadastrado")}
+      ${renderFilterMultiField("responsible","Responsável", RESPONSIBLES, filterState.responsible, "Selecionar responsáveis...", "Nenhum responsável cadastrado")}
+      ${renderFilterMultiField("priority","Prioridade", PRIORITIES, filterState.priority, "Selecionar prioridades...", "Nenhuma prioridade cadastrada")}
+      ${renderFilterMultiField("duration","Tempo para conclusão", DURATIONS, filterState.duration, "Selecionar tempos...", "Nenhuma opção cadastrada")}
+      ${renderFilterMultiField("area","Área", AREAS, filterState.area, "Selecionar áreas...", "Nenhuma área cadastrada")}
+      ${renderFilterMultiField("subarea","Subárea", availableFilterSubareas, filterState.subarea, subareaPlaceholder, subareaEmptyMessage)}
+      <div class="filter-field">
+        <span class="filter-label">Data inicial</span>
+        <input type="text" id="filter-date-from" class="filter-input date-input" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" value="${escAttr(formatIsoDateForDisplay(filterState.dateFrom))}" />
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Data final</span>
+        <input type="text" id="filter-date-to" class="filter-input date-input" inputmode="numeric" autocomplete="off" placeholder="dd/mm/aaaa" value="${escAttr(formatIsoDateForDisplay(filterState.dateTo))}" />
+      </div>
+      <div class="filter-field">
+        <span class="filter-label">Semana</span>
+        <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" value="${escAttr(filterState.week || "")}" />
+      </div>
     </div>
     <div class="filter-flags">
       <label><input type="checkbox" id="filter-include-nodate" /> Incluir tarefas sem data</label>
       <label><input type="checkbox" id="filter-only-nodate" /> Somente sem data</label>
     </div>
     <div class="filter-actions">
-      <button class="btn tiny" type="button" data-range="today">Hoje</button>
-      <button class="btn tiny" type="button" data-range="tomorrow">Amanh&atilde;</button>
-      <button class="btn tiny" type="button" data-range="next7">Pr&oacute;ximos 7 dias</button>
-      <button class="btn tiny" type="button" data-range="week">Esta semana</button>
-      <button class="btn tiny" type="button" data-range="month">Este m&ecirc;s</button>
-      <button class="btn tiny" type="button" data-range="clear">Limpar datas</button>
+      <span class="hint">Use Ctrl (Windows) ou Cmd (Mac) para marcar múltiplos itens</span>
+      <button class="filter-chip" type="button" data-range="yesterday">Ontem</button>
+      <button class="filter-chip" type="button" data-range="today">Hoje</button>
+      <button class="filter-chip" type="button" data-range="tomorrow">Amanhã</button>
+      <button class="filter-chip" type="button" data-range="next7">Próximos 7 dias</button>
+      <button class="filter-chip" type="button" data-range="week">Esta semana</button>
+      <button class="filter-chip" type="button" data-range="month">Este mês</button>
+      <button class="filter-chip" type="button" data-range="clear">Limpar datas</button>
       <button class="btn tiny" type="button" id="filter-reset">Limpar filtros</button>
     </div>
   `;
   const filterContainer = document.getElementById("filterContainer");
   if(filterContainer){
     filterContainer.innerHTML = filterMarkup;
+    setupFilterMultiSelects(filterContainer);
   }
+  const tableSurfaceClass = selectionCount ? "table-surface selection-mode" : "table-surface";
+  const tableClassName = selectionCount ? "selection-active" : "";
   view.innerHTML = `
-    <div class="table-surface">
+    ${selectionBar}
+    <div class="${tableSurfaceClass}">
       <div class="table-wrapper">
         <div class="table-scroll">
-          <table>
+          <table class="${tableClassName}">
             <thead>
               <tr>${headerHtml}</tr>
             </thead>
@@ -1694,14 +3517,78 @@ function renderAll(){
       </div>
     </div>
   `;
+  const selectAllCheckbox = document.getElementById("selectAllRows");
+  if(selectAllCheckbox){
+    selectAllCheckbox.checked = allVisibleSelected;
+    selectAllCheckbox.indeterminate = someVisibleSelected;
+    selectAllCheckbox.addEventListener("change", ()=>{
+      sorted.forEach(task=> toggleRowSelection(task.id, selectAllCheckbox.checked));
+      renderAll();
+    });
+  }
+  if(selectionCount){
+    const clearSelectionBtn = document.getElementById("clearSelectionBtn");
+    if(clearSelectionBtn){
+      clearSelectionBtn.addEventListener("click", ()=>{
+        clearSelection();
+        renderAll();
+      });
+    }
+    const bulkStatusSelect = document.getElementById("bulk-status");
+    const bulkResponsibleSelect = document.getElementById("bulk-responsible");
+    const bulkPrioritySelect = document.getElementById("bulk-priority");
+    const bulkDurationSelect = document.getElementById("bulk-duration");
+    const bulkAreaSelect = document.getElementById("bulk-area");
+    const bulkSubareaSelect = document.getElementById("bulk-subarea");
+    if(bulkAreaSelect && bulkSubareaSelect){
+      populateBulkSubareaOptions(bulkAreaSelect.value, bulkSubareaSelect);
+      bulkAreaSelect.addEventListener("change", ()=>{
+        populateBulkSubareaOptions(bulkAreaSelect.value, bulkSubareaSelect);
+      });
+    }
+    const bulkApplyBtn = document.getElementById("bulkApply");
+    if(bulkApplyBtn){
+      bulkApplyBtn.addEventListener("click", ()=>{
+        const patch = {};
+        const statusVal = bulkStatusSelect ? bulkStatusSelect.value : "";
+        if(statusVal){
+          patch.status = statusVal;
+        }
+        const responsibleVal = bulkResponsibleSelect ? bulkResponsibleSelect.value : "";
+        if(responsibleVal){
+          patch.responsible = responsibleVal === "__clear__" ? null : responsibleVal;
+        }
+        const priorityVal = bulkPrioritySelect ? bulkPrioritySelect.value : "";
+        if(priorityVal){
+          patch.priority = priorityVal === "__clear__" ? null : priorityVal;
+        }
+        const durationVal = bulkDurationSelect ? bulkDurationSelect.value : "";
+        if(durationVal){
+          patch.durationTag = durationVal === "__clear__" ? null : durationVal;
+        }
+        const areaVal = bulkAreaSelect ? bulkAreaSelect.value : "";
+        if(areaVal){
+          if(areaVal === "__clear__"){
+            patch.area = null;
+            patch.subarea = null;
+          }else{
+            patch.area = areaVal;
+          }
+        }
+        const subareaVal = bulkSubareaSelect ? bulkSubareaSelect.value : "";
+        if(subareaVal){
+          patch.subarea = subareaVal === "__clear__" ? null : subareaVal;
+        }
+        if(!Object.keys(patch).length){
+          alert("Selecione ao menos um campo para aplicar.");
+          return;
+        }
+        bulkUpdateSelected(patch);
+      });
+    }
+  }
   const controls = {
     text: document.getElementById("filter-text"),
-    status: document.getElementById("filter-status"),
-    responsible: document.getElementById("filter-responsible"),
-    priority: document.getElementById("filter-priority"),
-    duration: document.getElementById("filter-duration"),
-    area: document.getElementById("filter-area"),
-    subarea: document.getElementById("filter-subarea"),
     dateFrom: document.getElementById("filter-date-from"),
     dateTo: document.getElementById("filter-date-to"),
     week: document.getElementById("filter-week"),
@@ -1709,8 +3596,8 @@ function renderAll(){
     onlyNoDate: document.getElementById("filter-only-nodate")
   };
   if(controls.text) controls.text.value = filterState.text;
-  if(controls.dateFrom) controls.dateFrom.value = filterState.dateFrom || "";
-  if(controls.dateTo) controls.dateTo.value = filterState.dateTo || "";
+  if(controls.dateFrom) controls.dateFrom.value = formatIsoDateForDisplay(filterState.dateFrom);
+  if(controls.dateTo) controls.dateTo.value = formatIsoDateForDisplay(filterState.dateTo);
   if(controls.week) controls.week.value = filterState.week || "";
   if(controls.includeNoDate) controls.includeNoDate.checked = !!filterState.includeNoDate;
   if(controls.onlyNoDate) controls.onlyNoDate.checked = !!filterState.onlyNoDate;
@@ -1721,18 +3608,35 @@ function renderAll(){
   if(controls.text){
     controls.text.oninput = (e)=>{ filterState.text = e.target.value; renderAll(); };
   }
-  ["status","responsible","priority","duration","area","subarea"].forEach(key=>{
-    const ctrl = controls[key];
-    if(ctrl){
-      ctrl.onchange = (e)=>{ filterState[key] = e.target.value; renderAll(); };
-    }
-  });
-  if(controls.dateFrom){
-    controls.dateFrom.onchange = (e)=>{ filterState.dateFrom = e.target.value; renderAll(); };
-  }
-  if(controls.dateTo){
-    controls.dateTo.onchange = (e)=>{ filterState.dateTo = e.target.value; renderAll(); };
-  }
+  const attachDateHandler = (ctrlKey, inputEl)=>{
+    if(!inputEl) return;
+    if(inputEl.dataset.dateHandlerAttached) return;
+    const commit = value=>{
+      const parsed = parseDateFilterInput(value);
+      if(!parsed.valid){
+        inputEl.value = formatIsoDateForDisplay(filterState[ctrlKey]);
+        return;
+      }
+      const nextIso = parsed.iso;
+      if(filterState[ctrlKey] !== nextIso){
+        filterState[ctrlKey] = nextIso;
+        renderAll();
+      }else{
+        inputEl.value = parsed.display;
+      }
+    };
+    inputEl.addEventListener("change", e=> commit(e.target.value));
+    inputEl.addEventListener("blur", e=> commit(e.target.value));
+    inputEl.addEventListener("keydown", ev=>{
+      if(ev.key === "Enter"){
+        ev.preventDefault();
+        commit(ev.target.value);
+      }
+    });
+    inputEl.dataset.dateHandlerAttached = "1";
+  };
+  attachDateHandler("dateFrom", controls.dateFrom);
+  attachDateHandler("dateTo", controls.dateTo);
   if(controls.week){
     controls.week.oninput = (e)=>{
       const clean = e.target.value.replace(/[^0-9]/g,"").slice(0,2);
@@ -1778,11 +3682,8 @@ function renderAll(){
     });
   }
   setupColorizedSelects(view);
-  if(filterContainer){
-    setupColorizedSelects(filterContainer);
-    if(filterCollapse && filterCollapse.isOpen()){
-      filterCollapse.setOpen(true);
-    }
+  if(filterContainer && filterCollapse && filterCollapse.isOpen()){
+    filterCollapse.setOpen(true);
   }
   const tableScroll = view.querySelector(".table-scroll");
   const tableEl = tableScroll ? tableScroll.querySelector("table") : null;
@@ -1801,13 +3702,24 @@ function renderAll(){
     let needsScroll = false;
     const updateProxy = ()=>{
       applyColumnWidths(tableEl);
-      const containerWidth = mainEl ? mainEl.clientWidth : Math.min(window.innerWidth, 1140);
-      proxy.style.width = `${containerWidth}px`;
+      const scrollRect = tableScroll ? tableScroll.getBoundingClientRect() : null;
+      const containerWidth = scrollRect
+        ? scrollRect.width
+        : (mainEl ? mainEl.clientWidth : Math.min(window.innerWidth, 1140));
+      const effectiveWidth = Math.max(containerWidth, 240);
+      proxy.style.width = `${effectiveWidth}px`;
+      if(scrollRect){
+        proxy.style.left = `${scrollRect.left}px`;
+        proxy.style.transform = "none";
+      }else{
+        proxy.style.left = "50%";
+        proxy.style.transform = "translateX(-50%)";
+      }
       if(proxyInner){
-        const needed = Math.max(tableEl.scrollWidth, containerWidth);
+        const needed = Math.max(tableEl.scrollWidth, effectiveWidth);
         proxyInner.style.width = `${needed}px`;
       }
-      needsScroll = tableEl.scrollWidth > containerWidth + 1;
+      needsScroll = tableEl.scrollWidth > effectiveWidth + 1;
       if(!needsScroll){ proxy.classList.remove('active'); }
     };
     updateProxy();
@@ -1868,6 +3780,14 @@ function renderAll(){
 }
 function handleTableChange(e){
   if(!e.target || !["INPUT","SELECT","TEXTAREA"].includes(e.target.tagName)) return;
+  if(e.target.classList.contains("row-select-input")){
+    const id = Number(e.target.dataset.id);
+    if(Number.isFinite(id)){
+      toggleRowSelection(id, e.target.checked);
+      renderAll();
+    }
+    return;
+  }
   const field = e.target.dataset.field;
   if(!field) return;
   const tr = e.target.closest("tr");
@@ -1889,47 +3809,101 @@ function handleTableChange(e){
     const timeInput = tr.querySelector('[data-field="dueTime"]');
     const dateVal = dateInput ? dateInput.value : "";
     const rawTimeVal = timeInput ? timeInput.value : "";
+    const normalizedDate = normalizeDateOnly(dateVal);
     const normalizedTime = padTime(rawTimeVal);
-    if(timeInput){
-      timeInput.value = normalizedTime;
+    if(!normalizedDate || normalizedTime.length < 5){
+      return; // aguarda preenchimento completo antes de salvar
     }
-    const iso = combineDateAndTime(dateVal, normalizedTime);
+    const iso = combineDateAndTime(normalizedDate, normalizedTime);
     patch.dueAt = iso;
-    if(!normalizeDateOnly(dateVal)){
-      patch.dueAt = null;
+    const skipRender = rowEditLockId === id;
+    if(skipRender){
+      rowEditNeedsRender = true;
     }
-    updateTask(id, patch);
+    updateTask(id, patch, {skipRender});
+    if(!skipRender){
+      rowEditNeedsRender = false;
+    }
     return;
   }else if(field==="endTime"){
-    value = padTime(value);
-    value = value ? value : null;
-    if(e.target.value !== value){
-      e.target.value = value || "";
+    if(value && value.trim()){
+      const normalizedEnd = padTime(value);
+      if(!normalizedEnd || normalizedEnd.length < 5){
+        return;
+      }
+      value = normalizedEnd;
+      if(e.target.value !== value){
+        e.target.value = value;
+      }
+      const skipRender = rowEditLockId === id;
+      if(skipRender){
+        rowEditNeedsRender = true;
+      }
+      updateTask(id, { endTime: value }, { skipRender });
+      if(!skipRender){
+        rowEditNeedsRender = false;
+      }
+      return;
+    }else{
+      value = null;
+      const skipRender = rowEditLockId === id;
+      if(skipRender){
+        rowEditNeedsRender = true;
+      }
+      updateTask(id, { endTime: null }, { skipRender });
+      if(!skipRender){
+        rowEditNeedsRender = false;
+      }
+      return;
     }
   }else if(field==="notes"){
-    value = sanitizeNotes(value);
-  }else{
-    value = value || null;
+  let assignDefault = true;
+  if(field==="area"){
+    value = sanitizeOptionField(value, AREAS);
+    patch[field] = value;
+    assignDefault = false;
+    const subSelect = tr.querySelector('[data-field="subarea"]');
+    const allowed = subareasForAreas(value ? [value] : []);
+    if(subSelect){
+      populateSubareaSelect(subSelect, value, subSelect.value, "--");
+      const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+      if(!value || (allowedNorm.size && !allowedNorm.has(normalizeText(subSelect.value || "")))){
+        subSelect.value = "";
+        applySelectColor(subSelect);
+        patch.subarea = null;
+      }
+    }else if(!value){
+      patch.subarea = null;
+    }
+  }else if(field==="subarea"){
+    const areaVal = tr.querySelector('[data-field="area"]') ? tr.querySelector('[data-field="area"]').value : "";
+    const allowedList = buildSubareaList(areaVal);
+    value = sanitizeOptionField(value, allowedList);
+    patch[field] = value;
+    assignDefault = false;
   }
-  patch[field] = value;
+  if(assignDefault){
+    patch[field] = value;
+  }
   if(e.target.dataset && e.target.dataset.color){
     applySelectColor(e.target);
   }
   updateTask(id, patch);
 }
 function resetFilterState(){
-  Object.keys(FILTER_DEFAULTS).forEach(key=>{
-    filterState[key] = FILTER_DEFAULTS[key];
+  const fresh = cloneFilterDefaults();
+  Object.keys(fresh).forEach(key=>{
+    filterState[key] = fresh[key];
   });
 }
 function applyFilters(tasks){
   const query = normalizeText(filterState.text);
-  const statusNorm = normalizeText(filterState.status);
-  const respNorm = normalizeText(filterState.responsible);
-  const priorityNorm = normalizeText(filterState.priority);
-  const durationNorm = normalizeText(filterState.duration);
-  const areaNorm = normalizeText(filterState.area);
-  const subareaNorm = normalizeText(filterState.subarea);
+  const statusSet = toNormalizedSet(filterState.status);
+  const respSet = toNormalizedSet(filterState.responsible);
+  const prioritySet = toNormalizedSet(filterState.priority);
+  const durationSet = toNormalizedSet(filterState.duration);
+  const areaSet = toNormalizedSet(filterState.area);
+  const subareaSet = toNormalizedSet(filterState.subarea);
   const from = filterState.dateFrom || "";
   const to = filterState.dateTo || "";
   const includeNoDate = !!filterState.includeNoDate;
@@ -1938,7 +3912,7 @@ function applyFilters(tasks){
   const hasWeekFilter = Number.isFinite(weekNumber) && weekNumber > 0;
   return tasks.filter(task=>{
     applyDerived(task);
-    const dueIso = task.dueAt ? task.dueAt.slice(0,10) : null;
+  const dueIso = task.dueAt ? isoDateInTimeZone(task.dueAt) : null;
     if(query){
       const haystack = normalizeText([
         task.title,
@@ -1952,12 +3926,18 @@ function applyFilters(tasks){
       ].filter(Boolean).join(" "));
       if(!haystack.includes(query)) return false;
     }
-    if(statusNorm && normalizeText(task.status)!==statusNorm) return false;
-    if(respNorm && normalizeText(task.responsible||"")!==respNorm) return false;
-    if(priorityNorm && normalizeText(task.priority||"")!==priorityNorm) return false;
-    if(durationNorm && normalizeText(task.durationTag||"")!==durationNorm) return false;
-    if(areaNorm && normalizeText(task.area||"")!==areaNorm) return false;
-    if(subareaNorm && normalizeText(task.subarea||"")!==subareaNorm) return false;
+    const taskStatusNorm = normalizeText(task.status);
+    const taskResponsibleNorm = normalizeText(task.responsible||"");
+    const taskPriorityNorm = normalizeText(task.priority||"");
+    const taskDurationNorm = normalizeText(task.durationTag||"");
+    const taskAreaNorm = normalizeText(task.area||"");
+    const taskSubareaNorm = normalizeText(task.subarea||"");
+    if(statusSet.size && !statusSet.has(taskStatusNorm)) return false;
+    if(respSet.size && !respSet.has(taskResponsibleNorm)) return false;
+    if(prioritySet.size && !prioritySet.has(taskPriorityNorm)) return false;
+    if(durationSet.size && !durationSet.has(taskDurationNorm)) return false;
+    if(areaSet.size && !areaSet.has(taskAreaNorm)) return false;
+    if(subareaSet.size && !subareaSet.has(taskSubareaNorm)) return false;
     if(onlyNoDate){
       if(task.dueAt) return false;
     }else{
@@ -1976,7 +3956,7 @@ function applyFilters(tasks){
 }
 function applyQuickRange(range){
   const today = new Date();
-  const todayIso = today.toISOString().slice(0,10);
+  const todayIso = toBrazilDateKey(today);
   if(range==="clear"){
     filterState.dateFrom = "";
     filterState.dateTo = "";
@@ -1986,6 +3966,13 @@ function applyQuickRange(range){
   }
   filterState.onlyNoDate = false;
   switch(range){
+    case "yesterday": {
+      const yesterday = toBrazilDateKey(plusDays(today, -1));
+      filterState.dateFrom = yesterday;
+      filterState.dateTo = yesterday;
+      filterState.includeNoDate = false;
+      break;
+    }
     case "today": {
       filterState.dateFrom = todayIso;
       filterState.dateTo = todayIso;
@@ -1993,14 +3980,14 @@ function applyQuickRange(range){
       break;
     }
     case "tomorrow": {
-      const tomorrow = plusDays(today, 1).toISOString().slice(0,10);
+      const tomorrow = toBrazilDateKey(plusDays(today, 1));
       filterState.dateFrom = tomorrow;
       filterState.dateTo = tomorrow;
       filterState.includeNoDate = false;
       break;
     }
     case "next7": {
-      const end7 = plusDays(today, 6).toISOString().slice(0,10);
+      const end7 = toBrazilDateKey(plusDays(today, 6));
       filterState.dateFrom = todayIso;
       filterState.dateTo = end7;
       filterState.includeNoDate = false;
@@ -2009,16 +3996,16 @@ function applyQuickRange(range){
     case "week": {
       const start = mondayOf(today);
       const end = plusDays(start, 6);
-      filterState.dateFrom = start.toISOString().slice(0,10);
-      filterState.dateTo = end.toISOString().slice(0,10);
+      filterState.dateFrom = toBrazilDateKey(start);
+      filterState.dateTo = toBrazilDateKey(end);
       filterState.includeNoDate = false;
       break;
     }
     case "month": {
       const first = new Date(today.getFullYear(), today.getMonth(), 1);
       const last = new Date(today.getFullYear(), today.getMonth()+1, 0);
-      filterState.dateFrom = first.toISOString().slice(0,10);
-      filterState.dateTo = last.toISOString().slice(0,10);
+      filterState.dateFrom = toBrazilDateKey(first);
+      filterState.dateTo = toBrazilDateKey(last);
       filterState.includeNoDate = false;
       break;
     }
@@ -2030,14 +4017,17 @@ function applyQuickRange(range){
 function renderKanban(){
   const view = document.getElementById("view");
   if(!view) return;
-  const today = new Date();
-  const monday = mondayOf(today);
+  const reference = resolveKanbanReference();
+  const monday = mondayOf(reference);
   const sunday = plusDays(monday,6);
-  const weekTasks = state.tasks.filter(t=>{
+  const tasks = currentTasks();
+  const weekTasks = tasks.filter(t=>{
     if(!t.dueAt) return false;
     const d = new Date(t.dueAt);
     return d >= monday && d <= sunday;
   });
+  const readableWeek = `${monday.toLocaleDateString("pt-BR")} - ${sunday.toLocaleDateString("pt-BR")}`;
+  const pickerValue = toBrazilDateKey(monday);
   const columns = [
     { title: "A fazer", status: STATUS[0] },
     { title: "Em progresso", status: STATUS[1] },
@@ -2047,11 +4037,16 @@ function renderKanban(){
     { title: "Conclu\u00eddo", status: STATUS[5] }
   ];
   view.innerHTML = `
-    <div class="footer">
-      <div class="status-msg">Semana ${monday.toLocaleDateString()} - ${sunday.toLocaleDateString()}</div>
+    <div class="kanban-toolbar footer">
+      <div class="status-msg">Semana ${readableWeek}</div>
       <div class="row">
-        ${actionBtn("&larr; Semana anterior", ()=>shiftWeek(-7))}
-        ${actionBtn("Pr&oacute;xima semana &rarr;", ()=>shiftWeek(7))}
+        ${actionBtn("&larr; Semana anterior", ()=>shiftWeekView(-1))}
+        <div class="week-picker">
+          <label for="kanbanWeekInput">Escolher semana</label>
+          <input type="date" id="kanbanWeekInput" value="${pickerValue}" />
+        </div>
+        ${actionBtn("Semana seguinte &rarr;", ()=>shiftWeekView(1))}
+        ${actionBtn("Hoje", ()=>resetWeekView(), "ghost")}
       </div>
     </div>
     <div class="kanban">
@@ -2064,48 +4059,88 @@ function renderKanban(){
       }).join("")}
     </div>
   `;
-  function shiftWeek(days){
-    weekTasks.forEach(t=>{
-      if(t.dueAt){
-        const base = new Date(t.dueAt);
-        t.dueAt = plusDays(base, days).toISOString();
-        applyDerived(t);
-        t.updatedAt = new Date().toISOString();
-      }
+  const weekInput = document.getElementById("kanbanWeekInput");
+  if(weekInput){
+    weekInput.addEventListener("change", e=>{
+      const val = e.target.value;
+      if(!val) return;
+      const picked = new Date(val);
+      if(Number.isNaN(picked.getTime())) return;
+      kanbanReferenceDate = picked.toISOString();
+      render("kanban");
     });
-    save(); render("kanban");
+  }
+  function shiftWeekView(delta){
+    const ref = resolveKanbanReference();
+    kanbanReferenceDate = plusDays(ref, delta * 7).toISOString();
+    render("kanban");
+  }
+  function resetWeekView(){
+    kanbanReferenceDate = null;
+    render("kanban");
   }
 }
 /* Por dia */
 function renderDay(){
   const view = document.getElementById("view");
   if(!view) return;
-  const todayIso = new Date().toISOString().slice(0,10);
-  const tasks = byDate(todayIso);
+  const reference = resolveDayReference();
+  const selectedIso = toBrazilDateKey(reference);
   view.innerHTML = `
-    <div class="row">
-      <input type="date" id="daypick" value="${todayIso}" />
+    <div class="row day-toolbar">
+      ${actionBtn("&larr; Dia anterior", ()=>shiftDay(-1))}
+      <div class="day-picker">
+        <label for="daypick">Data</label>
+        <input type="date" id="daypick" value="${selectedIso}" />
+      </div>
+      ${actionBtn("Dia seguinte &rarr;", ()=>shiftDay(1))}
+      ${actionBtn("Hoje", ()=>resetDay(), "ghost")}
     </div>
     <div id="daylist" style="margin-top:10px"></div>
   `;
   const listDiv = document.getElementById("daylist");
+  const tasks = currentTasks();
   const renderList = iso=>{
-    listDiv.innerHTML = state.tasks
-      .filter(t=> t.dueAt && t.dueAt.slice(0,10)===iso)
+    if(!iso){
+      listDiv.innerHTML = empty();
+      return;
+    }
+    listDiv.innerHTML = tasks
+      .filter(t=> t.dueAt && isoDateInTimeZone(t.dueAt)===iso)
       .sort((a,b)=> (a.dueAt||"").localeCompare(b.dueAt||""))
       .map(card).join("") || empty();
   };
-  document.getElementById("daypick").oninput = (e)=> renderList(e.target.value);
-  renderList(todayIso);
-  function byDate(isoDay){ return state.tasks.filter(t=> t.dueAt && t.dueAt.slice(0,10)===isoDay); }
+  const picker = document.getElementById("daypick");
+  if(picker){
+    picker.addEventListener("change", e=>{
+      const val = e.target.value;
+      if(!val) return;
+      const chosen = new Date(val);
+      if(Number.isNaN(chosen.getTime())) return;
+      dayReferenceDate = chosen.toISOString();
+      renderList(val);
+    });
+  }
+  renderList(selectedIso);
+  function shiftDay(delta){
+    const ref = resolveDayReference();
+    dayReferenceDate = plusDays(ref, delta).toISOString();
+    render("day");
+  }
+  function resetDay(){
+    dayReferenceDate = null;
+    render("day");
+  }
 }
 /* Recorrentes */
 function renderRec(){
   const view = document.getElementById("view");
   if(!view) return;
-  const recRows = recState.recs
-    .slice().sort((a,b)=> a.weekday-b.weekday || (a.atTime||"").localeCompare(b.atTime||""))
-    .map(r=>`
+  const recs = Array.isArray(recState?.recs) ? recState.recs : [];
+  const recRows = recs.length
+    ? recs
+      .slice().sort((a,b)=> a.weekday-b.weekday || (a.atTime||"").localeCompare(b.atTime||""))
+      .map(r=>`
       <tr>
         <td>${r.title}</td>
         <td>${["Segunda","Ter\u00e7a","Quarta","Quinta","Sexta","S\u00e1bado","Domingo"][r.weekday]}</td>
@@ -2119,7 +4154,8 @@ function renderRec(){
           </div>
         </td>
       </tr>
-    `).join("");
+    `).join("")
+    : `<tr><td colspan="7" class="muted">Nenhuma tarefa recorrente cadastrada.</td></tr>`;
   const nextMon = mondayOf(plusDays(new Date(), 7));
   view.innerHTML = `
     <div class="stack">
@@ -2201,48 +4237,125 @@ function card(t){
   `;
 }
 function empty(){ return `<div class="muted">Sem itens.</div>`; }
-function updateTask(id, patch){
-  const t = state.tasks.find(x=>x.id===id); if(!t) return;
-  const nowIso = new Date().toISOString();
+function updateTask(id, patch, opts={}){
+  const t = state.tasks.find(x=>x.id===id);
+  if(!t) return false;
+  let changed = false;
   if(patch.title!==undefined){
     const title = cleanString(patch.title);
-    if(title) t.title = title;
+    if(!title){
+      const titleInput = document.querySelector(`tr[data-id="${id}"] [data-field="title"]`);
+      if(titleInput) titleInput.value = t.title || "";
+      return false;
+    }
+    if(title !== t.title){
+      t.title = title;
+      changed = true;
+    }
   }
   if(patch.dueAt!==undefined){
-    t.dueAt = patch.dueAt || null;
+    const nextDue = patch.dueAt || null;
+    if((t.dueAt || null) !== (nextDue || null)){
+      t.dueAt = nextDue;
+      changed = true;
+    }
   }
   if(patch.endTime!==undefined){
     const endTime = sanitizeEndTime(patch.endTime);
-    t.endTime = endTime;
+    if((t.endTime || null) !== (endTime || null)){
+      t.endTime = endTime;
+      changed = true;
+    }
   }
   if(patch.status!==undefined){
-    t.status = mapStatus(patch.status);
+    const status = mapStatus(patch.status);
+    if(t.status !== status){
+      t.status = status;
+      changed = true;
+    }
   }
   if(patch.responsible!==undefined){
-    t.responsible = sanitizeOptionField(patch.responsible, RESPONSIBLES);
+    const responsible = sanitizeOptionField(patch.responsible, RESPONSIBLES);
+    if((t.responsible || null) !== (responsible || null)){
+      t.responsible = responsible;
+      changed = true;
+    }
   }
   if(patch.priority!==undefined){
-    t.priority = sanitizeOptionField(patch.priority, PRIORITIES);
+    const priority = sanitizeOptionField(patch.priority, PRIORITIES);
+    if((t.priority || null) !== (priority || null)){
+      t.priority = priority;
+      changed = true;
+    }
   }
   if(patch.durationTag!==undefined){
-    t.durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
+    const durationTag = sanitizeOptionField(patch.durationTag, DURATIONS);
+    if((t.durationTag || null) !== (durationTag || null)){
+      t.durationTag = durationTag;
+      changed = true;
+    }
   }
+  let areaChanged = false;
   if(patch.area!==undefined){
-    t.area = sanitizeOptionField(patch.area, AREAS);
+    const area = sanitizeOptionField(patch.area, AREAS);
+    if((t.area || null) !== (area || null)){
+      t.area = area;
+      changed = true;
+      areaChanged = true;
+    }else if(area === null){
+      areaChanged = true;
+    }
+    if(t.area){
+      const allowed = subareasForAreas([t.area]);
+      const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+      if(t.subarea && !allowedNorm.has(normalizeText(t.subarea))){
+        t.subarea = null;
+        changed = true;
+      }
+    }else if(t.subarea){
+      t.subarea = null;
+      changed = true;
+    }
   }
   if(patch.subarea!==undefined){
-    t.subarea = sanitizeOptionField(patch.subarea, SUBAREAS);
+    const allowed = t.area ? subareasForAreas([t.area]) : SUBAREAS;
+    const subarea = sanitizeOptionField(patch.subarea, allowed.length ? allowed : SUBAREAS);
+    if((t.subarea || null) !== (subarea || null)){
+      t.subarea = subarea;
+      changed = true;
+    }
+  }else if(areaChanged && t.area){
+    const allowed = subareasForAreas([t.area]);
+    const allowedNorm = new Set(allowed.map(item=> normalizeText(item)));
+    if(t.subarea && !allowedNorm.has(normalizeText(t.subarea))){
+      t.subarea = null;
+      changed = true;
+    }
   }
   if(patch.emoji!==undefined){
-    t.emoji = patch.emoji || null;
+    const emoji = patch.emoji || null;
+    if((t.emoji || null) !== (emoji || null)){
+      t.emoji = emoji;
+      changed = true;
+    }
   }
   if(patch.notes!==undefined){
-    t.notes = sanitizeNotes(patch.notes);
+    const notes = sanitizeNotes(patch.notes);
+    if((t.notes || "") !== notes){
+      t.notes = notes;
+      changed = true;
+    }
   }
+  if(!changed) return false;
   applyDerived(t);
-  t.updatedAt = nowIso;
-  save();
-  render(currentTab);
+  t.updatedAt = new Date().toISOString();
+  if(!opts.skipSave){
+    save(opts.saveOptions || {});
+  }
+  if(!opts.skipRender){
+    render(currentTab);
+  }
+  return true;
 }
 function editTaskPrompt(id){
   const t = state.tasks.find(x=>x.id===id); if(!t) return;
@@ -2280,7 +4393,10 @@ function resched(id, days){
 }
 function delTask(id){
   if(!confirm("Excluir tarefa?")) return;
-  state.tasks = state.tasks.filter(x=>x.id!==id); save(); render(currentTab);
+  state.tasks = state.tasks.filter(x=>x.id!==id);
+  selectedTaskIds.delete(id);
+  save();
+  render(currentTab);
 }
 /* Recorrentes */
 function delRec(id){
@@ -2298,7 +4414,8 @@ function generateWeek(baseMonday){
     }else{
       day.setHours(0,0,0,0);
     }
-    const exists = state.tasks.some(t=> t.title===r.title && t.dueAt && t.dueAt.slice(0,10)===day.toISOString().slice(0,10));
+    const targetKey = toBrazilDateKey(day);
+    const exists = state.tasks.some(t=> t.title===r.title && t.dueAt && isoDateInTimeZone(t.dueAt)===targetKey);
     if(!exists){
       addTask({
         title: r.title,
@@ -2377,14 +4494,25 @@ function initApp(){
       if(prioEl) prioEl.value = PRIORITIES[1];
       if(durEl) durEl.value = DURATIONS[1];
       if(areaEl) areaEl.value = "";
-      if(subareaEl) subareaEl.value = "";
+      if(subareaEl){
+        subareaEl.value = "";
+        populateSubareaSelect(subareaEl, areaEl ? areaEl.value : "", "", subareaEl.dataset.placeholder || "Subárea");
+      }
       render(currentTab);
     });
   }
-  const exportBtn = document.getElementById("exportBtn");
-  if(exportBtn){
-    exportBtn.addEventListener("click", ()=>{
-      const blob = new Blob([JSON.stringify({state,recState}, null, 2)], {type:"application/json"});
+const exportBtn = document.getElementById("exportBtn");
+if(exportBtn){
+  exportBtn.addEventListener("click", ()=>{
+      const filteredTasks = applyFilters(state.tasks).map(task=> ({...task}));
+      const payload = {
+        state: {
+          ...state,
+          tasks: filteredTasks
+        },
+        recState
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
       a.download = "tarefas_export.json";
@@ -2460,8 +4588,13 @@ function initApp(){
         const permission = await ensureDirPermission(handle);
         if(permission === "granted"){
           importDirHandle = handle;
+          importDirMeta = {};
+          saveImportDirMeta();
           await persistDirectoryHandle(handle);
           updateImportDirInfo(`Pasta selecionada: ${handle.name}`, "success");
+          startImportDirectoryWatcher();
+          await syncImportDirectory({ initial:true, forceFull:true });
+          markImportDirMigration();
         }else{
           updateImportDirInfo("Permissão negada para a pasta escolhida.", "error");
         }
@@ -2483,6 +4616,10 @@ function initApp(){
   });
   filterCollapse = setupCollapsible("filterCard", {defaultOpen:false});
   setupColorizedSelects(document.getElementById("controlCard"));
+  setupAreaSubareaBinding(document.getElementById("area"), document.getElementById("subarea"));
+  setupSyncControls();
+  bootstrapRemote();
+  setupQuickFlagShortcuts();
   const emojiSelect = document.getElementById("emoji");
   if(emojiSelect){ emojiSelect.innerHTML = emojiOptions(emojiSelect.value || ""); }
   if(supportsFileSystemAccess()){
@@ -2497,9 +4634,44 @@ if(document.readyState === "loading"){
 }
 window.addEventListener("load", initApp, { once: true });
 
+document.addEventListener("focusin", e=>{
+  const target = e.target;
+  const field = target && target.dataset ? target.dataset.field : null;
+  if(field==="dueDate" || field==="dueTime" || field==="endTime"){
+    const tr = target.closest("tr");
+    const id = tr ? Number(tr.dataset.id) : null;
+    rowEditLockId = Number.isFinite(id) ? id : null;
+  }
+});
+document.addEventListener("focusout", e=>{
+  const target = e.target;
+  const field = target && target.dataset ? target.dataset.field : null;
+  if(field==="dueDate" || field==="dueTime" || field==="endTime"){
+    const tr = target.closest("tr");
+    const related = e.relatedTarget;
+    if(related && related.dataset){
+      const relatedField = related.dataset.field;
+      if((relatedField==="dueDate" || relatedField==="dueTime" || relatedField==="endTime") && related.closest("tr") === tr){
+        return;
+      }
+    }
+    rowEditLockId = null;
+    if(rowEditNeedsRender){
+      rowEditNeedsRender = false;
+      render(currentTab);
+    }
+  }
+});
+
 </script>
 </body>
 </html>
+
+
+
+
+
+
 
 
 
