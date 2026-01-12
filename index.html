@@ -1970,6 +1970,14 @@ function combineDateAndTime(dateValue, timeValue){
   const time = padTime(timeValue) || "00:00";
   return `${normalizedDate}T${time}:00`;
 }
+function normalizeWeekKey(value){
+  if(value == null || value === "") return null;
+  const digits = String(value).replace(/\D/g,"");
+  if(!digits) return null;
+  if(digits.length === 6) return Number(digits);
+  if(digits.length === 5) return Number(`${digits.slice(0,4)}0${digits.slice(4)}`);
+  return Number(digits);
+}
 function computeWeekNumber(iso){
   if(!iso) return null;
   const date = new Date(iso);
@@ -1977,8 +1985,10 @@ function computeWeekNumber(iso){
   const utc = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
   const day = utc.getUTCDay() || 7;
   utc.setUTCDate(utc.getUTCDate() + 4 - day);
-  const yearStart = new Date(Date.UTC(utc.getUTCFullYear(),0,1));
-  return Math.ceil(((utc - yearStart) / 86400000 + 1) / 7);
+  const year = utc.getUTCFullYear();
+  const yearStart = new Date(Date.UTC(year,0,1));
+  const week = Math.ceil(((utc - yearStart) / 86400000 + 1) / 7);
+  return Number(`${year}${pad2(week)}`);
 }
 function formatRangeLabel(task){
   if(!task || !task.dueAt) return "";
@@ -2664,7 +2674,11 @@ function setupColumnResizing(tableEl){
   });
 }
 function applyDerived(task){
-  task.weekNumber = computeWeekNumber(task.dueAt);
+  if(task.dueAt){
+    task.weekNumber = computeWeekNumber(task.dueAt);
+  }else{
+    task.weekNumber = normalizeWeekKey(task.weekNumber);
+  }
   return task;
 }
 function matchOption(raw, options){
@@ -3472,7 +3486,7 @@ function renderAll(){
       </div>
       <div class="filter-field">
         <span class="filter-label">Semana</span>
-        <input type="number" id="filter-week" class="filter-input" min="1" max="53" placeholder="Ex: 42" value="${escAttr(filterState.week || "")}" />
+        <input type="text" id="filter-week" class="filter-input" inputmode="numeric" autocomplete="off" maxlength="6" placeholder="Ex: 202603" value="${escAttr(filterState.week || "")}" />
       </div>
     </div>
     <div class="filter-flags">
@@ -3639,7 +3653,7 @@ function renderAll(){
   attachDateHandler("dateTo", controls.dateTo);
   if(controls.week){
     controls.week.oninput = (e)=>{
-      const clean = e.target.value.replace(/[^0-9]/g,"").slice(0,2);
+      const clean = e.target.value.replace(/[^0-9]/g,"").slice(0,6);
       e.target.value = clean;
       filterState.week = clean;
       renderAll();
